@@ -32,9 +32,12 @@ class ProjectBuilder:
         build_log = build_dir / "build.log"
         await self._run_build(target, source_dir, build_dir, build_log)
 
-        compile_commands = build_dir / "compile_commands.json"
-        if not compile_commands.exists():
-            compile_commands = None
+        compile_candidates = [
+            source_dir / "build/compile_commands.json",
+            source_dir / "compile_commands.json",
+            build_dir / "compile_commands.json",
+        ]
+        compile_commands = next((path for path in compile_candidates if path.exists()), None)
 
         infer_capture = build_dir / "infer-out"
         if not infer_capture.exists():

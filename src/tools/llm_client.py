@@ -29,7 +29,7 @@ class LangGraphClient:
     The resulting JSONL log lets us replay the entire reasoning process.
     """
 
-    def __init__(self, runtime_config: RuntimeConfig, max_files: int = 4, max_lines: int = 200) -> None:
+    def __init__(self, runtime_config: RuntimeConfig, max_files: int | None = None, max_lines: int = 200) -> None:
         self.runtime = runtime_config
         self.max_files = max_files
         self.max_lines = max_lines
@@ -96,6 +96,11 @@ class LangGraphClient:
                     "budget": self._max_tokens,
                     "skipped": True,
                 })
+                summary, snippet_findings = self._offline_summary(
+                    file_path, snippet, "[budget exhausted]"
+                )
+                summaries.append(summary)
+                findings.extend(snippet_findings)
                 break  # Stop processing more files
             
             try:
@@ -110,6 +115,11 @@ class LangGraphClient:
                         "error": str(e),
                         "retries": self._retry_count,
                     })
+                    summary, snippet_findings = self._offline_summary(
+                        file_path, snippet, str(e)
+                    )
+                    summaries.append(summary)
+                    findings.extend(snippet_findings)
                     break
                 # Continue to next file on retry
                 continue
@@ -149,8 +159,33 @@ class LangGraphClient:
         skipped: list[str] = []
         harness_patterns = self._harness_patterns(target)
 
+        build_dir_resolved = None
+        if build.build_dir:
+            try:
+                build_dir_resolved = build.build_dir.resolve(strict=False)
+            except FileNotFoundError:
+                build_dir_resolved = build.build_dir
+
+        def _is_under(child: Path, parent: Path) -> bool:
+            if hasattr(child, "is_relative_to"):
+                try:
+                    return child.is_relative_to(parent)
+                except ValueError:
+                    return False
+            try:
+                child.relative_to(parent)
+                return True
+            except ValueError:
+                return False
+
         def should_skip(path: Path) -> bool:
             rel = self._relative_posix(path, build.source_dir)
+            if build_dir_resolved and _is_under(path, build_dir_resolved):
+                skipped.append(f"{rel}:build_artifact")
+                return True
+            if rel.startswith("objs/"):
+                skipped.append(f"{rel}:build_artifact")
+                return True
             if not self._is_c_cpp(path):
                 skipped.append(f"{rel}:non-cpp")
                 return True
@@ -164,12 +199,12 @@ class LangGraphClient:
             return False
 
         for path in build.source_dir.rglob("*"):
-            if len(selected) >= self.max_files:
-                break
             if not path.is_file():
                 continue
             if should_skip(path):
                 continue
+            if self.max_files is not None and len(selected) >= self.max_files:
+                break
             selected.append(path)
         return selected[: self.max_files], skipped
 
@@ -210,6 +245,19 @@ class LangGraphClient:
                 "findings": findings,
             }
         )
+
+    def _offline_summary(self, file_path: Path, snippet: str, reason: str) -> tuple[str, list[StaticFinding]]:
+        prompt = STATIC_ANALYSIS_PROMPT.format(
+            project="offline",
+            fuzz_target="n/a",
+            file_path=str(file_path),
+            notes=f"[offline fallback] {reason}",
+            code_snippet=snippet,
+            max_findings=1,
+            max_lines=self.max_lines,
+        )
+        response = self._offline_response(prompt)
+        return self._parse_llm_response(response, default_file=str(file_path))
 
     def _parse_llm_response(
         self, response: str, default_file: str

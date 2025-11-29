@@ -29,6 +29,8 @@ class RuntimeConfig:
     dry_run: bool = False
     infer_docker_image: str = "facebook/infer:latest"
     llm_budget_tokens: int = 32_000
+    llm_max_files: int | None = None
+    prefer_docker_infer: bool = False
     storage_backend: Literal["local"] = "local"
     extra_env: dict[str, str] = field(default_factory=dict)
 

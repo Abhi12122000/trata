@@ -47,6 +47,7 @@ class StaticAnalysisPipeline:
             source_dir=build.source_dir,
             build_dir=build.build_dir,
             output_dir=run_ctx.artifacts_dir / "infer",
+            compile_commands=build.compile_commands,
         )
 
         findings = llm_findings + list(infer_result.findings)

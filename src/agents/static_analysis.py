@@ -14,7 +14,7 @@ class StaticAnalysisAgent(BaseAgent):
 
     def __init__(self, runtime_config: RuntimeConfig, store: LocalRunStore | None = None):
         self.runtime = runtime_config
-        self._client = LangGraphClient(runtime_config)
+        self._client = LangGraphClient(runtime_config, max_files=runtime_config.llm_max_files)
         self.store = store
 
     async def run(self, ctx: AgentContext) -> list[StaticFinding]:

@@ -30,24 +30,30 @@ class InferRunner:
         source_dir: Path,
         build_dir: Path,
         output_dir: Path,
+        compile_commands: Path | None = None,
     ) -> InferResult:
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        infer_cmd = shutil.which("infer")
-        if infer_cmd:
+        process: subprocess.CompletedProcess | None = None
+
+        async def run_local() -> subprocess.CompletedProcess | None:
+            infer_cmd = shutil.which("infer")
+            if not infer_cmd:
+                return None
             cmd = [
                 infer_cmd,
                 "--reactive",
                 "--keep-going",
                 f"--project-root={source_dir}",
-                f"--out={output_dir}",
+                "-o",
+                str(output_dir),
             ]
-            for skip in self._skip_analysis_paths(target, source_dir):
-                cmd.append(f"--skip-analysis-in-path={skip}")
+            cmd.extend(self._build_compilation_args(source_dir, compile_commands, local=True))
+            cmd.extend(self._build_skip_args(target, source_dir))
             env = {"INFER_RESULTS_DIR": str(output_dir), **self.runtime.extra_env}
-            process = await asyncio_subprocess(cmd, cwd=build_dir, env=env)
-        else:
-            # Fallback to Docker
+            return await asyncio_subprocess(cmd, cwd=build_dir, env=env)
+
+        async def run_docker() -> subprocess.CompletedProcess:
             docker_cmd = shutil.which("docker")
             if not docker_cmd:
                 raise RuntimeError(
@@ -59,20 +65,33 @@ class InferRunner:
                 docker_cmd,
                 "run",
                 "--rm",
-                "-v", f"{source_dir}:/src:ro",
-                "-v", f"{build_dir}:/build",
-                "-v", f"{output_dir}:/out",
-                "-w", "/build",
+                "-v",
+                f"{source_dir}:/src:ro",
+                "-v",
+                f"{build_dir}:/build",
+                "-v",
+                f"{output_dir}:/out",
+                "-w",
+                "/build",
                 self.runtime.infer_docker_image,
                 "infer",
                 "--reactive",
                 "--keep-going",
                 "--project-root=/src",
-                "--out=/out",
+                "-o",
+                "/out",
             ]
-            for skip in self._skip_analysis_paths(target, source_dir):
-                cmd.append(f"--skip-analysis-in-path={skip}")
-            process = await asyncio_subprocess(cmd, cwd=build_dir, env=self.runtime.extra_env)
+            cmd.extend(self._build_compilation_args(source_dir, compile_commands, local=False))
+            cmd.extend(self._build_skip_args(target, source_dir))
+            return await asyncio_subprocess(cmd, cwd=build_dir, env=self.runtime.extra_env)
+
+        if not self.runtime.prefer_docker_infer:
+            process = await run_local()
+            if process and process.returncode != 0:
+                process = None  # fall back
+
+        if process is None:
+            process = await run_docker()
 
         if process.returncode != 0:
             raise RuntimeError(f"Infer failed for {target.name}: {process.stderr}")
@@ -132,6 +151,25 @@ class InferRunner:
                 add_path(match.resolve())
 
         return sorted(skips)
+
+    def _build_compilation_args(
+        self, source_dir: Path, compile_commands: Path | None, *, local: bool
+    ) -> list[str]:
+        if not compile_commands:
+            return []
+        if local:
+            return [f"--compilation-database={compile_commands}"]
+        try:
+            relative = compile_commands.relative_to(source_dir)
+        except ValueError:
+            relative = compile_commands
+        return [f"--compilation-database=/src/{relative.as_posix()}"]
+
+    def _build_skip_args(self, target: TargetProjectConfig, source_dir: Path) -> list[str]:
+        args: list[str] = []
+        for skip in self._skip_analysis_paths(target, source_dir):
+            args.append(f"--skip-analysis-in-path={skip}")
+        return args
 
 
 async def asyncio_subprocess(cmd: Iterable[str], cwd: Path, env: dict[str, str]):
