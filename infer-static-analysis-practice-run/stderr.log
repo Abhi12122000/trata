@@ -1,5 +1,7 @@
 Capturing in make/cc mode...
 Found 1 source file to analyze in /app/infer-out
 example-src/example.c starting
-Analysing block of 200 procs, starting with test
+Analysing block of 200 procs, starting with main
+example-src/example.c DONE
+example-src/example.c starting
 example-src/example.c DONE

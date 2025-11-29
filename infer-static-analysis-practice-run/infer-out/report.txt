@@ -1,0 +1,24 @@
+#0
+example-src/example.c:27: error: Use After Free
+  accessing `string` that was invalidated by call to `free()` on line 21. 
+  25. 
+  26.     if (string != NULL) {
+  27.         free(string);
+              ^
+  28.     }
+  29. 
+
+#1
+example-src/example.c:31: error: Null Dereference
+  `string` could be null (null value originating from line 19) and is dereferenced. 
+  29. 
+  30.     if (fsize == 0) {
+  31.         string[0] = 'A';
+              ^
+  32.     }
+  33.     
+
+Found 2 issues
+             Issue Type(ISSUED_TYPE_ID): #
+         Use After Free(USE_AFTER_FREE): 1
+  Null Dereference(NULLPTR_DEREFERENCE): 1
