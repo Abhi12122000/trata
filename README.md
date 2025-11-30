@@ -122,6 +122,8 @@ Note: `-s` flag is required to see print output.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, pipeline stages |
 | [docs/PATCHING.md](docs/PATCHING.md) | Patcher agent technical details |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common issues and fixes |
+| [docs/FUZZ_CRASH_TESTING.md](docs/FUZZ_CRASH_TESTING.md) | How crashes are tested after patching |
+| [docs/LLM_API_USAGE.md](docs/LLM_API_USAGE.md) | Using LLM API credits for patching |
 | [FUZZING_IMPLEMENTATION.md](FUZZING_IMPLEMENTATION.md) | Fuzzing system details |
 
 ---

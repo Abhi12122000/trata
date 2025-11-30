@@ -351,19 +351,32 @@ class PatchingPipeline:
 
         # Test against crashes (using REBUILT binary from PATCHED source)
         self._log(run_ctx, f"Testing {len(crashes)} crashes against PATCHED binary...")
-        fuzzer_binary = self._find_fuzzer_binary(working_copy_dir, target)
         
-        if fuzzer_binary:
-            self._log(run_ctx, f"Using fuzzer binary from working copy: {fuzzer_binary}")
-            # Verify binary is in working copy, not original source
-            if "working_copy" in str(fuzzer_binary):
-                self._log(run_ctx, "  ✓ Confirmed: binary is from patched working copy")
-            else:
-                self._log(run_ctx, f"  Note: binary path does not contain 'working_copy': {fuzzer_binary}")
-        else:
-            self._log(run_ctx, "WARNING: No fuzzer binary found in working copy, crash tests may fail")
+        # Group crashes by harness to use correct fuzzer binary for each
+        crashes_by_harness: dict[str, list[FuzzCrash]] = {}
+        for crash in crashes:
+            harness = crash.harness or "unknown"
+            if harness not in crashes_by_harness:
+                crashes_by_harness[harness] = []
+            crashes_by_harness[harness].append(crash)
+        
+        self._log(run_ctx, f"  Crashes grouped by harness: {list(crashes_by_harness.keys())}")
         
         for i, crash in enumerate(crashes):
+            # Find the correct fuzzer binary for this crash's harness
+            fuzzer_binary = self._find_fuzzer_binary_for_harness(
+                working_copy_dir, target, crash.harness
+            )
+            
+            if fuzzer_binary:
+                if i == 0 or crash.harness != crashes[i-1].harness if i > 0 else True:
+                    self._log(run_ctx, f"  Using fuzzer binary for harness '{crash.harness}': {fuzzer_binary}")
+                    # Verify binary is in working copy, not original source
+                    if "working_copy" in str(fuzzer_binary):
+                        self._log(run_ctx, "    ✓ Confirmed: binary is from patched working copy")
+            else:
+                self._log(run_ctx, f"  WARNING: No fuzzer binary found for harness '{crash.harness}', crash test may fail")
+            
             crash_test = await self._test_crash(run_ctx, fuzzer_binary, crash)
             test_result.crash_tests.append(crash_test)
             status = "STILL CRASHES" if crash_test.still_crashes else "FIXED"
@@ -473,6 +486,50 @@ class PatchingPipeline:
                 return f
         
         return None
+
+    def _find_fuzzer_binary_for_harness(
+        self,
+        source_dir: Path,
+        target: Optional[TargetProjectConfig],
+        harness_name: Optional[str],
+    ) -> Optional[Path]:
+        """
+        Find the fuzzer binary for a specific harness.
+        
+        Args:
+            source_dir: Source directory (working copy)
+            target: Target project config
+            harness_name: Name of the harness (e.g., "vuln_fuzzer", "packet_fuzzer")
+        
+        Returns:
+            Path to fuzzer binary, or None if not found
+        """
+        build_dir = source_dir / "build"
+        if not build_dir.exists():
+            build_dir = source_dir
+
+        # If harness name is provided, try to find matching binary
+        if harness_name:
+            # IMPORTANT: Try exact match and fuzzer-prefixed variants FIRST
+            # to avoid picking up non-fuzzer binaries (e.g., "vuln" standalone vs "vuln_fuzzer")
+            candidates = [
+                harness_name,                          # Exact match: vuln_fuzzer
+                f"fuzzer_{harness_name}",              # LibFuzzerRunner convention: fuzzer_vuln_fuzzer
+            ]
+            
+            for candidate in candidates:
+                candidate_path = build_dir / candidate
+                if candidate_path.exists() and candidate_path.is_file() and os.access(candidate_path, os.X_OK):
+                    return candidate_path
+            
+            # Also try with common naming patterns but require "fuzzer" in name
+            # to avoid matching standalone binaries
+            for f in build_dir.glob(f"*{harness_name}*"):
+                if f.is_file() and os.access(f, os.X_OK) and "fuzzer" in f.name.lower():
+                    return f
+
+        # Fallback to generic search (same as _find_fuzzer_binary)
+        return self._find_fuzzer_binary(source_dir, target)
 
     async def _test_crash(
         self,

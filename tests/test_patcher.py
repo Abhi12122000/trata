@@ -1633,3 +1633,203 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         # Must be in working copy, not original
         assert "working_copy" in str(found)
         assert str(original_dir) not in str(found)
+
+    def test_find_fuzzer_binary_for_harness(
+        self,
+        temp_project_with_fuzzer: Path,
+    ):
+        """Test that _find_fuzzer_binary_for_harness finds the correct binary for a specific harness."""
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.config import TargetProjectConfig, RuntimeConfig
+        
+        # Add a second mock fuzzer
+        (temp_project_with_fuzzer / "build" / "packet_fuzzer").write_text("#!/bin/sh\nexit 0\n")
+        (temp_project_with_fuzzer / "build" / "packet_fuzzer").chmod(0o755)
+        
+        target = TargetProjectConfig(
+            name="test",
+            repo_url="",
+            fuzz_targets=("fuzz/vuln_fuzzer.c", "fuzz/packet_fuzzer.c"),
+        )
+        
+        runtime = RuntimeConfig()
+        pipeline = PatchingPipeline(runtime_config=runtime)
+        
+        # Test finding vuln_fuzzer
+        found_vuln = pipeline._find_fuzzer_binary_for_harness(
+            temp_project_with_fuzzer, target, "vuln_fuzzer"
+        )
+        assert found_vuln is not None
+        assert found_vuln.name == "vuln_fuzzer"
+        
+        # Test finding packet_fuzzer
+        found_packet = pipeline._find_fuzzer_binary_for_harness(
+            temp_project_with_fuzzer, target, "packet_fuzzer"
+        )
+        assert found_packet is not None
+        assert found_packet.name == "packet_fuzzer"
+        
+        # Test with harness name variations
+        found_vuln_alt = pipeline._find_fuzzer_binary_for_harness(
+            temp_project_with_fuzzer, target, "fuzzer_vuln_fuzzer"
+        )
+        assert found_vuln_alt is not None
+        assert found_vuln_alt.name == "vuln_fuzzer"
+        
+        debug_print(f"\n=== DEBUG: test_find_fuzzer_binary_for_harness ===")
+        debug_print(f"Found vuln_fuzzer: {found_vuln}")
+        debug_print(f"Found packet_fuzzer: {found_packet}")
+        debug_print(f"Found with alt name: {found_vuln_alt}")
+        debug_print("=== END DEBUG ===\n")
+
+    def test_find_fuzzer_binary_prefers_fuzzer_over_standalone(
+        self,
+        tmp_path: Path,
+    ):
+        """
+        Test that _find_fuzzer_binary_for_harness prefers 'vuln_fuzzer' over 'vuln'.
+        
+        This is critical because build.sh creates both:
+        - build/vuln (standalone binary, NOT a fuzzer)
+        - build/vuln_fuzzer (actual fuzzer binary)
+        
+        We MUST find vuln_fuzzer, not vuln.
+        """
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.config import TargetProjectConfig, RuntimeConfig
+        
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
+        (project_dir / "build").mkdir()
+        
+        # Create both a standalone binary and a fuzzer binary
+        standalone = project_dir / "build" / "vuln"
+        standalone.write_text("#!/bin/sh\necho 'standalone'\n")
+        standalone.chmod(0o755)
+        
+        fuzzer = project_dir / "build" / "vuln_fuzzer"
+        fuzzer.write_text("#!/bin/sh\necho 'fuzzer'\n")
+        fuzzer.chmod(0o755)
+        
+        target = TargetProjectConfig(
+            name="test",
+            repo_url="",
+            fuzz_targets=("fuzz/vuln_fuzzer.c",),
+        )
+        
+        runtime = RuntimeConfig()
+        pipeline = PatchingPipeline(runtime_config=runtime)
+        
+        # Find binary for harness "vuln_fuzzer"
+        found = pipeline._find_fuzzer_binary_for_harness(
+            project_dir, target, "vuln_fuzzer"
+        )
+        
+        debug_print(f"\n=== DEBUG: test_find_fuzzer_binary_prefers_fuzzer_over_standalone ===")
+        debug_print(f"Standalone exists: {standalone}")
+        debug_print(f"Fuzzer exists: {fuzzer}")
+        debug_print(f"Found binary: {found}")
+        debug_print("=== END DEBUG ===\n")
+        
+        assert found is not None
+        # MUST be vuln_fuzzer, NOT vuln
+        assert found.name == "vuln_fuzzer"
+        assert "fuzzer" in found.name.lower()
+
+    def test_fuzzer_binary_recompiled_from_patched_source(
+        self,
+        tmp_path: Path,
+    ):
+        """
+        Verify the flow: patch → rebuild → new fuzzer binary from patched source.
+        
+        This test verifies that when a patch is applied:
+        1. The build script runs in the working copy
+        2. The fuzzer binary is created in working_copy/build/
+        3. The binary path includes "working_copy" (proving it's from patched source)
+        """
+        from trata.src.tools.patch_applier import WorkingCopyManager
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.config import TargetProjectConfig, RuntimeConfig
+        import subprocess
+        
+        # Create original project
+        original_dir = tmp_path / "original"
+        original_dir.mkdir()
+        (original_dir / "src").mkdir()
+        (original_dir / "src" / "vuln.c").write_text("// Original code\n")
+        (original_dir / "build").mkdir()
+        
+        # Create a build script that creates a fuzzer binary
+        build_script = original_dir / "build.sh"
+        build_script.write_text("""#!/bin/bash
+mkdir -p build
+echo "#!/bin/sh" > build/vuln_fuzzer
+echo "echo 'compiled from: '$(pwd)" >> build/vuln_fuzzer
+chmod +x build/vuln_fuzzer
+""")
+        build_script.chmod(0o755)
+        
+        # Create working copy
+        artifacts_dir = tmp_path / "artifacts"
+        artifacts_dir.mkdir()
+        
+        mgr = WorkingCopyManager(
+            original_source_dir=original_dir,
+            artifacts_dir=artifacts_dir,
+        )
+        mgr.initialize()
+        
+        working_copy = mgr.get_working_copy_path()
+        
+        # Simulate patch by modifying file in working copy
+        patched_vuln = working_copy / "src" / "vuln.c"
+        patched_vuln.write_text("// Patched code\n")
+        
+        # Run build script in working copy
+        result = subprocess.run(
+            ["bash", "build.sh"],
+            cwd=working_copy,
+            capture_output=True,
+            text=True,
+        )
+        
+        assert result.returncode == 0, f"Build failed: {result.stderr}"
+        
+        # Verify fuzzer binary exists in working copy
+        working_fuzzer = working_copy / "build" / "vuln_fuzzer"
+        assert working_fuzzer.exists()
+        
+        # Run the fuzzer to verify it was compiled from working copy
+        run_result = subprocess.run(
+            [str(working_fuzzer)],
+            capture_output=True,
+            text=True,
+        )
+        
+        debug_print(f"\n=== DEBUG: test_fuzzer_binary_recompiled_from_patched_source ===")
+        debug_print(f"Working copy: {working_copy}")
+        debug_print(f"Fuzzer path: {working_fuzzer}")
+        debug_print(f"Fuzzer output: {run_result.stdout}")
+        debug_print("=== END DEBUG ===\n")
+        
+        # The fuzzer should report it was compiled from working_copy path
+        assert "working_copy" in run_result.stdout
+        
+        # Now use _find_fuzzer_binary_for_harness
+        target = TargetProjectConfig(
+            name="test",
+            repo_url="",
+            fuzz_targets=("fuzz/vuln_fuzzer.c",),
+        )
+        
+        runtime = RuntimeConfig()
+        pipeline = PatchingPipeline(runtime_config=runtime)
+        
+        found = pipeline._find_fuzzer_binary_for_harness(
+            working_copy, target, "vuln_fuzzer"
+        )
+        
+        assert found is not None
+        assert "working_copy" in str(found)
+        assert found.name == "vuln_fuzzer"
