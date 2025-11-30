@@ -33,11 +33,17 @@ class LangGraphClient:
         self.runtime = runtime_config
         self.max_files = max_files
         self.max_lines = max_lines
-        self._llm = ChatOpenAI(model=runtime_config.langgraph_model) if ChatOpenAI else None
         self._tokens_used = 0
         self._max_tokens = runtime_config.llm_budget_tokens
         self._max_retries = 3
         self._retry_count = 0
+        
+        # Try to initialize LLM, fall back to offline mode if no API key
+        try:
+            self._llm = ChatOpenAI(model=runtime_config.langgraph_model) if ChatOpenAI else None
+        except Exception:
+            # No API key or invalid config - run in offline mode
+            self._llm = None
 
     async def run_static_review(
         self,
@@ -398,8 +404,12 @@ class LangGraphClient:
             return completion.content if hasattr(completion, "content") else str(completion)
         except Exception as e:
             error_str = str(e).lower()
-            # Check for authentication errors - fall back to offline mode
-            if "401" in error_str or "api_key" in error_str or "invalid" in error_str:
+            # Check for errors that should fall back to offline mode
+            offline_triggers = [
+                "401", "api_key", "invalid",  # Auth errors
+                "429", "quota", "rate_limit", "insufficient_quota",  # Quota errors
+            ]
+            if any(trigger in error_str for trigger in offline_triggers):
                 return self._offline_completion_response(messages)
             self._retry_count += 1
             if self._retry_count >= self._max_retries:
