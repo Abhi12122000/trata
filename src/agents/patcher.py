@@ -10,7 +10,6 @@ This is a simple zero-shot patcher that:
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,10 +30,13 @@ class PatcherConfig:
     """Configuration for the patcher agent."""
 
     context_lines: int = 50  # Lines before/after vulnerability to show
-    max_retries: int = 2
+    max_retries: int = 2  # Max LLM call retries per patch
     model: str = "gpt-4o"
     max_tokens_per_patch: int = 4000  # Max tokens per patch generation call
     max_total_tokens: int = 20000  # Total budget for all patches in a run
+    max_patches_per_run: int = 10  # Hard limit on patches per CRS run (safety guard)
+    max_llm_calls_per_patch: int = 5  # Max LLM interactions per single patch (like Theori's max_iters)
+    llm_timeout_seconds: int = 60  # Timeout for each LLM call
 
 
 @dataclass()
@@ -67,10 +69,12 @@ class PatcherAgent:
         agent = PatcherAgent(config, llm_client, store)
         result = await agent.generate_patch(finding, source_root, run_ctx)
     
-    Token Budget:
+    Safety Guards:
         - max_tokens_per_patch: Max tokens for a single patch generation
         - max_total_tokens: Total budget across all patches
-        - Budget is tracked per-agent instance
+        - max_patches_per_run: Hard limit on number of patches (prevents runaway)
+        - max_retries: Max LLM call retries per patch
+        - llm_timeout_seconds: Timeout for each LLM call
     """
 
     def __init__(
@@ -87,6 +91,14 @@ class PatcherAgent:
         # Token usage tracking
         self._tokens_used = 0
         self._budget_exceeded = False
+        
+        # Patch count tracking (safety guard)
+        self._patches_generated = 0
+        self._patches_limit_reached = False
+        
+        # Per-patch iteration tracking (reset for each patch)
+        self._current_patch_llm_calls = 0
+        self._total_llm_calls = 0  # Across all patches
 
     @property
     def tokens_used(self) -> int:
@@ -102,6 +114,31 @@ class PatcherAgent:
     def budget_exceeded(self) -> bool:
         """Whether the token budget has been exceeded."""
         return self._budget_exceeded
+
+    @property
+    def patches_generated(self) -> int:
+        """Number of patches generated so far."""
+        return self._patches_generated
+    
+    @property
+    def patches_remaining(self) -> int:
+        """Number of patches remaining before limit."""
+        return max(0, self.config.max_patches_per_run - self._patches_generated)
+    
+    @property
+    def patches_limit_reached(self) -> bool:
+        """Whether the patch generation limit has been reached."""
+        return self._patches_limit_reached
+
+    @property
+    def current_patch_llm_calls(self) -> int:
+        """Number of LLM calls in the current patch generation."""
+        return self._current_patch_llm_calls
+    
+    @property
+    def total_llm_calls(self) -> int:
+        """Total LLM calls across all patches."""
+        return self._total_llm_calls
 
     async def generate_patch(
         self,
@@ -124,14 +161,25 @@ class PatcherAgent:
         """
         result = PatcherResult(finding=finding)
 
-        # Check budget before proceeding
+        # Check token budget before proceeding
         if self._budget_exceeded:
             result.error_message = f"Token budget exceeded ({self._tokens_used}/{self.config.max_total_tokens} tokens used)"
             self._log(run_ctx, f"BUDGET EXCEEDED: {result.error_message}", level="warning")
             return result
 
+        # Check patch count limit before proceeding (safety guard)
+        if self._patches_limit_reached:
+            result.error_message = f"Patch limit reached ({self._patches_generated}/{self.config.max_patches_per_run} patches generated)"
+            self._log(run_ctx, f"PATCH LIMIT REACHED: {result.error_message}", level="warning")
+            return result
+
+        # Reset per-patch LLM call counter
+        self._current_patch_llm_calls = 0
+
         self._log(run_ctx, f"Generating patch for: {finding.vuln_type} at {finding.file_path}:{finding.line}")
         self._log(run_ctx, f"Token budget: {self._tokens_used}/{self.config.max_total_tokens} used")
+        self._log(run_ctx, f"Patch count: {self._patches_generated}/{self.config.max_patches_per_run}")
+        self._log(run_ctx, f"Max LLM calls for this patch: {self.config.max_llm_calls_per_patch}")
 
         # Extract source context
         source_context = self._extract_source_context(
@@ -148,9 +196,22 @@ class PatcherAgent:
 
         # Try to generate patch
         for attempt_num in range(self.config.max_retries + 1):
-            self._log(run_ctx, f"Patch attempt {attempt_num + 1}/{self.config.max_retries + 1}")
+            # Check LLM call limit before making another call
+            if self._current_patch_llm_calls >= self.config.max_llm_calls_per_patch:
+                result.error_message = (
+                    f"LLM call limit reached for this patch "
+                    f"({self._current_patch_llm_calls}/{self.config.max_llm_calls_per_patch} calls)"
+                )
+                self._log(run_ctx, f"LLM CALL LIMIT REACHED: {result.error_message}", level="warning")
+                break
+
+            self._log(run_ctx, f"Patch attempt {attempt_num + 1}/{self.config.max_retries + 1} (LLM call {self._current_patch_llm_calls + 1}/{self.config.max_llm_calls_per_patch})")
 
             try:
+                # Increment counters BEFORE calling LLM
+                self._current_patch_llm_calls += 1
+                self._total_llm_calls += 1
+                
                 llm_response = await self._call_llm(prompt, run_ctx)
                 attempt = PatchAttempt(
                     finding_id=finding.finding_id,
@@ -166,6 +227,13 @@ class PatcherAgent:
                     result.attempts.append(attempt)
                     result.best_patch = parsed
                     result.success = True
+                    
+                    # Increment patch count and check limit
+                    self._patches_generated += 1
+                    if self._patches_generated >= self.config.max_patches_per_run:
+                        self._patches_limit_reached = True
+                        self._log(run_ctx, f"PATCH LIMIT will be reached after this patch ({self._patches_generated}/{self.config.max_patches_per_run})", level="warning")
+                    
                     self._log(run_ctx, f"Successfully parsed patch for {parsed.file_path}")
                     self._log_patch(run_ctx, parsed)
                     break
@@ -185,7 +253,8 @@ class PatcherAgent:
                 result.attempts.append(attempt)
                 self._log(run_ctx, f"LLM call failed: {e}", level="error")
 
-        if not result.success:
+        if not result.success and not result.error_message:
+            # Only set default error if no specific error was already recorded
             result.error_message = "Failed to generate valid patch after all retries"
             self._log(run_ctx, result.error_message, level="error")
 

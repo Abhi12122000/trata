@@ -15,12 +15,10 @@ Run with DEBUG=1 for verbose output:
 from __future__ import annotations
 
 import os
-import shutil
 import sys
 from pathlib import Path
 from textwrap import dedent
-from typing import Optional
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -727,6 +725,7 @@ class TestPatcherTokenBudget:
         assert config.max_patches_per_run == 10
         assert config.max_retries == 2
         assert config.llm_timeout_seconds == 60
+        assert config.max_llm_calls_per_patch == 5
 
     def test_patch_count_tracking(
         self,
@@ -783,6 +782,140 @@ class TestPatcherTokenBudget:
         
         assert not result.success
         assert "patch limit" in result.error_message.lower() or "limit reached" in result.error_message.lower()
+
+    def test_llm_call_tracking_properties(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that LLM call tracking properties work correctly."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        
+        config = PatcherConfig(max_llm_calls_per_patch=5)
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        # Initially should have zero calls
+        assert agent.current_patch_llm_calls == 0
+        assert agent.total_llm_calls == 0
+        
+        # Simulate some calls
+        agent._current_patch_llm_calls = 3
+        agent._total_llm_calls = 10
+        
+        assert agent.current_patch_llm_calls == 3
+        assert agent.total_llm_calls == 10
+        
+        debug_print(f"\n=== DEBUG: test_llm_call_tracking_properties ===")
+        debug_print(f"current_patch_llm_calls: {agent.current_patch_llm_calls}")
+        debug_print(f"total_llm_calls: {agent.total_llm_calls}")
+        debug_print("=== END DEBUG ===\n")
+
+    @pytest.mark.asyncio
+    async def test_llm_call_limit_stops_retries(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that LLM call limit stops further retries within a single patch."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        
+        # Set max_llm_calls_per_patch=2, max_retries=5
+        # This means after 2 LLM calls, further retries should be blocked
+        config = PatcherConfig(max_llm_calls_per_patch=2, max_retries=5)
+        
+        # Create mock LLM that always returns invalid response
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value="invalid response - no yaml")
+        
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        result = await agent.generate_patch(
+            finding=sample_static_finding,
+            source_root=temp_project_dir,
+            run_ctx=mock_run_ctx,
+        )
+        
+        debug_print(f"\n=== DEBUG: test_llm_call_limit_stops_retries ===")
+        debug_print(f"result.success: {result.success}")
+        debug_print(f"result.error_message: {result.error_message}")
+        debug_print(f"current_patch_llm_calls: {agent.current_patch_llm_calls}")
+        debug_print(f"total_llm_calls: {agent.total_llm_calls}")
+        debug_print(f"number of attempts: {len(result.attempts)}")
+        debug_print("=== END DEBUG ===\n")
+        
+        # Should have made exactly 2 LLM calls (not 6 = max_retries + 1)
+        assert agent.current_patch_llm_calls == 2
+        assert agent.total_llm_calls == 2
+        assert "llm call limit" in result.error_message.lower()
+        
+        # Should have 2 attempts, not 6
+        assert len(result.attempts) == 2
+
+    @pytest.mark.asyncio
+    async def test_llm_call_counter_resets_per_patch(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that LLM call counter resets for each new patch but total accumulates."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        from trata.src.storage.models import StaticFinding
+        
+        config = PatcherConfig(max_llm_calls_per_patch=2, max_retries=5)
+        
+        # Create mock LLM that always returns invalid response
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value="invalid response - no yaml")
+        
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        # First patch - should hit limit at 2 calls
+        result1 = await agent.generate_patch(
+            finding=sample_static_finding,
+            source_root=temp_project_dir,
+            run_ctx=mock_run_ctx,
+        )
+        
+        first_patch_calls = agent.current_patch_llm_calls
+        first_patch_total = agent.total_llm_calls
+        
+        # Create a second finding
+        second_finding = StaticFinding(
+            tool="infer",
+            check_id="NULL_DEREFERENCE",
+            file="src/vuln.c",
+            line=30,
+            severity="high",
+            title="Null Pointer Dereference",
+            detail="Dereferencing a null pointer",
+        )
+        
+        # Second patch - counter should reset, but total should accumulate
+        result2 = await agent.generate_patch(
+            finding=second_finding,
+            source_root=temp_project_dir,
+            run_ctx=mock_run_ctx,
+        )
+        
+        second_patch_calls = agent.current_patch_llm_calls
+        second_patch_total = agent.total_llm_calls
+        
+        debug_print(f"\n=== DEBUG: test_llm_call_counter_resets_per_patch ===")
+        debug_print(f"First patch - current_calls: {first_patch_calls}, total: {first_patch_total}")
+        debug_print(f"Second patch - current_calls: {second_patch_calls}, total: {second_patch_total}")
+        debug_print("=== END DEBUG ===\n")
+        
+        # Each patch should have 2 LLM calls (hit limit)
+        assert first_patch_calls == 2
+        assert second_patch_calls == 2
+        
+        # Total should accumulate: 2 + 2 = 4
+        assert first_patch_total == 2
+        assert second_patch_total == 4  # Accumulated from both patches
 
 
 class TestIncrementalPatching:

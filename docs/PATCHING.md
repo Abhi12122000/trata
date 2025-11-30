@@ -83,14 +83,38 @@ Finding 3: Generate patch from working_copy (2 previous patches)
 3. Output: patching_results.json + patched files
 ```
 
-## Token Budget
+## Safety Guards
+
+The patcher agent has multiple safeguards to prevent runaway execution (similar to Theori's CRS `max_iters` pattern):
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `max_tokens_per_patch` | 4000 | Max tokens per LLM call |
-| `max_total_tokens` | 20000 | Total budget for all patches |
+| `max_total_tokens` | 20000 | Total token budget for all patches |
+| `max_patches_per_run` | 10 | Hard limit on patches per CRS run |
+| `max_llm_calls_per_patch` | 5 | Max LLM interactions per single patch (iteration limit) |
+| `max_retries` | 2 | Max LLM call retries per patch |
+| `llm_timeout_seconds` | 60 | Timeout for each LLM call |
 
-When budget is exceeded, remaining findings are skipped.
+### How Guards Work
+
+1. **Token Budget**: Estimated tokens are tracked for each LLM call. When `max_total_tokens` is reached, remaining findings are skipped.
+
+2. **Patch Limit**: After `max_patches_per_run` patches are generated, the agent stops. This prevents infinite loops if many findings exist.
+
+3. **LLM Call Limit (Iteration Guard)**: Each patch can make at most `max_llm_calls_per_patch` LLM calls. If this limit is hit before a valid patch is generated, the agent stops retrying. This is similar to Theori's `max_iters=30` guard.
+
+4. **Retry Limit**: Each patch gets `max_retries + 1` attempts max, but this is further capped by `max_llm_calls_per_patch`.
+
+5. **Timeout**: LLM calls are subject to `llm_timeout_seconds` timeout.
+
+### Logs When Guards Trigger
+
+```
+[PatcherAgent] BUDGET EXCEEDED: Token budget exceeded (20500/20000 tokens used)
+[PatcherAgent] PATCH LIMIT REACHED: Patch limit reached (10/10 patches generated)
+[PatcherAgent] LLM CALL LIMIT REACHED: LLM call limit reached for this patch (5/5 calls)
+```
 
 ## Output Files
 
