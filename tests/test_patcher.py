@@ -12,12 +12,16 @@ Tests cover:
 from __future__ import annotations
 
 import shutil
+import sys
 from pathlib import Path
 from textwrap import dedent
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+# Ensure trata is importable when running pytest directly
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from trata.src.agents.patcher import PatcherAgent, PatcherConfig, PatcherResult
 from trata.src.config import RuntimeConfig
@@ -604,6 +608,276 @@ class TestPatcherAgent:
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
+
+class TestPatcherTokenBudget:
+    """Test token budget enforcement in PatcherAgent."""
+
+    def test_token_budget_tracking(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that token usage is tracked correctly."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        
+        config = PatcherConfig(
+            max_tokens_per_patch=1000,
+            max_total_tokens=5000,
+        )
+        
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        # Initially should have full budget
+        assert agent.tokens_used == 0
+        assert agent.tokens_remaining == 5000
+        assert not agent.budget_exceeded
+
+    @pytest.mark.asyncio
+    async def test_token_budget_exceeded_returns_early(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that agent returns early when budget is exceeded."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        
+        config = PatcherConfig(
+            max_tokens_per_patch=1000,
+            max_total_tokens=100,  # Very low budget
+        )
+        
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        # Simulate budget being exceeded
+        agent._tokens_used = 100
+        agent._budget_exceeded = True
+        
+        result = await agent.generate_patch(
+            finding=sample_static_finding,
+            source_root=temp_project_dir,
+            run_ctx=mock_run_ctx,
+        )
+        
+        assert not result.success
+        assert "budget exceeded" in result.error_message.lower()
+
+    def test_config_token_limits(self):
+        """Test that config has correct default token limits."""
+        from trata.src.agents.patcher import PatcherConfig
+        
+        config = PatcherConfig()
+        assert config.max_tokens_per_patch == 4000
+        assert config.max_total_tokens == 20000
+
+
+class TestIncrementalPatching:
+    """Test incremental patching behavior."""
+
+    @pytest.mark.asyncio
+    async def test_patches_use_working_copy_source(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+    ):
+        """Test that patch generation uses working copy (not original)."""
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.storage.models import BuildArtifacts, StaticFinding
+        from trata.src.config import TargetProjectConfig
+
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        # Track which source root was used for each patch
+        source_roots_used = []
+
+        async def mock_generate_patch(self, finding, source_root, run_ctx, related_crash=None):
+            source_roots_used.append(str(source_root))
+            # Return a dummy result
+            from trata.src.agents.patcher import PatcherResult
+            from trata.src.tools.patch_applier import ParsedPatch
+            result = PatcherResult(finding=finding)
+            result.success = True
+            result.best_patch = ParsedPatch(
+                file_path="src/vuln.c",
+                analysis="test",
+                fix_strategy="test",
+                patch="@@ -1,1 +1,1 @@\n // test",
+                raw_response="mock response",
+            )
+            return result
+
+        # Create two findings
+        findings = [
+            StaticFinding(
+                tool="infer",
+                file="src/vuln.c",
+                line=10,
+                check_id="test1",
+                title="test1",
+                detail="test1 detail",
+                severity="high",
+            ),
+            StaticFinding(
+                tool="infer",
+                file="src/vuln.c",
+                line=20,
+                check_id="test2",
+                title="test2",
+                detail="test2 detail",
+                severity="high",
+            ),
+        ]
+
+        mock_llm = MagicMock()
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="echo 'build'",
+            local_checkout=temp_project_dir,
+        )
+
+        # Monkey-patch the generate_patch method
+        from trata.src.agents.patcher import PatcherAgent
+        original = PatcherAgent.generate_patch
+        PatcherAgent.generate_patch = mock_generate_patch
+
+        try:
+            result = await pipeline.execute(
+                target=target_config,
+                build=build_artifacts,
+                run_ctx=mock_run_ctx,
+                static_findings=findings,
+                crashes=[],
+            )
+        finally:
+            PatcherAgent.generate_patch = original
+
+        # Both patches should use the working copy, not original
+        assert len(source_roots_used) == 2
+        for source_root in source_roots_used:
+            assert "working_copy" in source_root
+            assert str(temp_project_dir) != source_root
+
+    @pytest.mark.asyncio
+    async def test_incremental_patches_see_previous_changes(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+    ):
+        """Test that later patches see file content modified by earlier patches."""
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.storage.models import BuildArtifacts, StaticFinding
+        from trata.src.config import TargetProjectConfig
+
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        # Track file contents seen at each patch generation
+        file_contents_seen = []
+
+        async def mock_generate_patch_with_tracking(self, finding, source_root, run_ctx, related_crash=None):
+            # Read the current content of the file in the working copy
+            src_file = source_root / "src" / "vuln.c"
+            if src_file.exists():
+                content = src_file.read_text()
+                file_contents_seen.append(content)
+            
+            from trata.src.agents.patcher import PatcherResult
+            from trata.src.tools.patch_applier import ParsedPatch
+            result = PatcherResult(finding=finding)
+            result.success = True
+            
+            # Create a patch that adds a marker comment
+            patch_num = len(file_contents_seen)
+            result.best_patch = ParsedPatch(
+                file_path="src/vuln.c",
+                analysis=f"Adding marker {patch_num}",
+                fix_strategy="test",
+                patch=f"@@ -1,1 +1,2 @@\n+// PATCH_MARKER_{patch_num}\n // Original line",
+                raw_response="mock response",
+            )
+            return result
+
+        # Create two findings for the same file
+        findings = [
+            StaticFinding(
+                tool="infer",
+                file="src/vuln.c",
+                line=10,
+                check_id="test1",
+                title="test1",
+                detail="test1 detail",
+                severity="high",
+            ),
+            StaticFinding(
+                tool="infer",
+                file="src/vuln.c",
+                line=20,
+                check_id="test2",
+                title="test2",
+                detail="test2 detail",
+                severity="high",
+            ),
+        ]
+
+        mock_llm = MagicMock()
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="echo 'build'",
+            local_checkout=temp_project_dir,
+        )
+
+        from trata.src.agents.patcher import PatcherAgent
+        original = PatcherAgent.generate_patch
+        PatcherAgent.generate_patch = mock_generate_patch_with_tracking
+
+        try:
+            await pipeline.execute(
+                target=target_config,
+                build=build_artifacts,
+                run_ctx=mock_run_ctx,
+                static_findings=findings,
+                crashes=[],
+            )
+        finally:
+            PatcherAgent.generate_patch = original
+
+        # We should have captured 2 file contents
+        assert len(file_contents_seen) == 2
+        
+        # Original source should NOT be modified
+        original_content = (temp_project_dir / "src" / "vuln.c").read_text()
+        assert "PATCH_MARKER" not in original_content
 
 
 class TestPatcherIntegration:

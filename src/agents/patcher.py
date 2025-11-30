@@ -33,6 +33,8 @@ class PatcherConfig:
     context_lines: int = 50  # Lines before/after vulnerability to show
     max_retries: int = 2
     model: str = "gpt-4o"
+    max_tokens_per_patch: int = 4000  # Max tokens per patch generation call
+    max_total_tokens: int = 20000  # Total budget for all patches in a run
 
 
 @dataclass()
@@ -64,6 +66,11 @@ class PatcherAgent:
     Usage:
         agent = PatcherAgent(config, llm_client, store)
         result = await agent.generate_patch(finding, source_root, run_ctx)
+    
+    Token Budget:
+        - max_tokens_per_patch: Max tokens for a single patch generation
+        - max_total_tokens: Total budget across all patches
+        - Budget is tracked per-agent instance
     """
 
     def __init__(
@@ -76,6 +83,25 @@ class PatcherAgent:
         self.llm = llm_client
         self.store = store
         self.parser = PatchParser()
+        
+        # Token usage tracking
+        self._tokens_used = 0
+        self._budget_exceeded = False
+
+    @property
+    def tokens_used(self) -> int:
+        """Total tokens used so far."""
+        return self._tokens_used
+    
+    @property
+    def tokens_remaining(self) -> int:
+        """Tokens remaining in budget."""
+        return max(0, self.config.max_total_tokens - self._tokens_used)
+    
+    @property
+    def budget_exceeded(self) -> bool:
+        """Whether the token budget has been exceeded."""
+        return self._budget_exceeded
 
     async def generate_patch(
         self,
@@ -98,7 +124,14 @@ class PatcherAgent:
         """
         result = PatcherResult(finding=finding)
 
+        # Check budget before proceeding
+        if self._budget_exceeded:
+            result.error_message = f"Token budget exceeded ({self._tokens_used}/{self.config.max_total_tokens} tokens used)"
+            self._log(run_ctx, f"BUDGET EXCEEDED: {result.error_message}", level="warning")
+            return result
+
         self._log(run_ctx, f"Generating patch for: {finding.vuln_type} at {finding.file_path}:{finding.line}")
+        self._log(run_ctx, f"Token budget: {self._tokens_used}/{self.config.max_total_tokens} used")
 
         # Extract source context
         source_context = self._extract_source_context(
@@ -245,9 +278,21 @@ class PatcherAgent:
             {"role": "user", "content": user_prompt},
         ]
 
+        # Estimate input tokens (rough: 4 chars per token)
+        input_tokens = (len(PATCHER_SYSTEM_PROMPT) + len(user_prompt)) // 4
+        
+        # Check per-call budget
+        if input_tokens > self.config.max_tokens_per_patch:
+            self._log(
+                run_ctx,
+                f"Input exceeds per-patch limit ({input_tokens} > {self.config.max_tokens_per_patch})",
+                level="warning",
+            )
+
         # Log the full prompt for debugging/review
         self._log_tool_call(run_ctx, "llm_full_prompt", {
             "model": self.config.model,
+            "estimated_input_tokens": input_tokens,
             "system_prompt": PATCHER_SYSTEM_PROMPT,
             "user_prompt": user_prompt,
         })
@@ -255,11 +300,26 @@ class PatcherAgent:
         response = await self.llm.completion(
             messages=messages,
             model=self.config.model,
+            max_tokens=self.config.max_tokens_per_patch,
         )
 
-        # Log the full response
+        # Estimate response tokens and track usage
+        output_tokens = len(response) // 4
+        total_call_tokens = input_tokens + output_tokens
+        self._tokens_used += total_call_tokens
+        
+        # Check if budget exceeded for future calls
+        if self._tokens_used >= self.config.max_total_tokens:
+            self._budget_exceeded = True
+            self._log(run_ctx, f"TOKEN BUDGET EXHAUSTED: {self._tokens_used}/{self.config.max_total_tokens}", level="warning")
+
+        # Log the full response with token tracking
         self._log_tool_call(run_ctx, "llm_response", {
             "response_length": len(response),
+            "estimated_output_tokens": output_tokens,
+            "total_call_tokens": total_call_tokens,
+            "cumulative_tokens": self._tokens_used,
+            "budget_remaining": self.tokens_remaining,
             "response": response,
         })
 

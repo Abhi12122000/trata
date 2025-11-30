@@ -350,6 +350,7 @@ class LangGraphClient:
         messages: list[dict[str, str]],
         model: str | None = None,
         temperature: float = 0.7,
+        max_tokens: int | None = None,
     ) -> str:
         """
         Generic LLM completion for any agent.
@@ -358,6 +359,7 @@ class LangGraphClient:
             messages: List of messages with 'role' and 'content' keys
             model: Model to use (defaults to runtime config)
             temperature: Sampling temperature
+            max_tokens: Maximum tokens for this call (optional)
 
         Returns:
             String response from LLM

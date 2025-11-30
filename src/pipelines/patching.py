@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Sequence
 
-from ..agents.patcher import PatcherAgent, PatcherConfig, PatcherResult, generate_patches_for_findings
+from ..agents.patcher import PatcherAgent, PatcherConfig, PatcherResult
 from ..config import RuntimeConfig, TargetProjectConfig
 from ..storage.local_store import LocalRunStore
 from ..storage.models import (
@@ -168,37 +168,18 @@ class PatchingPipeline:
         working_copy_dir = working_copy_mgr.get_working_copy_path()
         batch.working_copy_path = str(working_copy_dir)
         batch.patched_files_path = str(working_copy_mgr.patched_files_dir)
-        self._log(run_ctx, f"Working copy created at: {working_copy_dir}")
+        # Note: Working copy creation is logged by WorkingCopyManager
         self._log(run_ctx, f"Patched files will be saved to: {working_copy_mgr.patched_files_dir}")
 
-        # Step 1: Generate patches
+        # Step 1+2: Generate, apply, and test patches INCREMENTALLY
+        # Each patch sees the working copy with PREVIOUS patches already applied
         self._log(run_ctx, "-" * 40)
-        self._log(run_ctx, "Step 1: Generating patches using LLM...")
-        self._log(run_ctx, f"Using source root: {build.source_dir}")
+        self._log(run_ctx, "INCREMENTAL PATCHING: Generate → Apply → Test (one at a time)")
+        self._log(run_ctx, "Each patch sees source WITH previous patches applied")
+        self._log(run_ctx, "-" * 40)
+        
         patcher_config = PatcherConfig()
-        
-        # Use ORIGINAL source for context extraction (read-only)
-        patcher_results = await generate_patches_for_findings(
-            findings=static_findings,
-            source_root=build.source_dir,  # Original for reading context
-            run_ctx=run_ctx,
-            config=patcher_config,
-            llm_client=self.llm,
-            store=self.store,
-            crashes=crashes,
-        )
-        batch.patcher_results = patcher_results
-        batch.patches_generated = sum(1 for r in patcher_results if r.success)
-        self._log(run_ctx, f"Patches generated: {batch.patches_generated}/{len(static_findings)}")
-        
-        # Log each generated patch summary
-        for i, pr in enumerate(patcher_results):
-            status = "✓" if pr.success else "✗"
-            self._log(run_ctx, f"  [{status}] Finding {i+1}: {pr.finding.finding_id}")
-
-        # Step 2: Apply and test patches CUMULATIVELY
-        self._log(run_ctx, "-" * 40)
-        self._log(run_ctx, "Step 2: Applying and testing patches (cumulative)...")
+        patcher_agent = PatcherAgent(patcher_config, self.llm, self.store)
         
         # Create patch applier for working copy
         applier = PatchApplier(
@@ -207,18 +188,40 @@ class PatchingPipeline:
         )
 
         successful_patches = 0
-        for i, patcher_result in enumerate(patcher_results):
-            if not patcher_result.success or not patcher_result.best_patch:
-                self._log(run_ctx, f"Skipping finding {i+1}: no patch generated")
-                continue
-
-            finding_id = patcher_result.finding.finding_id
-            parsed_patch = patcher_result.best_patch
+        for i, finding in enumerate(static_findings):
+            self._log(run_ctx, f"\n{'='*40}")
+            self._log(run_ctx, f"Finding {i+1}/{len(static_findings)}: {finding.finding_id}")
+            self._log(run_ctx, f"{'='*40}")
             
-            self._log(run_ctx, f"\n--- Patch {successful_patches + 1} for {finding_id} ---")
-            self._log(run_ctx, f"File: {parsed_patch.file_path}")
-            self._log(run_ctx, f"Analysis: {parsed_patch.analysis[:100]}...")
+            # Find related crash for this finding
+            related_crash = self._find_related_crash(finding, crashes)
+            if related_crash:
+                self._log(run_ctx, f"Related crash found: {related_crash.crash_id}")
+            
+            # Step 1a: Generate patch FROM WORKING COPY (with previous patches!)
+            self._log(run_ctx, f"Generating patch from: {working_copy_dir}")
+            self._log(run_ctx, f"(Source includes {successful_patches} previously applied patches)")
+            
+            patcher_result = await patcher_agent.generate_patch(
+                finding=finding,
+                source_root=working_copy_dir,  # USE WORKING COPY for incremental patching!
+                run_ctx=run_ctx,
+                related_crash=related_crash,
+            )
+            batch.patcher_results.append(patcher_result)
+            
+            if not patcher_result.success or not patcher_result.best_patch:
+                self._log(run_ctx, f"  [✗] Failed to generate patch: {patcher_result.error_message}")
+                continue
+            
+            batch.patches_generated += 1
+            self._log(run_ctx, f"  [✓] Patch generated successfully")
+            
+            parsed_patch = patcher_result.best_patch
+            self._log(run_ctx, f"  File: {parsed_patch.file_path}")
+            self._log(run_ctx, f"  Analysis: {parsed_patch.analysis[:80]}...")
 
+            # Step 1b: Apply and test this patch
             test_result = await self._apply_and_test_patch_cumulative(
                 target=target,
                 build=build,
@@ -414,13 +417,27 @@ class PatchingPipeline:
         if not build_dir.exists():
             build_dir = source_dir
 
-        for candidate in ["fuzzer_vuln_fuzzer", "fuzzer", "fuzz_target"]:
+        # Try common fuzzer names
+        common_names = [
+            "vuln_fuzzer",      # Our example target naming
+            "packet_fuzzer",    # Our example target naming
+            "fuzzer_vuln_fuzzer",
+            "fuzzer",
+            "fuzz_target",
+        ]
+        
+        for candidate in common_names:
             candidate_path = build_dir / candidate
             if candidate_path.exists() and candidate_path.is_file():
                 return candidate_path
         
-        # Try any executable starting with fuzzer
-        for f in build_dir.glob("fuzzer*"):
+        # Try any executable containing "fuzzer" in the name
+        for f in build_dir.glob("*fuzzer*"):
+            if f.is_file() and os.access(f, os.X_OK):
+                return f
+        
+        # Try any executable starting with "fuzz"
+        for f in build_dir.glob("fuzz*"):
             if f.is_file() and os.access(f, os.X_OK):
                 return f
         
@@ -504,6 +521,23 @@ class PatchingPipeline:
         if "double-free" in stderr:
             return "DOUBLE_FREE"
         return None
+
+    def _find_related_crash(
+        self,
+        finding: StaticFinding,
+        crashes: Sequence[FuzzCrash],
+    ) -> Optional[FuzzCrash]:
+        """Find a crash that might be related to the finding."""
+        if not crashes:
+            return None
+        
+        # Try to match by file path in stack trace
+        for crash in crashes:
+            if crash.stack_trace and finding.file in crash.stack_trace:
+                return crash
+        
+        # Return first crash as fallback (better than nothing)
+        return crashes[0] if crashes else None
 
     def _log(self, run_ctx: RunContext, message: str, level: str = "info") -> None:
         """Log a message with timestamp."""
