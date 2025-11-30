@@ -1,0 +1,24 @@
+# Core dependencies for trata mini CRS
+# Python 3.9+ required
+
+# LLM client (OpenAI API)
+langchain-openai>=0.2.0
+openai>=1.0.0
+tiktoken>=0.5.0  # Token counting for budgeting
+
+# JSON handling (faster than stdlib)
+orjson>=3.10.0
+
+# Async utilities
+# (asyncio is stdlib, no extra package needed)
+
+# Path handling
+# (pathlib is stdlib)
+
+# Type hints (for Python < 3.10 compatibility)
+typing-extensions>=4.0.0; python_version < "3.10"
+
+# Testing (optional, for development)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0; python_version < "3.11"
+

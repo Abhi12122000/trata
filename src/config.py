@@ -27,10 +27,13 @@ class RuntimeConfig:
     langgraph_model: str = "gpt-4o-mini"
     max_parallel_jobs: int = 2
     dry_run: bool = False
-    infer_docker_image: str = "facebook/infer:latest"
+    infer_docker_image: str = "trata-infer:1.2.0"
+    infer_docker_build_context: Optional[Path] = (
+        Path(__file__).resolve().parents[1] / "docker" / "infer"
+    )
     llm_budget_tokens: int = 32_000
     llm_max_files: int | None = None
-    prefer_docker_infer: bool = False
+    prefer_docker_infer: bool = True
     storage_backend: Literal["local"] = "local"
     extra_env: dict[str, str] = field(default_factory=dict)
 

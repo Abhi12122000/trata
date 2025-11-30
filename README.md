@@ -37,15 +37,61 @@ trata/
 
 ---
 
-## Prerequisites
+## Installation
+
+### 1. Python Environment
+
+```bash
+# Create a virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate  # On macOS/Linux
+# or: venv\Scripts\activate  # On Windows
+
+# Install dependencies
+cd trata
+pip install -r requirements.txt
+```
+
+**Requirements:**
+- Python ≥ 3.9 (tested on 3.9, 3.10, 3.11, 3.12)
+- macOS ARM64 (Apple Silicon) or x86_64 Linux
+
+### 2. Docker (for Infer)
+
+The CRS uses Docker to run Facebook Infer in a consistent environment. Install Docker Desktop:
+
+- **macOS**: Download from [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+- **Linux**: `sudo apt-get install docker.io` or equivalent
+
+The first run will automatically build the Infer Docker image (`trata-infer:1.2.0`) from `trata/docker/infer/Dockerfile`. Subsequent runs reuse the cached image.
+
+### 3. OpenAI API Key (Optional)
+
+For LLM-based static analysis:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+Without an API key, the LLM agent falls back to an offline heuristic (no findings, but runs complete successfully for testing).
+
+### 4. Build Tools
+
+Install whatever your target project requires:
+- **C/C++**: `clang`, `gcc`, `cmake`, `autoconf`, `make`, etc.
+- **Java**: `maven`, `gradle`, JDK
+- Check your target's `build.sh` or `Dockerfile` for specific requirements
+
+---
+
+## Prerequisites Summary
 
 | Requirement | Notes |
 | --- | --- |
-| Python ≥ 3.9 | Recommended: `python -m venv venv && source venv/bin/activate`. |
-| Pip packages | Install `langchain-openai`, `openai`, `tiktoken`, `orjson`, etc. (see repo root requirements). |
-| Build toolchain | Whatever the project needs (e.g., `cmake`, `autoconf`, compilers, Ninja). |
-| Facebook Infer | Either install locally (`brew install infer`) or rely on Docker (`docker pull facebook/infer:latest`). |
-| OpenAI credentials (optional) | Set `OPENAI_API_KEY` (+ azure-specific vars if required). Without creds, the LLM client falls back to an offline heuristic so runs still succeed. |
+| Python ≥ 3.9 | Use a virtual environment (see Installation above). |
+| Docker Desktop | Required for Infer analysis. The CRS builds the image automatically. |
+| Build toolchain | Depends on target project (see target-specific notes below). |
+| OpenAI API key (optional) | Set `OPENAI_API_KEY` env var. Without it, LLM analysis is skipped. |
 
 ---
 
@@ -117,6 +163,17 @@ python -m trata.main \
 ```
 If your harnesses live in a separate folder, copy them into the checkout before running or pass `--local-checkout` to a combined tree.
 
+### example-c smoke test
+```bash
+python -m trata.main \
+  --name example-c \
+  --local-checkout tratta/example-c-target \
+  --fuzz-target fuzz/vuln_fuzzer.c \
+  --harness-glob "fuzz/*" \
+  --build-script "bash build.sh"
+```
+This intentionally vulnerable C program compiles quickly and is ideal for verifying the Docker-based Infer flow.
+
 ---
 
 ## LLM Guardrails (Costs & Reliability)
@@ -138,10 +195,68 @@ If your harnesses live in a separate folder, copy them into the checkout before 
 
 ---
 
+## Testing
+
+Run the unit tests:
+
+```bash
+# From the trata/ directory
+pytest tests/test_llm_client.py -v
+```
+
+The test suite verifies:
+- LLM client fallback behavior (offline mode)
+- Build artifact exclusion
+- Tool call logging
+
+---
+
+## Data Flow & Next Steps
+
+### Static Analysis Output
+
+The static analysis pipeline writes normalized findings to:
+
+```
+trata/data/<project>/<timestamp>/artifacts/static_analysis.json
+```
+
+This JSON file contains **both Infer and LLM findings** merged together. Each finding includes:
+- `tool`: `"infer"` or `"llm"`
+- `check_id`: Bug type (e.g., `"USE_AFTER_FREE"`, `"MEMORY_LEAK_C"`)
+- `file`: Relative path to source file
+- `line`: Line number
+- `severity`: `"low"`, `"medium"`, `"high"`, `"critical"`
+- `title`: Human-readable description
+- `detail`: Bug trace (for Infer) or reasoning (for LLM)
+- `raw_payload`: Complete original report
+
+**Next pipeline steps** (fuzzing, triage, POV generation, patching) should read from this same `static_analysis.json` file. The format is stable and designed to be consumed by downstream agents.
+
+### Docker Volume Mounts
+
+When running Infer via Docker, the CRS mounts three volumes:
+
+1. **`-v {source_dir}:/src`**: Project source code (read-only inside container, but writable on host for build artifacts)
+2. **`-v {source_dir}:{source_dir}`**: Duplicate mount so Infer's `chdir()` calls to host paths succeed
+3. **`-v {output_dir}:/out`**: Analysis results directory (Infer writes `report.json` here, which is accessible on the host at `trata/data/<project>/<timestamp>/artifacts/infer/report.json`)
+
+All results are automatically saved to the host filesystem—no manual copying needed.
+
+---
+
 ## Next Steps & Contributions
 
 - Extend pipelines to coverage collection, frontier discovery, fuzz triage, POV production, and patch bundling.
 - Integrate Azure/GCS upload options for corpora/results sharing.
 - Contributions are welcome—please follow the existing structure so logging and storage remain consistent.
+
+## Tests
+
+Run the current static-analysis unit checks with:
+
+```bash
+pytest trata/tests/test_llm_client.py
+```
 
 
