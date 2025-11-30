@@ -79,6 +79,12 @@ class FuzzingPipeline:
         )
 
         if not fuzzer_binary or not fuzzer_binary.exists():
+            if self.store:
+                self.store.log_event(
+                    run_ctx,
+                    f"Fuzzer build failed for {harness_name}. "
+                    f"Ensure clang with -fsanitize=fuzzer is available.",
+                )
             return FuzzingBatch(
                 project=target.name,
                 run_id=run_ctx.run_id,
@@ -91,6 +97,12 @@ class FuzzingPipeline:
                 crashes_found=0,
                 crashes=[],
                 summary=f"Fuzzer build failed for {harness_name} - clang with -fsanitize=fuzzer required",
+            )
+        
+        if self.store:
+            self.store.log_event(
+                run_ctx,
+                f"Fuzzer binary built: {fuzzer_binary}",
             )
 
         # Step 2: Initialize corpus manager (separate corpus per harness)

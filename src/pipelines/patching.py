@@ -181,6 +181,13 @@ class PatchingPipeline:
         patcher_config = PatcherConfig()
         patcher_agent = PatcherAgent(patcher_config, self.llm, self.store)
         
+        # Log safety guard limits
+        self._log(run_ctx, "Patcher Agent Safety Guards:")
+        self._log(run_ctx, f"  - max_patches_per_run: {patcher_config.max_patches_per_run}")
+        self._log(run_ctx, f"  - max_llm_calls_per_patch: {patcher_config.max_llm_calls_per_patch}")
+        self._log(run_ctx, f"  - max_total_tokens: {patcher_config.max_total_tokens}")
+        self._log(run_ctx, f"  - max_retries: {patcher_config.max_retries}")
+        
         # Create patch applier for working copy
         applier = PatchApplier(
             working_copy_dir=working_copy_dir,
@@ -325,9 +332,10 @@ class PatchingPipeline:
         test_result.patch_applied = True
         self._log(run_ctx, f"Patch applied successfully to {file_path}")
 
-        # Rebuild from working copy
-        self._log(run_ctx, "Rebuilding from working copy...")
+        # Rebuild from working copy (IMPORTANT: this ensures patched source is compiled)
         working_copy_dir = working_copy_mgr.get_working_copy_path()
+        self._log(run_ctx, f"Rebuilding from working copy: {working_copy_dir}")
+        self._log(run_ctx, f"  (Original source is NOT modified)")
         build_success, build_error = await self._rebuild_project(target, working_copy_dir, run_ctx)
 
         if not build_success:
@@ -341,14 +349,19 @@ class PatchingPipeline:
         test_result.build_success = True
         self._log(run_ctx, "Build succeeded")
 
-        # Test against crashes
-        self._log(run_ctx, f"Testing against {len(crashes)} crashes...")
-        fuzzer_binary = self._find_fuzzer_binary(working_copy_dir)
+        # Test against crashes (using REBUILT binary from PATCHED source)
+        self._log(run_ctx, f"Testing {len(crashes)} crashes against PATCHED binary...")
+        fuzzer_binary = self._find_fuzzer_binary(working_copy_dir, target)
         
         if fuzzer_binary:
-            self._log(run_ctx, f"Using fuzzer binary: {fuzzer_binary}")
+            self._log(run_ctx, f"Using fuzzer binary from working copy: {fuzzer_binary}")
+            # Verify binary is in working copy, not original source
+            if "working_copy" in str(fuzzer_binary):
+                self._log(run_ctx, "  ✓ Confirmed: binary is from patched working copy")
+            else:
+                self._log(run_ctx, f"  Note: binary path does not contain 'working_copy': {fuzzer_binary}")
         else:
-            self._log(run_ctx, "WARNING: No fuzzer binary found, crash tests may fail")
+            self._log(run_ctx, "WARNING: No fuzzer binary found in working copy, crash tests may fail")
         
         for i, crash in enumerate(crashes):
             crash_test = await self._test_crash(run_ctx, fuzzer_binary, crash)
@@ -411,22 +424,40 @@ class PatchingPipeline:
         except Exception as e:
             return False, str(e)
 
-    def _find_fuzzer_binary(self, source_dir: Path) -> Optional[Path]:
-        """Find the fuzzer binary in the build directory."""
+    def _find_fuzzer_binary(
+        self, source_dir: Path, target: Optional[TargetProjectConfig] = None
+    ) -> Optional[Path]:
+        """
+        Find the fuzzer binary in the build directory.
+        
+        Dynamically derives expected binary names from target.fuzz_targets,
+        then falls back to generic patterns.
+        """
         build_dir = source_dir / "build"
         if not build_dir.exists():
             build_dir = source_dir
 
-        # Try common fuzzer names
-        common_names = [
-            "vuln_fuzzer",      # Our example target naming
-            "packet_fuzzer",    # Our example target naming
-            "fuzzer_vuln_fuzzer",
+        # First, try deriving binary names from configured fuzz targets
+        # This follows the same naming convention as LibFuzzerRunner: fuzzer_{harness_name}
+        if target and target.fuzz_targets:
+            for harness_path in target.fuzz_targets:
+                harness_name = Path(harness_path).stem
+                candidates = [
+                    f"fuzzer_{harness_name}",  # LibFuzzerRunner convention
+                    harness_name,               # Direct name
+                ]
+                for candidate in candidates:
+                    candidate_path = build_dir / candidate
+                    if candidate_path.exists() and candidate_path.is_file():
+                        return candidate_path
+
+        # Fallback to generic patterns for any project
+        generic_patterns = [
             "fuzzer",
             "fuzz_target",
         ]
         
-        for candidate in common_names:
+        for candidate in generic_patterns:
             candidate_path = build_dir / candidate
             if candidate_path.exists() and candidate_path.is_file():
                 return candidate_path
