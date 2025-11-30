@@ -7,10 +7,14 @@ Tests cover:
 - PatchApplier: Patch validation and application
 - PatcherAgent: Source context extraction, prompt building
 - Integration: Full patching flow
+
+Run with DEBUG=1 for verbose output:
+    DEBUG=1 pytest trata/tests/test_patcher.py -v -s
 """
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -22,6 +26,15 @@ import pytest
 
 # Ensure trata is importable when running pytest directly
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+# Debug flag - set DEBUG=1 environment variable for verbose output
+DEBUG = os.environ.get("DEBUG", "0") == "1"
+
+
+def debug_print(*args, **kwargs):
+    """Print only if DEBUG is enabled."""
+    if DEBUG:
+        print(*args, **kwargs)
 
 from trata.src.agents.patcher import PatcherAgent, PatcherConfig, PatcherResult
 from trata.src.config import RuntimeConfig
@@ -433,11 +446,26 @@ class TestPatcherAgent:
         
         agent = PatcherAgent(config, mock_llm)
 
+        # Debug: show what file we're reading from
+        full_path = temp_project_dir / "src" / "vuln.c"
+        debug_print(f"\n=== DEBUG: test_extract_source_context ===")
+        debug_print(f"temp_project_dir: {temp_project_dir}")
+        debug_print(f"full_path: {full_path}")
+        debug_print(f"file exists: {full_path.exists()}")
+        if DEBUG and full_path.exists():
+            debug_print(f"file contents:\n{full_path.read_text()}")
+
         context = agent._extract_source_context(
             source_root=temp_project_dir,
             file_path="src/vuln.c",
             center_line=10,
         )
+
+        debug_print(f"\n--- Extracted context (center_line=10, context_lines=5) ---")
+        debug_print(f"context is None: {context is None}")
+        if DEBUG and context:
+            debug_print(f"context:\n{context}")
+        debug_print("=== END DEBUG ===\n")
 
         assert context is not None
         assert "malloc" in context or "ptr" in context
@@ -457,6 +485,15 @@ class TestPatcherAgent:
             file_path="src/vuln.c",
             center_line=10,
         )
+
+        debug_print(f"\n=== DEBUG: test_extract_source_context_correct_line_numbers ===")
+        debug_print(f"context:\n{context}")
+        if DEBUG and context:
+            lines = context.split("\n")
+            debug_print(f"total lines in context: {len(lines)}")
+            center_lines = [l for l in lines if ">>>" in l]
+            debug_print(f"center lines (with >>>): {center_lines}")
+        debug_print("=== END DEBUG ===\n")
 
         assert context is not None
         # Should have line numbers
@@ -520,6 +557,14 @@ class TestPatcherAgent:
             finding=sample_static_finding,
             source_context=source_context,
         )
+
+        debug_print(f"\n=== DEBUG: test_build_prompt_contains_all_required_fields ===")
+        debug_print(f"Finding: {sample_static_finding}")
+        debug_print(f"Finding.file_path (property): {sample_static_finding.file_path}")
+        debug_print(f"Finding.vuln_type (property): {sample_static_finding.vuln_type}")
+        debug_print(f"\n--- Generated Prompt ---")
+        debug_print(prompt)
+        debug_print("=== END DEBUG ===\n")
 
         # Check all required fields are present
         assert "## Vulnerability Report" in prompt
@@ -673,6 +718,71 @@ class TestPatcherTokenBudget:
         config = PatcherConfig()
         assert config.max_tokens_per_patch == 4000
         assert config.max_total_tokens == 20000
+
+    def test_config_patch_limits(self):
+        """Test that config has correct default patch limits."""
+        from trata.src.agents.patcher import PatcherConfig
+        
+        config = PatcherConfig()
+        assert config.max_patches_per_run == 10
+        assert config.max_retries == 2
+        assert config.llm_timeout_seconds == 60
+
+    def test_patch_count_tracking(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that patch count is tracked correctly."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        
+        config = PatcherConfig(max_patches_per_run=5)
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        # Initially should have full quota
+        assert agent.patches_generated == 0
+        assert agent.patches_remaining == 5
+        assert not agent.patches_limit_reached
+        
+        debug_print(f"\n=== DEBUG: test_patch_count_tracking ===")
+        debug_print(f"Initial patches_generated: {agent.patches_generated}")
+        debug_print(f"Initial patches_remaining: {agent.patches_remaining}")
+        debug_print(f"Initial patches_limit_reached: {agent.patches_limit_reached}")
+        debug_print("=== END DEBUG ===\n")
+
+    @pytest.mark.asyncio
+    async def test_patch_limit_exceeded_returns_early(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that agent returns early when patch limit is exceeded."""
+        from trata.src.agents.patcher import PatcherConfig, PatcherAgent
+        
+        config = PatcherConfig(max_patches_per_run=3)
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm, None)
+        
+        # Simulate limit being reached
+        agent._patches_generated = 3
+        agent._patches_limit_reached = True
+        
+        result = await agent.generate_patch(
+            finding=sample_static_finding,
+            source_root=temp_project_dir,
+            run_ctx=mock_run_ctx,
+        )
+        
+        debug_print(f"\n=== DEBUG: test_patch_limit_exceeded_returns_early ===")
+        debug_print(f"result.success: {result.success}")
+        debug_print(f"result.error_message: {result.error_message}")
+        debug_print("=== END DEBUG ===\n")
+        
+        assert not result.success
+        assert "patch limit" in result.error_message.lower() or "limit reached" in result.error_message.lower()
 
 
 class TestIncrementalPatching:

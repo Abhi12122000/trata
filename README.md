@@ -90,11 +90,28 @@ source venv/bin/activate
 OPENAI_API_KEY=test pytest trata/tests/ -v
 
 # Specific test files
-pytest trata/tests/test_patcher.py -v           # Patching tests (31 tests)
-pytest trata/tests/test_fuzzing.py -v           # Fuzzing tests (8 tests)
-pytest trata/tests/test_crash_deduplicator.py -v # Dedup tests (11 tests)
-pytest trata/tests/test_llm_client.py -v        # LLM client tests (2 tests)
+OPENAI_API_KEY=test pytest trata/tests/test_patcher.py -v           # Patching tests
+OPENAI_API_KEY=test pytest trata/tests/test_fuzzing.py -v           # Fuzzing tests
+pytest trata/tests/test_crash_deduplicator.py -v                     # Dedup tests
+OPENAI_API_KEY=test pytest trata/tests/test_llm_client.py -v        # LLM client tests
+
+# Run a SINGLE test
+OPENAI_API_KEY=test pytest trata/tests/test_patcher.py::TestPatcherAgent::test_extract_source_context -v
+
+# With DEBUG output (shows internal values)
+DEBUG=1 OPENAI_API_KEY=test pytest trata/tests/test_patcher.py -v -s
 ```
+
+### Debug Mode
+
+Set `DEBUG=1` to see verbose output from tests:
+
+```bash
+# See debug prints for a specific test
+DEBUG=1 OPENAI_API_KEY=test pytest trata/tests/test_patcher.py::TestPatcherAgent::test_extract_source_context -v -s
+```
+
+Note: `-s` flag is required to see print output.
 
 ---
 
