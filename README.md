@@ -312,7 +312,7 @@ artifacts/
 └── fuzzing/                   # Fuzzing results (if enabled)
     ├── {harness}_results.json # Per-harness results (all crashes)
     ├── combined_results.json  # Combined results from all harnesses
-    ├── deduplicated_crashes.json # ⭐ Unique crashes (one per bug) - for patcher
+    ├── deduplicated_crashes.json # Unique crashes (one per bug) - for patcher
     ├── corpus_{harness}/       # Per-harness corpus
     │   ├── seeds/             # Seed inputs
     │   └── crashes/           # Crash inputs by dedup token
@@ -340,11 +340,32 @@ All results are automatically saved to the host filesystem—no manual copying n
 
 ---
 
-## Next Steps & Contributions
+## To-Dos:-
 
-- Extend pipelines to coverage collection, frontier discovery, fuzz triage, POV production, and patch bundling.
-- Integrate Azure/GCS upload options for corpora/results sharing.
-- Contributions are welcome—please follow the existing structure so logging and storage remain consistent.
+#### General:- 
+- Add logging throughout the steps of the CRS. These should be logged into stdout
+- Add LLM usage limits to all llm agents carefully.
+- Separate out each individual LLM agent's feature-flag. I should be able to disable static analysis LLM without individually, while still keeping other agents running.
+- Add more (complicated and less explicit) target projects to run trata CRS on.
+
+#### Patcher related:-
+- Implement v1 patcher, which just takes in a static analysis bug report and the relevant target source file, and outputs a patch in unified diff format.
+- A next step applies that patch, and re-runs ALL fuzz crashes on it (but immediately doesn't do anything if some/all fuzz crashes continue to fail).
+
+#### Fuzzer related:-
+- (Future To-Do) Implement triage fuzz crash type functionality (need a lot of improvement for it)
+- (Punted for now) Add memcpy bug that static analysis wasn't able to fix; I want to verify that fuzzing fixes that.
+- (Won't do) Run fuzzing in a dockerized container
+- (Done) Fix our target project example to separate out the fuzz harness, so we don't have to do an ifndef in the main function
+- (Done) implement multi-harness fuzzing.
+- (Done) verify that the fuzzing crash report is in a format that the patching step can use effectively, and it can run its patched output against the fuzz crash seeds.
+
+#### Static Analysis related:-
+- For LLM-based static analysis, implement AST parser etc., to create function-level static analysis targets
+- Integrate above with entire CRS correctly. 
+
+## Future Work:-
+- implement vuln scoring, analyze_vuln, enhance patching agent, pov generation, and triage fuzz crash.
 
 ## Tests
 
