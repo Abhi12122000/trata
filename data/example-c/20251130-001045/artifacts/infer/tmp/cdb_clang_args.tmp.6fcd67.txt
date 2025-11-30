@@ -1,0 +1,1 @@
+ -g -O0 -std=c11 -Wall -Wextra -fno-stack-protector -c src/vuln.c -o build/vuln.o

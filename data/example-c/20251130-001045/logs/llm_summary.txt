@@ -1,0 +1,1 @@
+Static analysis for example-c inspected 0 snippets. Severity breakdown: no issues. Highlights: 
