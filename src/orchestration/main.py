@@ -9,6 +9,7 @@ from typing import Iterable, Optional
 from ..config import RuntimeConfig, TargetProjectConfig
 from ..pipelines.static_analysis import StaticAnalysisPipeline
 from ..pipelines.fuzzing import FuzzingPipeline
+from ..pipelines.patching import PatchingPipeline, PatchingBatch
 from ..storage.local_store import LocalRunStore
 from ..storage.models import (
     BuildArtifacts,
@@ -39,6 +40,7 @@ class MiniCRSOrchestrator:
         builder: Optional[ProjectBuilder] = None,
         static_pipeline: Optional[StaticAnalysisPipeline] = None,
         fuzzing_pipeline: Optional[FuzzingPipeline] = None,
+        patching_pipeline: Optional[PatchingPipeline] = None,
         store: Optional[LocalRunStore] = None,
     ) -> None:
         self.runtime = runtime_config
@@ -49,6 +51,10 @@ class MiniCRSOrchestrator:
             store=self.store,
         )
         self.fuzzing_pipeline = fuzzing_pipeline or FuzzingPipeline(
+            runtime_config=runtime_config,
+            store=self.store,
+        )
+        self.patching_pipeline = patching_pipeline or PatchingPipeline(
             runtime_config=runtime_config,
             store=self.store,
         )
@@ -73,7 +79,9 @@ class MiniCRSOrchestrator:
 
         static_batch: StaticAnalysisBatch | None = None
         fuzzing_batch: FuzzingBatch | None = None
+        patching_batch: PatchingBatch | None = None
         build_artifacts: BuildArtifacts | None = None
+        unique_crashes: list = []  # Track for patching
 
         # ====================================================================
         # Step 1: Build
@@ -199,7 +207,7 @@ class MiniCRSOrchestrator:
                     f"({dedup_summary['reduction_ratio']*100:.1f}% reduction)",
                 )
                 
-                # Persist deduplicated crashes
+                # Persist deduplicated crashes (and keep for patching)
                 self._persist_deduplicated_crashes(run_ctx, unique_crashes, dedup_summary)
                 
                 fuzzing_batch = FuzzingBatch(
@@ -219,6 +227,38 @@ class MiniCRSOrchestrator:
                 self._persist_fuzzing_batch(run_ctx, fuzzing_batch, "combined")
 
         # ====================================================================
+        # Step 4: Patching (if enabled and we have findings)
+        # ====================================================================
+        if self.runtime.enable_patching and static_batch and static_batch.findings:
+            self.store.log_event(
+                run_ctx,
+                f"Starting patching for {len(static_batch.findings)} findings",
+            )
+            try:
+                patching_batch = await self.patching_pipeline.execute(
+                    target=target,
+                    build=build_artifacts,
+                    run_ctx=run_ctx,
+                    static_findings=static_batch.findings,
+                    crashes=unique_crashes,
+                )
+                self.store.log_event(
+                    run_ctx,
+                    f"Patching completed: {patching_batch.summary}",
+                )
+            except Exception as e:
+                self.store.log_event(run_ctx, f"Patching failed: {e}")
+                patching_batch = PatchingBatch(
+                    project=target.name,
+                    run_id=run_ctx.run_id,
+                    findings_processed=len(static_batch.findings),
+                    patches_generated=0,
+                    patches_applied=0,
+                    patches_tested=0,
+                    summary=f"Patching failed: {e}",
+                )
+
+        # ====================================================================
         # Build final summary
         # ====================================================================
         summary_parts = []
@@ -231,12 +271,17 @@ class MiniCRSOrchestrator:
                 f"Fuzzing: {fuzzing_batch.crashes_found} crashes, "
                 f"{fuzzing_batch.seeds_found} new seeds"
             )
+        if patching_batch:
+            summary_parts.append(
+                f"Patching: {patching_batch.patches_generated} patches generated"
+            )
 
         result = CRSResult(
             project=target.name,
             run_id=run_ctx.run_id,
             static_analysis=static_batch,
             fuzzing=fuzzing_batch,
+            patching=patching_batch,
             summary=". ".join(summary_parts) if summary_parts else "No results",
         )
 

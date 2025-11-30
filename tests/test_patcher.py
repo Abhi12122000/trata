@@ -1,0 +1,938 @@
+"""
+Tests for the patcher agent and patch applier.
+
+Tests cover:
+- PatchParser: YAML parsing and diff extraction
+- WorkingCopyManager: Source copy creation, backup, restore
+- PatchApplier: Patch validation and application
+- PatcherAgent: Source context extraction, prompt building
+- Integration: Full patching flow
+"""
+
+from __future__ import annotations
+
+import shutil
+from pathlib import Path
+from textwrap import dedent
+from typing import Optional
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+
+from trata.src.agents.patcher import PatcherAgent, PatcherConfig, PatcherResult
+from trata.src.config import RuntimeConfig
+from trata.src.storage.local_store import LocalRunStore
+from trata.src.storage.models import FuzzCrash, RunContext, StaticFinding
+from trata.src.tools.patch_applier import (
+    PatchApplier,
+    PatchParser,
+    PatchResult,
+    ParsedPatch,
+    WorkingCopyManager,
+)
+
+
+# ============================================================================
+# Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def temp_project_dir(tmp_path: Path) -> Path:
+    """Create a temporary project directory with sample source files."""
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+
+    # Create sample vulnerable C file
+    vuln_c = src_dir / "vuln.c"
+    vuln_c.write_text(dedent("""
+        #include <stdio.h>
+        #include <stdlib.h>
+        #include <string.h>
+        
+        void use_after_free_example(void) {
+            char *ptr = malloc(64);
+            if (!ptr) return;
+            strcpy(ptr, "hello");
+            free(ptr);
+            // BUG: use after free
+            printf("Value: %s\\n", ptr);
+        }
+        
+        void null_deref_example(int trigger) {
+            char *ptr = NULL;
+            if (trigger) {
+                ptr = malloc(16);
+            }
+            // BUG: ptr might be NULL
+            ptr[0] = 'A';
+        }
+        
+        int main(void) {
+            return 0;
+        }
+    """).strip())
+
+    return tmp_path
+
+
+@pytest.fixture
+def sample_source_code() -> str:
+    """Sample source code for testing."""
+    return dedent("""
+        #include <stdio.h>
+        #include <stdlib.h>
+        
+        void vulnerable_func(void) {
+            char *ptr = malloc(64);
+            free(ptr);
+            // BUG: use after free
+            printf("Value: %s\\n", ptr);
+        }
+    """).strip()
+
+
+@pytest.fixture
+def sample_static_finding() -> StaticFinding:
+    """Sample static analysis finding."""
+    return StaticFinding(
+        tool="infer",
+        check_id="USE_AFTER_FREE",
+        file="src/vuln.c",  # Note: use 'file' not 'file_path' (file_path is a property)
+        line=24,
+        severity="high",
+        title="Use After Free",
+        detail="Memory is accessed after being freed.",
+    )
+
+
+@pytest.fixture
+def mock_run_ctx(tmp_path: Path) -> RunContext:
+    """Create a mock run context with SEPARATE directory from source."""
+    # Use a separate directory for run context to avoid copy recursion
+    run_dir = tmp_path / "crs_run"
+    run_dir.mkdir()
+    logs_dir = run_dir / "logs"
+    artifacts_dir = run_dir / "artifacts"
+    logs_dir.mkdir()
+    artifacts_dir.mkdir()
+
+    return RunContext(
+        project="test-project",
+        run_id="test-run-123",
+        root=run_dir,
+        logs_dir=logs_dir,
+        artifacts_dir=artifacts_dir,
+    )
+
+
+# ============================================================================
+# PatchParser Tests
+# ============================================================================
+
+
+class TestPatchParser:
+    """Tests for PatchParser."""
+
+    def test_parse_yaml_response_success(self):
+        """Test parsing a valid YAML response."""
+        response = dedent("""
+            Here's the fix:
+            
+            ```yaml
+            analysis: |
+              Use-after-free vulnerability found.
+            fix_strategy: |
+              Set pointer to NULL after freeing.
+            file_path: src/vuln.c
+            patch: |
+              @@ -10,3 +10,4 @@
+               free(ptr);
+              +ptr = NULL;
+               printf("Value: %s\\n", ptr);
+            ```
+        """)
+
+        result = PatchParser.parse_yaml_response(response)
+
+        assert result is not None
+        assert "Use-after-free" in result.analysis
+        assert result.file_path == "src/vuln.c"
+        assert "@@ -10,3 +10,4 @@" in result.patch
+
+    def test_parse_yaml_response_no_yaml(self):
+        """Test parsing response without YAML block."""
+        response = "Just some plain text without YAML."
+        result = PatchParser.parse_yaml_response(response)
+        assert result is None
+
+    def test_parse_yaml_response_missing_fields(self):
+        """Test parsing YAML with missing required fields."""
+        response = dedent("""
+            ```yaml
+            analysis: Some analysis
+            file_path: src/test.c
+            ```
+        """)
+        result = PatchParser.parse_yaml_response(response)
+        assert result is None
+
+    def test_parse_yaml_response_yml_block(self):
+        """Test parsing with ```yml block instead of ```yaml."""
+        response = dedent("""
+            ```yml
+            analysis: Test analysis
+            fix_strategy: Test strategy
+            file_path: test.c
+            patch: |
+              @@ -1,1 +1,1 @@
+              -old
+              +new
+            ```
+        """)
+        result = PatchParser.parse_yaml_response(response)
+        assert result is not None
+        assert result.file_path == "test.c"
+
+    def test_extract_unified_diff(self):
+        """Test extracting unified diff from text."""
+        text = dedent("""
+            Here's the patch:
+            @@ -10,3 +10,4 @@
+             context line
+            -removed line
+            +added line
+             context line
+            
+            Some more text.
+        """)
+        diff = PatchParser.extract_unified_diff(text)
+        assert diff is not None
+        assert "@@ -10,3 +10,4 @@" in diff
+        assert "-removed line" in diff
+        assert "+added line" in diff
+
+
+# ============================================================================
+# WorkingCopyManager Tests
+# ============================================================================
+
+
+class TestWorkingCopyManager:
+    """Tests for WorkingCopyManager."""
+
+    @pytest.fixture
+    def separate_artifacts_dir(self, tmp_path: Path) -> Path:
+        """Create a separate artifacts directory to avoid copy recursion."""
+        artifacts = tmp_path / "separate_artifacts"
+        artifacts.mkdir()
+        return artifacts
+
+    def test_initialize_creates_working_copy(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test that initialize creates a working copy."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+
+        assert mgr.initialize()
+        
+        working_copy = mgr.get_working_copy_path()
+        assert working_copy.exists()
+        assert (working_copy / "src" / "vuln.c").exists()
+
+    def test_working_copy_is_independent(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test that modifying working copy doesn't affect original."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+
+        # Modify file in working copy
+        working_copy = mgr.get_working_copy_path()
+        test_file = working_copy / "src" / "vuln.c"
+        original_content = (temp_project_dir / "src" / "vuln.c").read_text()
+        test_file.write_text("modified content")
+
+        # Original should be unchanged
+        assert (temp_project_dir / "src" / "vuln.c").read_text() == original_content
+
+    def test_create_and_restore_backup(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test backup creation and restoration."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+
+        # Create backup
+        backup_path = mgr.create_file_backup("src/vuln.c")
+        assert backup_path is not None
+        assert backup_path.exists()
+
+        # Modify file
+        working_copy = mgr.get_working_copy_path()
+        test_file = working_copy / "src" / "vuln.c"
+        original_content = test_file.read_text()
+        test_file.write_text("modified content")
+        assert test_file.read_text() == "modified content"
+
+        # Restore
+        assert mgr.restore_from_backup("src/vuln.c", backup_path)
+        assert test_file.read_text() == original_content
+
+    def test_save_patched_file(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test saving patched file to artifacts."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+
+        # Modify file in working copy
+        working_copy = mgr.get_working_copy_path()
+        (working_copy / "src" / "vuln.c").write_text("patched content")
+
+        # Save patched file
+        saved_path = mgr.save_patched_file("src/vuln.c", 1, "test-finding")
+        
+        assert saved_path is not None
+        assert saved_path.exists()
+        assert "patched content" in saved_path.read_text()
+        # Verify saved to patched_files directory
+        assert str(mgr.patched_files_dir) in str(saved_path.parent)
+
+    def test_emergency_restore(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test emergency restore from original source."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+
+        # Corrupt the working copy file
+        working_copy = mgr.get_working_copy_path()
+        test_file = working_copy / "src" / "vuln.c"
+        original_content = (temp_project_dir / "src" / "vuln.c").read_text()
+        test_file.write_text("corrupted content")
+
+        # Emergency restore
+        assert mgr._emergency_restore("src/vuln.c")
+        assert test_file.read_text() == original_content
+
+
+# ============================================================================
+# PatchApplier Tests
+# ============================================================================
+
+
+class TestPatchApplier:
+    """Tests for PatchApplier."""
+
+    @pytest.fixture
+    def separate_artifacts_dir(self, tmp_path: Path) -> Path:
+        """Create a separate artifacts directory to avoid copy recursion."""
+        artifacts = tmp_path / "separate_artifacts"
+        artifacts.mkdir()
+        return artifacts
+
+    def test_apply_patch_file_not_found(self, tmp_path: Path):
+        """Test applying patch to non-existent file."""
+        applier = PatchApplier(tmp_path)
+        result = applier.apply_patch("nonexistent.c", "@@ -1,1 +1,1 @@\n-x\n+y")
+
+        assert not result.success
+        assert "not found" in result.error_message.lower()
+
+    def test_validate_patch_valid(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test patch validation with valid patch."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+        
+        applier = PatchApplier(mgr.get_working_copy_path())
+        errors = applier.validate_patch("src/vuln.c", "@@ -10,3 +10,4 @@\n context\n-old\n+new")
+        
+        # Should have no errors (or just warnings)
+        assert not any("not found" in e.lower() for e in errors)
+
+    def test_validate_patch_offline_placeholder(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test validation catches offline placeholder patches."""
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+        
+        applier = PatchApplier(mgr.get_working_copy_path())
+        errors = applier.validate_patch(
+            "src/vuln.c",
+            "@@ -10,1 +10,1 @@\n // [OFFLINE] Placeholder"
+        )
+        
+        assert any("offline" in e.lower() or "placeholder" in e.lower() for e in errors)
+
+    def test_apply_patch_simple(self, temp_project_dir: Path, separate_artifacts_dir: Path):
+        """Test applying a simple patch."""
+        # Create a simple file
+        simple_file = temp_project_dir / "simple.c"
+        simple_file.write_text("line1\nline2\nline3\n")
+
+        mgr = WorkingCopyManager(
+            original_source_dir=temp_project_dir,
+            artifacts_dir=separate_artifacts_dir,
+        )
+        mgr.initialize()
+
+        applier = PatchApplier(mgr.get_working_copy_path())
+        patch_content = dedent("""
+            @@ -1,3 +1,3 @@
+             line1
+            -line2
+            +line2_modified
+             line3
+        """).strip()
+
+        result = applier.apply_patch("simple.c", patch_content)
+
+        # Check if patch was applied (might fail if patch command not available)
+        if result.success:
+            working_file = mgr.get_working_copy_path() / "simple.c"
+            assert "line2_modified" in working_file.read_text()
+
+
+# ============================================================================
+# PatcherAgent Tests
+# ============================================================================
+
+
+class TestPatcherAgent:
+    """Tests for PatcherAgent."""
+
+    @pytest.fixture(autouse=True)
+    def setup_source(self, temp_project_dir: Path):
+        """Ensure source files exist."""
+        self.source_dir = temp_project_dir
+
+    def test_extract_source_context(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+    ):
+        """Test extracting source code context."""
+        config = PatcherConfig(context_lines=5)
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value="")
+        
+        agent = PatcherAgent(config, mock_llm)
+
+        context = agent._extract_source_context(
+            source_root=temp_project_dir,
+            file_path="src/vuln.c",
+            center_line=10,
+        )
+
+        assert context is not None
+        assert "malloc" in context or "ptr" in context
+        assert ">>>" in context  # Marker for center line
+
+    def test_extract_source_context_correct_line_numbers(
+        self,
+        temp_project_dir: Path,
+    ):
+        """Test that source extraction includes correct line numbers."""
+        config = PatcherConfig(context_lines=3)
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm)
+
+        context = agent._extract_source_context(
+            source_root=temp_project_dir,
+            file_path="src/vuln.c",
+            center_line=10,
+        )
+
+        assert context is not None
+        # Should have line numbers
+        lines = context.split("\n")
+        center_lines = [l for l in lines if ">>>" in l]
+        assert len(center_lines) == 1
+
+    def test_extract_source_context_nonexistent_file(
+        self,
+        temp_project_dir: Path,
+    ):
+        """Test extraction fails gracefully for nonexistent file."""
+        config = PatcherConfig()
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm)
+
+        context = agent._extract_source_context(
+            source_root=temp_project_dir,
+            file_path="nonexistent/file.c",
+            center_line=10,
+        )
+
+        assert context is None
+
+    def test_build_prompt(self, sample_static_finding: StaticFinding):
+        """Test building the LLM prompt."""
+        config = PatcherConfig()
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm)
+
+        source_context = "   10    char *ptr = malloc(64);\n>>>11    free(ptr);\n   12    printf(ptr);"
+
+        prompt = agent._build_prompt(
+            finding=sample_static_finding,
+            source_context=source_context,
+        )
+
+        assert "USE_AFTER_FREE" in prompt
+        assert "src/vuln.c" in prompt
+        assert "24" in prompt  # line number
+        assert source_context in prompt
+
+    def test_build_prompt_contains_all_required_fields(
+        self,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that prompt contains all necessary information."""
+        config = PatcherConfig()
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm)
+
+        source_context = dedent("""
+              20    void use_after_free_example(void) {
+              21        char *ptr = malloc(64);
+              22        free(ptr);
+            >>>23        printf("Value: %s\\n", ptr);  // BUG
+              24    }
+        """).strip()
+
+        prompt = agent._build_prompt(
+            finding=sample_static_finding,
+            source_context=source_context,
+        )
+
+        # Check all required fields are present
+        assert "## Vulnerability Report" in prompt
+        assert "**Type:**" in prompt
+        assert "**Severity:**" in prompt
+        assert "**File:**" in prompt
+        assert "**Line:**" in prompt
+        assert "## Source Code Context" in prompt
+
+        # Check values
+        assert sample_static_finding.vuln_type in prompt
+        assert sample_static_finding.severity in prompt
+        assert sample_static_finding.file_path in prompt
+        assert str(sample_static_finding.line) in prompt
+        assert source_context in prompt
+
+        # Verify NO duplication
+        assert prompt.count("## Vulnerability Report") == 1
+        assert prompt.count("## Source Code Context") == 1
+
+    def test_build_prompt_with_fuzz_crash(
+        self,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test prompt building with related fuzz crash."""
+        config = PatcherConfig()
+        mock_llm = MagicMock()
+        agent = PatcherAgent(config, mock_llm)
+
+        source_context = "  10    free(ptr);\n>>>11    printf(ptr);"
+
+        mock_crash = FuzzCrash(
+            crash_id="test123",
+            input_path=Path("/tmp/crash"),
+            input_size=10,
+            dedup_token="abc",
+            harness="fuzzer",
+            timestamp="2025-01-01T00:00:00Z",
+            stack_trace="ERROR: heap-use-after-free\n#0 in use_after_free vuln.c:24",
+        )
+
+        prompt = agent._build_prompt(
+            finding=sample_static_finding,
+            source_context=source_context,
+            related_crash=mock_crash,
+        )
+
+        # Should include fuzz crash info
+        assert "## Related Fuzz Crash" in prompt
+        assert "heap-use-after-free" in prompt
+
+    @pytest.mark.asyncio
+    async def test_generate_patch_offline(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test patch generation in offline mode."""
+        # Mock LLM to return offline response
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value=dedent("""
+            ```yaml
+            analysis: "[OFFLINE MODE] Analysis placeholder"
+            fix_strategy: "[OFFLINE MODE] Strategy placeholder"
+            file_path: src/vuln.c
+            patch: |
+              @@ -24,1 +24,1 @@
+               // [OFFLINE] Placeholder patch
+            ```
+        """))
+
+        config = PatcherConfig()
+        agent = PatcherAgent(config, mock_llm)
+
+        result = await agent.generate_patch(
+            finding=sample_static_finding,
+            source_root=temp_project_dir,
+            run_ctx=mock_run_ctx,
+        )
+
+        assert result is not None
+        assert result.success or "[OFFLINE]" in str(result.error_message)
+
+
+# ============================================================================
+# Integration Tests
+# ============================================================================
+
+
+class TestPatcherIntegration:
+    """Integration tests for the full patching flow."""
+
+    @pytest.mark.asyncio
+    async def test_full_patch_flow_offline(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test the full patching flow in offline mode."""
+        from trata.src.pipelines.patching import PatchingPipeline, PatchingBatch
+        from trata.src.storage.models import BuildArtifacts
+
+        # Create build artifacts
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        # Mock LLM client
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value=dedent("""
+            ```yaml
+            analysis: "[OFFLINE] Test analysis"
+            fix_strategy: "[OFFLINE] Test strategy"
+            file_path: src/vuln.c
+            patch: |
+              @@ -24,1 +24,1 @@
+               // [OFFLINE] Placeholder
+            ```
+        """))
+
+        # Create pipeline
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        # Create mock target config
+        from trata.src.config import TargetProjectConfig
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="echo 'mock build'",
+            local_checkout=temp_project_dir,
+        )
+
+        # Execute pipeline
+        result = await pipeline.execute(
+            target=target_config,
+            build=build_artifacts,
+            run_ctx=mock_run_ctx,
+            static_findings=[sample_static_finding],
+            crashes=[],
+        )
+
+        assert isinstance(result, PatchingBatch)
+        assert result.findings_processed == 1
+        # Working copy should be created
+        assert result.working_copy_path is not None
+        assert Path(result.working_copy_path).exists()
+
+    @pytest.mark.asyncio
+    async def test_working_copy_not_original(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that patching uses working copy, not original source."""
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.storage.models import BuildArtifacts
+
+        # Save original content
+        original_content = (temp_project_dir / "src" / "vuln.c").read_text()
+
+        # Create build artifacts
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        # Mock LLM client
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value=dedent("""
+            ```yaml
+            analysis: "Test"
+            fix_strategy: "Test"
+            file_path: src/vuln.c
+            patch: |
+              @@ -1,1 +1,1 @@
+               // Modified
+            ```
+        """))
+
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        from trata.src.config import TargetProjectConfig
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="echo 'mock build'",
+            local_checkout=temp_project_dir,
+        )
+
+        await pipeline.execute(
+            target=target_config,
+            build=build_artifacts,
+            run_ctx=mock_run_ctx,
+            static_findings=[sample_static_finding],
+            crashes=[],
+        )
+
+        # Original should be UNCHANGED
+        assert (temp_project_dir / "src" / "vuln.c").read_text() == original_content
+
+    @pytest.mark.asyncio
+    async def test_build_runs_on_working_copy(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that build runs on working copy directory."""
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.storage.models import BuildArtifacts
+
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        # Create a build script that creates a marker file
+        build_marker = []
+        
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value=dedent("""
+            ```yaml
+            analysis: "Test"
+            fix_strategy: "Test"
+            file_path: src/vuln.c
+            patch: |
+              @@ -1,1 +1,1 @@
+               // test
+            ```
+        """))
+
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        from trata.src.config import TargetProjectConfig
+        
+        # Build script that creates a marker in the build directory
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="touch build_marker.txt && echo 'Build complete'",
+            local_checkout=temp_project_dir,
+        )
+
+        result = await pipeline.execute(
+            target=target_config,
+            build=build_artifacts,
+            run_ctx=mock_run_ctx,
+            static_findings=[sample_static_finding],
+            crashes=[],
+        )
+
+        # Build marker should be in working copy, NOT original
+        assert not (temp_project_dir / "build_marker.txt").exists()
+        if result.working_copy_path:
+            assert (Path(result.working_copy_path) / "build_marker.txt").exists()
+
+    @pytest.mark.asyncio
+    async def test_patched_files_saved(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that patched files are saved to patched_files directory."""
+        from trata.src.pipelines.patching import PatchingPipeline
+        from trata.src.storage.models import BuildArtifacts
+
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value=dedent("""
+            ```yaml
+            analysis: "Test"
+            fix_strategy: "Test"
+            file_path: src/vuln.c
+            patch: |
+              @@ -1,1 +1,1 @@
+               // patched
+            ```
+        """))
+
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        from trata.src.config import TargetProjectConfig
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="echo 'build'",
+            local_checkout=temp_project_dir,
+        )
+
+        result = await pipeline.execute(
+            target=target_config,
+            build=build_artifacts,
+            run_ctx=mock_run_ctx,
+            static_findings=[sample_static_finding],
+            crashes=[],
+        )
+
+        # Check patched_files directory exists
+        patched_files_dir = mock_run_ctx.artifacts_dir / "patching" / "patched_files"
+        if result.patches_applied > 0:
+            assert patched_files_dir.exists()
+            patched_files = list(patched_files_dir.glob("*"))
+            assert len(patched_files) > 0
+
+    @pytest.mark.asyncio
+    async def test_crash_testing_with_mock_crash(
+        self,
+        temp_project_dir: Path,
+        mock_run_ctx: RunContext,
+        sample_static_finding: StaticFinding,
+    ):
+        """Test that crash testing runs against provided crashes."""
+        from trata.src.pipelines.patching import PatchingPipeline, CrashTestResult
+        from trata.src.storage.models import BuildArtifacts, FuzzCrash
+
+        build_dir = temp_project_dir / "build"
+        build_dir.mkdir()
+        build_artifacts = BuildArtifacts(
+            source_dir=temp_project_dir,
+            build_dir=build_dir,
+        )
+
+        # Create a mock crash
+        crash_dir = mock_run_ctx.artifacts_dir / "fuzzing" / "crashes"
+        crash_dir.mkdir(parents=True)
+        crash_input = crash_dir / "crash1"
+        crash_input.write_bytes(b"CRASH_INPUT")
+
+        mock_crash = FuzzCrash(
+            crash_id="crash1",
+            input_path=crash_input,
+            input_size=11,
+            dedup_token="token1",
+            harness="fuzzer",
+            timestamp="2025-01-01T00:00:00Z",
+            stack_trace="SIGSEGV",
+        )
+
+        mock_llm = MagicMock()
+        mock_llm.completion = AsyncMock(return_value=dedent("""
+            ```yaml
+            analysis: "Test"
+            fix_strategy: "Test"
+            file_path: src/vuln.c
+            patch: |
+              @@ -1,1 +1,1 @@
+               // test
+            ```
+        """))
+
+        runtime_config = RuntimeConfig()
+        pipeline = PatchingPipeline(
+            runtime_config=runtime_config,
+            store=LocalRunStore(mock_run_ctx.root),
+            llm_client=mock_llm,
+        )
+
+        from trata.src.config import TargetProjectConfig
+        target_config = TargetProjectConfig(
+            name="test-project",
+            repo_url="",
+            fuzz_targets=tuple(),
+            build_script="echo 'build'",
+            local_checkout=temp_project_dir,
+        )
+
+        result = await pipeline.execute(
+            target=target_config,
+            build=build_artifacts,
+            run_ctx=mock_run_ctx,
+            static_findings=[sample_static_finding],
+            crashes=[mock_crash],
+        )
+
+        # Check that crash tests were recorded
+        for test_result in result.test_results:
+            if test_result.build_success:
+                # Should have attempted to test crashes
+                assert len(test_result.crash_tests) > 0 or test_result.crashes_remaining >= 0

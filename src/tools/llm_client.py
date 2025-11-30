@@ -341,3 +341,101 @@ class LangGraphClient:
         patterns.extend(str(PurePosixPath(p)) for p in target.harness_globs)
         return patterns
 
+    # =========================================================================
+    # Generic LLM Completion (for patcher and other agents)
+    # =========================================================================
+
+    async def completion(
+        self,
+        messages: list[dict[str, str]],
+        model: str | None = None,
+        temperature: float = 0.7,
+    ) -> str:
+        """
+        Generic LLM completion for any agent.
+
+        Args:
+            messages: List of messages with 'role' and 'content' keys
+            model: Model to use (defaults to runtime config)
+            temperature: Sampling temperature
+
+        Returns:
+            String response from LLM
+        """
+        if not self._llm:
+            # Offline fallback
+            return self._offline_completion_response(messages)
+
+        # Build prompt from messages
+        prompt_parts = []
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            if role == "system":
+                prompt_parts.append(f"[System]: {content}")
+            elif role == "assistant":
+                prompt_parts.append(f"[Assistant]: {content}")
+            else:
+                prompt_parts.append(f"[User]: {content}")
+
+        full_prompt = "\n\n".join(prompt_parts)
+
+        # Check token budget
+        prompt_tokens_est = len(full_prompt.split()) * 1.3
+        if self._tokens_used + prompt_tokens_est > self._max_tokens:
+            raise RuntimeError(
+                f"Token budget exceeded: {self._tokens_used}/{self._max_tokens}"
+            )
+
+        try:
+            loop = asyncio.get_running_loop()
+            completion = await loop.run_in_executor(
+                None, lambda: self._llm.invoke(full_prompt)
+            )
+            self._tokens_used += int(prompt_tokens_est * 2)
+            return completion.content if hasattr(completion, "content") else str(completion)
+        except Exception as e:
+            error_str = str(e).lower()
+            # Check for authentication errors - fall back to offline mode
+            if "401" in error_str or "api_key" in error_str or "invalid" in error_str:
+                return self._offline_completion_response(messages)
+            self._retry_count += 1
+            if self._retry_count >= self._max_retries:
+                raise RuntimeError(f"LLM call failed after {self._max_retries} retries: {e}")
+            raise
+
+    def _offline_completion_response(self, messages: list[dict[str, str]]) -> str:
+        """Generate an offline response for testing."""
+        # Extract system and user messages
+        system_msg = ""
+        user_msg = ""
+        for msg in messages:
+            if msg.get("role") == "system":
+                system_msg = msg.get("content", "")
+            elif msg.get("role") == "user":
+                user_msg = msg.get("content", "")
+
+        # Check if this is a patching request
+        if "patch" in system_msg.lower() or "fix" in system_msg.lower():
+            # Extract file path and line from user message
+            import re
+            file_match = re.search(r"\*\*File:\*\*\s*(\S+)", user_msg)
+            line_match = re.search(r"\*\*Line:\*\*\s*(\d+)", user_msg)
+            
+            file_path = file_match.group(1) if file_match else "unknown.c"
+            line_num = int(line_match.group(1)) if line_match else 1
+
+            return f"""```yaml
+analysis: |
+  [OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.
+  This is a placeholder response for testing.
+fix_strategy: |
+  [OFFLINE MODE] No fix strategy available in offline mode.
+file_path: {file_path}
+patch: |
+  @@ -{line_num},1 +{line_num},1 @@
+   // [OFFLINE] Placeholder patch - no changes made
+```"""
+
+        return "[OFFLINE MODE] LLM credentials not configured."
+

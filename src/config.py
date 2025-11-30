@@ -49,12 +49,18 @@ class RuntimeConfig:
     # LLM settings
     llm_budget_tokens: int = 32_000
     llm_max_files: int | None = None
+    enable_static_llm: bool = True  # Enable LLM-based static analysis
 
     # Fuzzing settings
     enable_fuzzing: bool = True
     fuzzing_timeout: int = 60  # Per-execution timeout (seconds)
     fuzzing_max_time: int = 120  # Total fuzzing time (seconds)
     fuzzing_workers: int = 1  # Number of parallel fuzzer jobs
+
+    # Patching settings
+    enable_patching: bool = True
+    patcher_model: str = "gpt-4o"  # Model for patcher LLM
+    patcher_context_lines: int = 50  # Lines of context around vulnerability
 
     storage_backend: Literal["local"] = "local"
     extra_env: dict[str, str] = field(default_factory=dict)

@@ -13,7 +13,8 @@ This package hosts a lightweight but full-loop Cyber Reasoning System modeled af
 | Build layer | Clone or reuse sources, execute build recipe, write `build.log`. | `src/tools/project_builder.py` |
 | Static analysis | LLM agent (LangGraph-style) + Facebook Infer, both logged and merged. | `src/agents/static_analysis.py`, `src/tools/llm_client.py`, `src/tools/fbinfer_runner.py` |
 | **Fuzzing** | Build fuzzer with sanitizers, run libFuzzer, collect crashes. | `src/pipelines/fuzzing.py`, `src/tools/libfuzzer_runner.py`, `src/tools/corpus_manager.py` |
-| Persistence | Emit `StaticAnalysisBatch`, `FuzzingBatch` + JSONL run logs for grading/auditing. | `src/storage/models.py`, `src/storage/local_store.py` |
+| **Patching** | Generate LLM patches for findings, apply, test against crashes. | `src/pipelines/patching.py`, `src/agents/patcher.py`, `src/tools/patch_applier.py` |
+| Persistence | Emit `StaticAnalysisBatch`, `FuzzingBatch`, `PatchingBatch` + JSONL run logs for grading/auditing. | `src/storage/models.py`, `src/storage/local_store.py` |
 
 ---
 
@@ -138,7 +139,9 @@ This will:
 2. Run static analysis (LLM + Infer)
 3. Build and run fuzzers on all specified harnesses
 4. **Automatically deduplicate crashes by stack trace**
-5. Save results to `trata/data/example-c/<timestamp>/`
+5. **Generate LLM patches for static analysis findings**
+6. **Test patches against fuzz crashes**
+7. Save results to `trata/data/example-c/<timestamp>/`
 
 ### Running on Your Own Project
 
@@ -298,7 +301,46 @@ The test suite verifies:
 
 ---
 
-## Data Flow & Next Steps
+## Data Flow & Output Locations
+
+### Complete Command (with Patching)
+
+**Run the full CRS pipeline (static analysis → fuzzing → patching):**
+
+```bash
+OPENAI_API_KEY=sk-... python -m trata.main \
+  --name example-c \
+  --local-checkout trata/example-c-target \
+  --fuzz-target fuzz/vuln_fuzzer.c \
+  --fuzz-target fuzz/packet_fuzzer.c \
+  --harness-glob "fuzz/*" \
+  --build-script "bash build.sh" \
+  --fuzzing-time 60
+```
+
+**Run WITHOUT patching (static analysis + fuzzing only):**
+
+```bash
+python -m trata.main \
+  --name example-c \
+  --local-checkout trata/example-c-target \
+  --fuzz-target fuzz/vuln_fuzzer.c \
+  --harness-glob "fuzz/*" \
+  --build-script "bash build.sh" \
+  --no-patching
+```
+
+**Run WITHOUT LLM (Infer static analysis + fuzzing only):**
+
+```bash
+python -m trata.main \
+  --name example-c \
+  --local-checkout trata/example-c-target \
+  --fuzz-target fuzz/vuln_fuzzer.c \
+  --harness-glob "fuzz/*" \
+  --build-script "bash build.sh" \
+  --no-static-llm --no-patching
+```
 
 ### Output Files
 
@@ -309,24 +351,54 @@ artifacts/
 ├── static_analysis.json      # Combined Infer + LLM findings
 ├── infer/
 │   └── report.json           # Raw Infer output
-└── fuzzing/                   # Fuzzing results (if enabled)
-    ├── {harness}_results.json # Per-harness results (all crashes)
-    ├── combined_results.json  # Combined results from all harnesses
-    ├── deduplicated_crashes.json # Unique crashes (one per bug) - for patcher
-    ├── corpus_{harness}/       # Per-harness corpus
-    │   ├── seeds/             # Seed inputs
-    │   └── crashes/           # Crash inputs by dedup token
-    │       └── <dedup_token>/
-    │           └── <crash_id> # Raw crash input bytes
-    └── fuzzer.log             # libFuzzer stdout/stderr
+├── fuzzing/                   # Fuzzing results (if enabled)
+│   ├── {harness}_results.json # Per-harness results (all crashes)
+│   ├── combined_results.json  # Combined results from all harnesses
+│   ├── deduplicated_crashes.json # Unique crashes (one per bug) - for patcher
+│   ├── corpus_{harness}/       # Per-harness corpus
+│   │   ├── seeds/             # Seed inputs
+│   │   └── crashes/           # Crash inputs by dedup token
+│   │       └── <dedup_token>/
+│   │           └── <crash_id> # Raw crash input bytes
+│   └── fuzzer.log             # libFuzzer stdout/stderr
+└── patching/                  # Patching results (if enabled)
+    ├── patching_results.json  # Full patching results with test outcomes
+    ├── llm_interactions.jsonl # Log of all LLM interactions for patcher
+    ├── patches/               # Individual patch files (unified diff)
+    │   └── patch_{n}_{file}.patch
+    ├── patched_files/         # ⭐ SAVED PATCHED SOURCE FILES
+    │   └── patch_{n}_{file}_{finding_id}
+    ├── working_copy/          # Working copy with ALL cumulative patches
+    │   └── src/               # Can be used directly for manual testing
+    └── backups/               # Empty after successful run (deleted after restore)
 ```
 
-**Key files:**
+### 📍 Where to Find What
+
+| What You Need | Location |
+|---------------|----------|
+| **Run logs** | `logs/run.log` |
+| **All tool calls/LLM interactions** | `logs/tool_calls.jsonl` |
+| **Static analysis findings** | `artifacts/static_analysis.json` |
+| **Fuzzing crashes (deduplicated)** | `artifacts/fuzzing/deduplicated_crashes.json` |
+| **Raw crash inputs** | `artifacts/fuzzing/corpus_{harness}/crashes/<token>/<id>` |
+| **Patching summary** | `artifacts/patching/patching_results.json` |
+| **Generated patches (diff format)** | `artifacts/patching/patches/` |
+| **Patched source files** | `artifacts/patching/patched_files/` |
+| **Working copy (all patches applied)** | `artifacts/patching/working_copy/` |
+| **LLM prompts/responses (patcher)** | `artifacts/patching/llm_interactions.jsonl` |
+| **Infer raw output** | `artifacts/infer/report.json` |
+| **Build log** | `artifacts/build/build.log` |
+
+### Key Files Explained
+
 - `static_analysis.json`: All static findings (Infer + LLM)
-- `fuzzing/{harness}_results.json`: Per-harness fuzzing summary with all crashes
-- `fuzzing/combined_results.json`: Aggregated results from all harnesses
-- `fuzzing/deduplicated_crashes.json`: **Unique crashes only** (one per bug signature) - **use this for patcher agent**
+- `fuzzing/deduplicated_crashes.json`: **Unique crashes only** (one per bug signature) - **used by patcher**
 - `fuzzing/corpus_{harness}/crashes/<token>/<id>`: Raw crash inputs for reproduction
+- `patching/patching_results.json`: Patch generation/application/test results
+- `patching/llm_interactions.jsonl`: Full log of patcher LLM calls (prompts + responses)
+- **`patching/patched_files/`**: ⭐ Individual patched files saved after each successful patch
+- **`patching/working_copy/`**: ⭐ Complete source tree with ALL patches applied cumulatively
 
 ### Docker Volume Mounts
 
@@ -340,6 +412,107 @@ All results are automatically saved to the host filesystem—no manual copying n
 
 ---
 
+---
+
+## Logging Architecture
+
+### Where Logs Are Written
+
+All logs are written to `trata/data/<project>/<timestamp>/`:
+
+| Log File | Purpose | Contents |
+|----------|---------|----------|
+| `logs/run.log` | Main event log | Timestamped events from all pipeline stages |
+| `logs/tool_calls.jsonl` | Tool/LLM calls | Every external call (LLM, source reader, etc.) as JSONL |
+| `logs/llm_summary.json` | LLM summary | Static analysis LLM responses |
+| `logs/fuzzing.log` | Fuzzer output | libFuzzer stdout/stderr |
+| `artifacts/patching/llm_interactions.jsonl` | Patcher LLM | Full prompts and responses for patch generation |
+
+### Log Format
+
+**run.log** format:
+```
+2025-11-30T09:36:18.649115+00:00 [example-c/20251130-093522] [INFO] [PatchingPipeline] Rebuilding from working copy...
+```
+
+**tool_calls.jsonl** format:
+```json
+{"timestamp": "...", "project": "...", "tool": "source_locator", "action": "list_files", "detail": {...}}
+```
+
+### What Gets Logged
+
+| Stage | Events Logged |
+|-------|---------------|
+| **Build** | Start, compile_commands creation, success/failure |
+| **Static Analysis** | LLM prompts, responses, findings, Infer execution |
+| **Fuzzing** | Build, run start, crashes found, seeds found, deduplication |
+| **Patching** | Patch generation, validation, application, build, crash tests, rollback |
+
+### Viewing Logs
+
+```bash
+# Full run log
+cat trata/data/example-c/<timestamp>/logs/run.log
+
+# Just patching events
+grep "PatchingPipeline" trata/data/example-c/<timestamp>/logs/run.log
+
+# LLM interactions
+cat trata/data/example-c/<timestamp>/artifacts/patching/llm_interactions.jsonl | python -m json.tool
+
+# Tool calls (JSON Lines)
+cat trata/data/example-c/<timestamp>/logs/tool_calls.jsonl | head -5 | python -m json.tool
+```
+
+---
+
+## Patching Architecture
+
+### How Patching Works (V1)
+
+1. **Working Copy Creation**: A fresh copy of the source is created in `artifacts/patching/working_copy/`. The **original source is NEVER modified**.
+
+2. **Patch Generation**: For each static analysis finding, the LLM generates a unified diff patch.
+
+3. **Cumulative Application**: Patches are applied **cumulatively** to the working copy:
+   - Patch 1 is applied
+   - Patch 2 is applied on top of Patch 1
+   - etc.
+   
+4. **Build & Test**: After each patch:
+   - The working copy is rebuilt
+   - All fuzz crashes are re-run to test if they're fixed
+   
+5. **Rollback on Failure**: If a patch fails to apply or breaks the build:
+   - The file is restored from backup
+   - Next patch is attempted
+   - Emergency restore from original source if backup fails
+
+6. **Save Patched Files**: Each successfully patched file is saved to `patched_files/` for review.
+
+### Patch Testing Flow
+
+```
+For each finding:
+  1. Create backup of file
+  2. Apply patch to working copy
+  3. Rebuild project
+     - On failure: rollback, try next
+  4. Test against ALL fuzz crashes
+  5. Log results (crashes fixed vs remaining)
+  6. Save patched file to patched_files/
+  7. Keep patch in working copy (cumulative)
+```
+
+### What's NOT in V1
+
+- No feedback loop (failed patches don't get refined)
+- No sequence alignment (patches must apply cleanly)
+- No inter-patch conflict resolution
+
+---
+
 ## To-Dos:-
 
 #### General:- 
@@ -349,8 +522,10 @@ All results are automatically saved to the host filesystem—no manual copying n
 - Add more (complicated and less explicit) target projects to run trata CRS on.
 
 #### Patcher related:-
-- Implement v1 patcher, which just takes in a static analysis bug report and the relevant target source file, and outputs a patch in unified diff format.
-- A next step applies that patch, and re-runs ALL fuzz crashes on it (but immediately doesn't do anything if some/all fuzz crashes continue to fail).
+- (Done) Implement v1 patcher, which just takes in a static analysis bug report and the relevant target source file, and outputs a patch in unified diff format.
+- (Done) A next step applies that patch, and re-runs ALL fuzz crashes on it (but immediately doesn't do anything if some/all fuzz crashes continue to fail).
+- (Future) Implement feedback loop for failed patches
+- (Future) Add sequence alignment for fuzzy patch application (like theori's CRS)
 
 #### Fuzzer related:-
 - (Future To-Do) Implement triage fuzz crash type functionality (need a lot of improvement for it)
@@ -372,14 +547,20 @@ All results are automatically saved to the host filesystem—no manual copying n
 Run all unit tests:
 
 ```bash
+# Run all tests
+OPENAI_API_KEY=test pytest trata/tests/ -v
+
 # Static analysis tests
-pytest trata/tests/test_llm_client.py -v
+OPENAI_API_KEY=test pytest trata/tests/test_llm_client.py -v
 
 # Fuzzing tests
 pytest trata/tests/test_fuzzing.py -v
 
 # Crash deduplication tests
 pytest trata/tests/test_crash_deduplicator.py -v
+
+# Patcher tests
+pytest trata/tests/test_patcher.py -v
 ```
 
 ## Documentation

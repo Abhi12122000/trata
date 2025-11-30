@@ -1,0 +1,105 @@
+{
+  "project": "example-c",
+  "run_id": "20251130-094528",
+  "findings_processed": 3,
+  "patches_generated": 3,
+  "patches_applied": 3,
+  "patches_tested": 3,
+  "working_copy_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/working_copy",
+  "patched_files_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patched_files",
+  "patcher_results": [
+    {
+      "finding_id": "infer:NULLPTR_DEREFERENCE:src/main.c:22",
+      "vuln_type": "NULLPTR_DEREFERENCE",
+      "file_path": "src/main.c",
+      "line": 22,
+      "success": true,
+      "error_message": null,
+      "patch": "@@ -22,1 +22,1 @@\n // [OFFLINE] Placeholder patch - no changes made",
+      "analysis": "[OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.\nThis is a placeholder response for testing.\n",
+      "fix_strategy": "[OFFLINE MODE] No fix strategy available in offline mode.\n",
+      "attempts": 1
+    },
+    {
+      "finding_id": "infer:MEMORY_LEAK_C:src/vuln.c:36",
+      "vuln_type": "MEMORY_LEAK_C",
+      "file_path": "src/vuln.c",
+      "line": 36,
+      "success": true,
+      "error_message": null,
+      "patch": "@@ -36,1 +36,1 @@\n // [OFFLINE] Placeholder patch - no changes made",
+      "analysis": "[OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.\nThis is a placeholder response for testing.\n",
+      "fix_strategy": "[OFFLINE MODE] No fix strategy available in offline mode.\n",
+      "attempts": 1
+    },
+    {
+      "finding_id": "infer:USE_AFTER_FREE:src/vuln.c:46",
+      "vuln_type": "USE_AFTER_FREE",
+      "file_path": "src/vuln.c",
+      "line": 46,
+      "success": true,
+      "error_message": null,
+      "patch": "@@ -46,1 +46,1 @@\n // [OFFLINE] Placeholder patch - no changes made",
+      "analysis": "[OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.\nThis is a placeholder response for testing.\n",
+      "fix_strategy": "[OFFLINE MODE] No fix strategy available in offline mode.\n",
+      "attempts": 1
+    }
+  ],
+  "test_results": [
+    {
+      "finding_id": "infer:NULLPTR_DEREFERENCE:src/main.c:22",
+      "patch_applied": true,
+      "build_success": true,
+      "build_error": null,
+      "patched_file_saved": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patched_files/patch_001_src_main.c_infer_NULLPTR_DEREFERENCE_src_main_c_22",
+      "crashes_fixed": 0,
+      "crashes_remaining": 1,
+      "crash_tests": [
+        {
+          "crash_id": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+          "harness": "vuln_fuzzer",
+          "still_crashes": true,
+          "error_message": "Fuzzer binary not found",
+          "signal": null
+        }
+      ]
+    },
+    {
+      "finding_id": "infer:MEMORY_LEAK_C:src/vuln.c:36",
+      "patch_applied": true,
+      "build_success": true,
+      "build_error": null,
+      "patched_file_saved": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patched_files/patch_002_src_vuln.c_infer_MEMORY_LEAK_C_src_vuln_c_36",
+      "crashes_fixed": 0,
+      "crashes_remaining": 1,
+      "crash_tests": [
+        {
+          "crash_id": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+          "harness": "vuln_fuzzer",
+          "still_crashes": true,
+          "error_message": "Fuzzer binary not found",
+          "signal": null
+        }
+      ]
+    },
+    {
+      "finding_id": "infer:USE_AFTER_FREE:src/vuln.c:46",
+      "patch_applied": true,
+      "build_success": true,
+      "build_error": null,
+      "patched_file_saved": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patched_files/patch_003_src_vuln.c_infer_USE_AFTER_FREE_src_vuln_c_46",
+      "crashes_fixed": 0,
+      "crashes_remaining": 1,
+      "crash_tests": [
+        {
+          "crash_id": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+          "harness": "vuln_fuzzer",
+          "still_crashes": true,
+          "error_message": "Fuzzer binary not found",
+          "signal": null
+        }
+      ]
+    }
+  ],
+  "summary": "Patching: 3 generated, 3 applied (cumulative), 3 tested. Crashes: 0 fixed, 3 remaining."
+}

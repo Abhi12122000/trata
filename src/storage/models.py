@@ -42,6 +42,27 @@ class StaticFinding:
     detail: str
     evidence_path: Path | None = None
     raw_payload: dict | None = None
+    function_name: str | None = None  # Function containing the vulnerability
+
+    @property
+    def finding_id(self) -> str:
+        """Generate a unique ID for this finding."""
+        return f"{self.tool}:{self.check_id}:{self.file}:{self.line}"
+
+    @property
+    def file_path(self) -> str:
+        """Alias for file (for patcher compatibility)."""
+        return self.file
+
+    @property
+    def vuln_type(self) -> str:
+        """Alias for check_id (for patcher compatibility)."""
+        return self.check_id
+
+    @property
+    def description(self) -> str:
+        """Alias for detail (for patcher compatibility)."""
+        return self.detail
 
 
 @dataclass()
@@ -119,4 +140,13 @@ class CRSResult:
     run_id: str
     static_analysis: StaticAnalysisBatch | None = None
     fuzzing: FuzzingBatch | None = None
+    patching: "PatchingBatch | None" = None
     summary: str = ""
+
+
+# ============================================================================
+# Patching Models (imported from pipelines.patching)
+# ============================================================================
+
+# Forward reference for PatchingBatch to avoid circular imports
+PatchingBatch = "PatchingBatch"

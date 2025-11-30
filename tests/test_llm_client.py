@@ -42,7 +42,7 @@ def test_llm_client_offline_fallback(tmp_path: Path) -> None:
     target = TargetProjectConfig(
         name="test",
         repo_url="https://example.com/repo.git",
-        fuzz_target="fuzz/fuzzer.c",
+        fuzz_targets=["fuzz/fuzzer.c"],
     )
 
     summary, findings = asyncio.run(client.run_static_review(target, build, run_ctx))
@@ -81,7 +81,7 @@ def test_llm_client_skips_build_artifacts(tmp_path: Path) -> None:
     target = TargetProjectConfig(
         name="test",
         repo_url="https://example.com/repo.git",
-        fuzz_target="fuzz/fuzzer.c",
+        fuzz_targets=["fuzz/fuzzer.c"],
     )
 
     asyncio.run(client.run_static_review(target, build, run_ctx))

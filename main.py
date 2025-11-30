@@ -67,6 +67,24 @@ def parse_args() -> argparse.Namespace:
         default=32000,
         help="Max tokens for LLM static analysis (default: 32000)",
     )
+    parser.add_argument(
+        "--no-static-llm",
+        action="store_true",
+        help="Disable LLM-based static analysis (run Infer only)",
+    )
+
+    # Patching settings
+    parser.add_argument(
+        "--no-patching",
+        action="store_true",
+        help="Disable patching (run static analysis and fuzzing only)",
+    )
+    parser.add_argument(
+        "--patcher-model",
+        type=str,
+        default="gpt-4o",
+        help="Model to use for patcher LLM (default: gpt-4o)",
+    )
 
     args = parser.parse_args()
     if not args.repo and not args.local_checkout:
@@ -88,6 +106,9 @@ async def _async_main(args: argparse.Namespace) -> None:
         fuzzing_timeout=args.fuzzing_timeout,
         fuzzing_workers=args.fuzzing_workers,
         llm_budget_tokens=args.llm_budget_tokens,
+        enable_static_llm=not args.no_static_llm,
+        enable_patching=not args.no_patching,
+        patcher_model=args.patcher_model,
     )
 
     target = TargetProjectConfig(
@@ -113,6 +134,9 @@ async def _async_main(args: argparse.Namespace) -> None:
     if result.fuzzing:
         print(f"Fuzzing: {result.fuzzing.crashes_found} crashes, {result.fuzzing.seeds_found} new seeds")
         print(f"Fuzzing duration: {result.fuzzing.duration_seconds:.1f}s")
+    if result.patching:
+        print(f"Patching: {result.patching.patches_generated} patches generated, "
+              f"{result.patching.patches_applied} applied, {result.patching.patches_tested} tested")
     print(f"{'='*60}\n")
 
 

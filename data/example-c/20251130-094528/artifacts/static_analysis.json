@@ -1,0 +1,321 @@
+{
+  "project": "example-c",
+  "run_id": "20251130-094528",
+  "summary": "3 total findings: 0 from LangGraph agents, 3 from Infer.",
+  "findings": [
+    {
+      "tool": "infer",
+      "check_id": "NULLPTR_DEREFERENCE",
+      "file": "src/main.c",
+      "line": 22,
+      "severity": "low",
+      "title": "The call to `null_deref_example` may trigger the following issue: `strcmp()` could be null (from the call to `null_deref_example()` on line 22) and is dereferenced in the call to `null_deref_example()`.",
+      "detail": [
+        {
+          "level": 2,
+          "filename": "src/main.c",
+          "line_number": 22,
+          "column_number": 9,
+          "description": "is assigned to the null pointer"
+        },
+        {
+          "level": 2,
+          "filename": "src/main.c",
+          "line_number": 22,
+          "column_number": 9,
+          "description": "when calling `null_deref_example` here"
+        },
+        {
+          "level": 3,
+          "filename": "src/vuln.c",
+          "line_number": 31,
+          "column_number": 5,
+          "description": "is assigned to the null pointer"
+        },
+        {
+          "level": 3,
+          "filename": "src/vuln.c",
+          "line_number": 31,
+          "column_number": 5,
+          "description": "assigned"
+        },
+        {
+          "level": 3,
+          "filename": "src/vuln.c",
+          "line_number": 36,
+          "column_number": 5,
+          "description": "invalid access occurs here"
+        }
+      ],
+      "evidence_path": null,
+      "raw_payload": {
+        "bug_type": "NULLPTR_DEREFERENCE",
+        "qualifier": "The call to `null_deref_example` may trigger the following issue: `strcmp()` could be null (from the call to `null_deref_example()` on line 22) and is dereferenced in the call to `null_deref_example()`.",
+        "severity": "ERROR",
+        "category": "Null pointer dereference",
+        "line": 22,
+        "column": 9,
+        "procedure": "main",
+        "procedure_start_line": 12,
+        "file": "src/main.c",
+        "bug_trace": [
+          {
+            "level": 2,
+            "filename": "src/main.c",
+            "line_number": 22,
+            "column_number": 9,
+            "description": "is assigned to the null pointer"
+          },
+          {
+            "level": 2,
+            "filename": "src/main.c",
+            "line_number": 22,
+            "column_number": 9,
+            "description": "when calling `null_deref_example` here"
+          },
+          {
+            "level": 3,
+            "filename": "src/vuln.c",
+            "line_number": 31,
+            "column_number": 5,
+            "description": "is assigned to the null pointer"
+          },
+          {
+            "level": 3,
+            "filename": "src/vuln.c",
+            "line_number": 31,
+            "column_number": 5,
+            "description": "assigned"
+          },
+          {
+            "level": 3,
+            "filename": "src/vuln.c",
+            "line_number": 36,
+            "column_number": 5,
+            "description": "invalid access occurs here"
+          }
+        ],
+        "bug_trace_length": 5,
+        "bug_trace_max_depth": 3,
+        "key": "main.c|main|NULLPTR_DEREFERENCE",
+        "hash": "167a49cf30939fb69c52a7b8c708990f",
+        "bug_type_hum": "Null Dereference",
+        "extras": {}
+      }
+    },
+    {
+      "tool": "infer",
+      "check_id": "MEMORY_LEAK_C",
+      "file": "src/vuln.c",
+      "line": 36,
+      "severity": "low",
+      "title": "Memory dynamically allocated by `malloc` on line 33 is not freed after the last access at line 36, column 5.",
+      "detail": [
+        {
+          "level": 0,
+          "filename": "src/vuln.c",
+          "line_number": 33,
+          "column_number": 15,
+          "description": "allocation part of the trace starts here"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 33,
+          "column_number": 15,
+          "description": "allocated by `malloc` here"
+        },
+        {
+          "level": 0,
+          "filename": "src/vuln.c",
+          "line_number": 36,
+          "column_number": 5,
+          "description": "memory becomes unreachable here"
+        }
+      ],
+      "evidence_path": null,
+      "raw_payload": {
+        "bug_type": "MEMORY_LEAK_C",
+        "qualifier": "Memory dynamically allocated by `malloc` on line 33 is not freed after the last access at line 36, column 5.",
+        "severity": "ERROR",
+        "category": "Resource leak",
+        "line": 36,
+        "column": 5,
+        "procedure": "null_deref_example",
+        "procedure_start_line": 30,
+        "file": "src/vuln.c",
+        "bug_trace": [
+          {
+            "level": 0,
+            "filename": "src/vuln.c",
+            "line_number": 33,
+            "column_number": 15,
+            "description": "allocation part of the trace starts here"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 33,
+            "column_number": 15,
+            "description": "allocated by `malloc` here"
+          },
+          {
+            "level": 0,
+            "filename": "src/vuln.c",
+            "line_number": 36,
+            "column_number": 5,
+            "description": "memory becomes unreachable here"
+          }
+        ],
+        "bug_trace_length": 3,
+        "bug_trace_max_depth": 1,
+        "key": "vuln.c|null_deref_example|MEMORY_LEAK_C",
+        "hash": "5e443755d47365ad76bbc1f642eb7fc6",
+        "bug_type_hum": "Memory Leak",
+        "extras": {}
+      }
+    },
+    {
+      "tool": "infer",
+      "check_id": "USE_AFTER_FREE",
+      "file": "src/vuln.c",
+      "line": 46,
+      "severity": "low",
+      "title": "accessing `ptr` that was invalidated by call to `free()` on line 44.",
+      "detail": [
+        {
+          "level": 0,
+          "filename": "src/vuln.c",
+          "line_number": 43,
+          "column_number": 17,
+          "description": "invalidation part of the trace starts here"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 43,
+          "column_number": 17,
+          "description": "allocated by call to `malloc` (modelled)"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 43,
+          "column_number": 5,
+          "description": "assigned"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 44,
+          "column_number": 5,
+          "description": "was invalidated by call to `free()`"
+        },
+        {
+          "level": 0,
+          "filename": "src/vuln.c",
+          "line_number": 43,
+          "column_number": 17,
+          "description": "use-after-lifetime part of the trace starts here"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 43,
+          "column_number": 17,
+          "description": "allocated by call to `malloc` (modelled)"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 43,
+          "column_number": 5,
+          "description": "assigned"
+        },
+        {
+          "level": 1,
+          "filename": "src/vuln.c",
+          "line_number": 46,
+          "column_number": 5,
+          "description": "invalid access occurs here"
+        }
+      ],
+      "evidence_path": null,
+      "raw_payload": {
+        "bug_type": "USE_AFTER_FREE",
+        "qualifier": "accessing `ptr` that was invalidated by call to `free()` on line 44.",
+        "severity": "ERROR",
+        "category": "Memory error",
+        "line": 46,
+        "column": 5,
+        "procedure": "double_free_example",
+        "procedure_start_line": 42,
+        "file": "src/vuln.c",
+        "bug_trace": [
+          {
+            "level": 0,
+            "filename": "src/vuln.c",
+            "line_number": 43,
+            "column_number": 17,
+            "description": "invalidation part of the trace starts here"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 43,
+            "column_number": 17,
+            "description": "allocated by call to `malloc` (modelled)"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 43,
+            "column_number": 5,
+            "description": "assigned"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 44,
+            "column_number": 5,
+            "description": "was invalidated by call to `free()`"
+          },
+          {
+            "level": 0,
+            "filename": "src/vuln.c",
+            "line_number": 43,
+            "column_number": 17,
+            "description": "use-after-lifetime part of the trace starts here"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 43,
+            "column_number": 17,
+            "description": "allocated by call to `malloc` (modelled)"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 43,
+            "column_number": 5,
+            "description": "assigned"
+          },
+          {
+            "level": 1,
+            "filename": "src/vuln.c",
+            "line_number": 46,
+            "column_number": 5,
+            "description": "invalid access occurs here"
+          }
+        ],
+        "bug_trace_length": 8,
+        "bug_trace_max_depth": 1,
+        "key": "vuln.c|double_free_example|USE_AFTER_FREE",
+        "hash": "b9599840abfed89a591afd188ccc0a34",
+        "bug_type_hum": "Use After Free",
+        "extras": {}
+      }
+    }
+  ]
+}

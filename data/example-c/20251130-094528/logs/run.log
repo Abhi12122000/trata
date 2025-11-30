@@ -1,0 +1,130 @@
+2025-11-30T09:45:28.136359+00:00 [example-c/20251130-094528] [INFO] Starting run for example-c
+2025-11-30T09:45:30.112677+00:00 [example-c/20251130-094528] [INFO] LLM static analysis completed
+2025-11-30T09:45:32.495179+00:00 [example-c/20251130-094528] [INFO] Completed static analysis with 3 findings
+2025-11-30T09:45:32.495281+00:00 [example-c/20251130-094528] [INFO] Starting fuzzing on 1 harness(es), 30s per harness
+2025-11-30T09:45:32.495353+00:00 [example-c/20251130-094528] [INFO] Fuzzing harness: vuln_fuzzer
+2025-11-30T09:45:32.495427+00:00 [example-c/20251130-094528] [INFO] Starting fuzzing for example-c (vuln_fuzzer)
+2025-11-30T09:45:32.968762+00:00 [example-c/20251130-094528] [INFO] Starting fuzzer with 3 initial seeds, max_total_time=30s
+2025-11-30T09:46:25.218271+00:00 [example-c/20251130-094528] [INFO] Fuzzing completed in 30.5s. Seeds: 3 initial → 15 final (+12 new). Crashes found: 111.
+2025-11-30T09:46:25.220580+00:00 [example-c/20251130-094528] [INFO] Completed fuzzing vuln_fuzzer: 111 crashes, 12 new seeds
+2025-11-30T09:46:25.220638+00:00 [example-c/20251130-094528] [INFO] Deduplicating 111 crashes by stack trace...
+2025-11-30T09:46:25.228508+00:00 [example-c/20251130-094528] [INFO] Deduplication: 111 → 1 unique (99.1% reduction)
+2025-11-30T09:46:25.228865+00:00 [example-c/20251130-094528] [INFO] Saved 1 deduplicated crashes to deduplicated_crashes.json
+2025-11-30T09:46:25.230176+00:00 [example-c/20251130-094528] [INFO] Starting patching for 3 findings
+2025-11-30T09:46:25.230263+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ============================================================
+2025-11-30T09:46:25.230326+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] PATCHING PIPELINE STARTED
+2025-11-30T09:46:25.230526+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ============================================================
+2025-11-30T09:46:25.230683+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Findings to process: 3
+2025-11-30T09:46:25.230791+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Crashes to test against: 1
+2025-11-30T09:46:25.230872+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Original source: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/example-c-target
+2025-11-30T09:46:25.230976+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ----------------------------------------
+2025-11-30T09:46:25.231049+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Step 0: Creating working copy of source...
+2025-11-30T09:46:25.231357+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Creating working copy of source: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/example-c-target
+2025-11-30T09:46:25.235494+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Working copy created at: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/working_copy
+2025-11-30T09:46:25.235570+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Working copy created at: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/working_copy
+2025-11-30T09:46:25.235623+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patched files will be saved to: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patched_files
+2025-11-30T09:46:25.235675+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ----------------------------------------
+2025-11-30T09:46:25.235721+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Step 1: Generating patches using LLM...
+2025-11-30T09:46:25.235805+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Using source root: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/example-c-target
+2025-11-30T09:46:25.236271+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Generating patch for: NULLPTR_DEREFERENCE at src/main.c:22
+2025-11-30T09:46:25.236502+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Patch attempt 1/3
+2025-11-30T09:46:25.336293+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Successfully parsed patch for src/main.c
+2025-11-30T09:46:25.336469+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Generating patch for: MEMORY_LEAK_C at src/vuln.c:36
+2025-11-30T09:46:25.336655+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Patch attempt 1/3
+2025-11-30T09:46:25.402574+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Successfully parsed patch for src/vuln.c
+2025-11-30T09:46:25.402724+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Generating patch for: USE_AFTER_FREE at src/vuln.c:46
+2025-11-30T09:46:25.402909+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Patch attempt 1/3
+2025-11-30T09:46:25.644839+00:00 [example-c/20251130-094528] [INFO] [PatcherAgent] Successfully parsed patch for src/vuln.c
+2025-11-30T09:46:25.645023+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patches generated: 3/3
+2025-11-30T09:46:25.645094+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline]   [✓] Finding 1: infer:NULLPTR_DEREFERENCE:src/main.c:22
+2025-11-30T09:46:25.645152+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline]   [✓] Finding 2: infer:MEMORY_LEAK_C:src/vuln.c:36
+2025-11-30T09:46:25.645306+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline]   [✓] Finding 3: infer:USE_AFTER_FREE:src/vuln.c:46
+2025-11-30T09:46:25.645383+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ----------------------------------------
+2025-11-30T09:46:25.645451+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Step 2: Applying and testing patches (cumulative)...
+2025-11-30T09:46:25.645524+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] 
+--- Patch 1 for infer:NULLPTR_DEREFERENCE:src/main.c:22 ---
+2025-11-30T09:46:25.645586+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] File: src/main.c
+2025-11-30T09:46:25.645640+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Analysis: [OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.
+This is a placeholder respon...
+2025-11-30T09:46:25.646120+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Created backup: src_main.c.20251130_094625_645706.bak
+2025-11-30T09:46:25.646326+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch validation warnings: ['Patch appears to be an offline placeholder']
+2025-11-30T09:46:25.646379+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Applying patch to working copy: src/main.c
+2025-11-30T09:46:25.646509+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch validation warnings: ['Patch appears to be an offline placeholder']
+2025-11-30T09:46:55.653820+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch command failed, trying manual application...
+2025-11-30T09:46:55.655068+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch applied successfully via manual application
+2025-11-30T09:46:55.655176+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch applied successfully to src/main.c
+2025-11-30T09:46:55.655231+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Rebuilding from working copy...
+2025-11-30T09:46:57.383823+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Build succeeded
+2025-11-30T09:46:57.383928+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Testing against 1 crashes...
+2025-11-30T09:46:57.384366+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] WARNING: No fuzzer binary found, crash tests may fail
+2025-11-30T09:46:57.384454+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline]   Crash 1/1: STILL CRASHES
+2025-11-30T09:46:57.384506+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Crash test summary: 0 fixed, 1 remaining
+2025-11-30T09:46:57.385028+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Saved patched file: patch_001_src_main.c_infer_NULLPTR_DEREFERENCE_src_main_c_22
+2025-11-30T09:46:57.385102+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patched file saved: patch_001_src_main.c_infer_NULLPTR_DEREFERENCE_src_main_c_22
+2025-11-30T09:46:57.385243+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Backup deleted (patch committed to working copy)
+2025-11-30T09:46:57.385327+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] 
+--- Patch 2 for infer:MEMORY_LEAK_C:src/vuln.c:36 ---
+2025-11-30T09:46:57.385380+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] File: src/vuln.c
+2025-11-30T09:46:57.385432+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Analysis: [OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.
+This is a placeholder respon...
+2025-11-30T09:46:57.385828+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Created backup: src_vuln.c.20251130_094657_385477.bak
+2025-11-30T09:46:57.385899+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch validation warnings: ['Patch appears to be an offline placeholder']
+2025-11-30T09:46:57.385947+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Applying patch to working copy: src/vuln.c
+2025-11-30T09:46:57.386067+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch validation warnings: ['Patch appears to be an offline placeholder']
+2025-11-30T09:47:27.394294+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch command failed, trying manual application...
+2025-11-30T09:47:27.394972+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch applied successfully via manual application
+2025-11-30T09:47:27.395069+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch applied successfully to src/vuln.c
+2025-11-30T09:47:27.395133+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Rebuilding from working copy...
+2025-11-30T09:47:28.838593+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Build succeeded
+2025-11-30T09:47:28.838747+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Testing against 1 crashes...
+2025-11-30T09:47:28.839006+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] WARNING: No fuzzer binary found, crash tests may fail
+2025-11-30T09:47:28.839099+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline]   Crash 1/1: STILL CRASHES
+2025-11-30T09:47:28.839168+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Crash test summary: 0 fixed, 1 remaining
+2025-11-30T09:47:28.839959+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Saved patched file: patch_002_src_vuln.c_infer_MEMORY_LEAK_C_src_vuln_c_36
+2025-11-30T09:47:28.840040+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patched file saved: patch_002_src_vuln.c_infer_MEMORY_LEAK_C_src_vuln_c_36
+2025-11-30T09:47:28.840231+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Backup deleted (patch committed to working copy)
+2025-11-30T09:47:28.840332+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] 
+--- Patch 3 for infer:USE_AFTER_FREE:src/vuln.c:46 ---
+2025-11-30T09:47:28.840398+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] File: src/vuln.c
+2025-11-30T09:47:28.840466+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Analysis: [OFFLINE MODE] Unable to analyze vulnerability without LLM credentials.
+This is a placeholder respon...
+2025-11-30T09:47:28.840911+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Created backup: src_vuln.c.20251130_094728_840526.bak
+2025-11-30T09:47:28.840989+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch validation warnings: ['Patch appears to be an offline placeholder']
+2025-11-30T09:47:28.841042+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Applying patch to working copy: src/vuln.c
+2025-11-30T09:47:28.841174+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch validation warnings: ['Patch appears to be an offline placeholder']
+2025-11-30T09:47:58.850328+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch command failed, trying manual application...
+2025-11-30T09:47:58.853613+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch applied successfully via manual application
+2025-11-30T09:47:58.853815+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patch applied successfully to src/vuln.c
+2025-11-30T09:47:58.853945+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Rebuilding from working copy...
+2025-11-30T09:48:00.588364+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Build succeeded
+2025-11-30T09:48:00.588621+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Testing against 1 crashes...
+2025-11-30T09:48:00.588901+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] WARNING: No fuzzer binary found, crash tests may fail
+2025-11-30T09:48:00.588989+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline]   Crash 1/1: STILL CRASHES
+2025-11-30T09:48:00.589057+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Crash test summary: 0 fixed, 1 remaining
+2025-11-30T09:48:00.589613+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Saved patched file: patch_003_src_vuln.c_infer_USE_AFTER_FREE_src_vuln_c_46
+2025-11-30T09:48:00.589677+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patched file saved: patch_003_src_vuln.c_infer_USE_AFTER_FREE_src_vuln_c_46
+2025-11-30T09:48:00.589842+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Backup deleted (patch committed to working copy)
+2025-11-30T09:48:00.590195+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ----------------------------------------
+2025-11-30T09:48:00.590256+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] PATCHING COMPLETE
+2025-11-30T09:48:00.590318+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patches generated: 3
+2025-11-30T09:48:00.590481+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patches applied (cumulative): 3
+2025-11-30T09:48:00.590594+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patches tested: 3
+2025-11-30T09:48:00.590660+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Crashes fixed: 0
+2025-11-30T09:48:00.590779+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Crashes remaining: 3
+2025-11-30T09:48:00.590883+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ============================================================
+2025-11-30T09:48:00.591668+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Saved patching results to patching_results.json
+2025-11-30T09:48:00.592471+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Saved 3 LLM interactions
+2025-11-30T09:48:00.592548+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] 
+============================================================
+2025-11-30T09:48:00.592606+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] OUTPUT LOCATIONS:
+2025-11-30T09:48:00.592659+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ============================================================
+2025-11-30T09:48:00.592734+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Run logs:           /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/logs/run.log
+2025-11-30T09:48:00.592802+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Tool calls:         /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/logs/tool_calls.jsonl
+2025-11-30T09:48:00.592865+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patching results:   /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patching_results.json
+2025-11-30T09:48:00.592933+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Generated patches:  /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patches
+2025-11-30T09:48:00.593003+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] LLM interactions:   /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/llm_interactions.jsonl
+2025-11-30T09:48:00.593080+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Working copy:       /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/working_copy
+2025-11-30T09:48:00.593127+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] Patched files:      /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-094528/artifacts/patching/patched_files
+2025-11-30T09:48:00.593173+00:00 [example-c/20251130-094528] [INFO] [PatchingPipeline] ============================================================
+2025-11-30T09:48:00.593224+00:00 [example-c/20251130-094528] [INFO] Patching completed: Patching: 3 generated, 3 applied (cumulative), 3 tested. Crashes: 0 fixed, 3 remaining.
+2025-11-30T09:48:00.593313+00:00 [example-c/20251130-094528] [INFO] CRS run completed at 2025-11-30T09:48:00.593286+00:00. Static analysis: 3 findings. Fuzzing: 111 crashes, 12 new seeds. Patching: 3 patches generated

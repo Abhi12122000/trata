@@ -39,8 +39,14 @@ class StaticAnalysisPipeline:
         )
 
         llm_findings: list[StaticFinding] = []
-        for agent in self.agents:
-            llm_findings.extend(await agent.run(ctx))
+        
+        # Run LLM agents only if enabled
+        if self.runtime.enable_static_llm:
+            for agent in self.agents:
+                llm_findings.extend(await agent.run(ctx))
+        else:
+            if self.store:
+                self.store.log_event(run_ctx, "LLM static analysis disabled via --no-static-llm")
 
         infer_result = await self.infer_runner.run(
             target=target,
@@ -51,9 +57,11 @@ class StaticAnalysisPipeline:
         )
 
         findings = llm_findings + list(infer_result.findings)
+        
+        llm_status = f"{len(llm_findings)} from LangGraph agents" if self.runtime.enable_static_llm else "LLM disabled"
         summary = (
             f"{len(findings)} total findings: "
-            f"{len(llm_findings)} from LangGraph agents, "
+            f"{llm_status}, "
             f"{len(infer_result.findings)} from Infer."
         )
 

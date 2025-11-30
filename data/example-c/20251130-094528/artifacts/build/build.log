@@ -1,0 +1,84 @@
+$ bash -c bash build.sh
+[build] Starting build in /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/example-c-target
+[build] Compiling vuln.c -> build/vuln.o
+[build] Creating static library build/libvuln.a
+[build] Building standalone binary build/vuln
+[build] Generating compile_commands.json
+[build] Checking for clang with libFuzzer support...
+[build] Found clang with libFuzzer: /opt/homebrew/opt/llvm/bin/clang
+[build] Building fuzzer: build/vuln_fuzzer
+src/vuln.c:146:42: warning: format string is not a string literal (potentially insecure) [-Wformat-security]
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^~~
+src/vuln.c:146:42: note: treat the string as an argument to avoid this
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^
+      |                                          "%s", 
+1 warning generated.
+[build] Successfully built build/vuln_fuzzer
+[build] Building fuzzer: build/packet_fuzzer
+src/vuln.c:146:42: warning: format string is not a string literal (potentially insecure) [-Wformat-security]
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^~~
+src/vuln.c:146:42: note: treat the string as an argument to avoid this
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^
+      |                                          "%s", 
+1 warning generated.
+[build] Successfully built build/packet_fuzzer
+
+[build] Build complete!
+[build] Artifacts:
+total 1664
+drwxr-xr-x@ 11 abhishek.kumar  staff     352 Nov 30 01:45 .
+drwxr-xr-x@  6 abhishek.kumar  staff     192 Nov 30 01:34 ..
+-rw-r--r--@  1 abhishek.kumar  staff     693 Nov 30 01:45 compile_commands.json
+-rw-r--r--@  1 abhishek.kumar  staff    6984 Nov 30 01:45 libvuln.a
+-rwxr-xr-x@  1 abhishek.kumar  staff  396992 Nov 30 01:45 packet_fuzzer
+drwxr-xr-x@  3 abhishek.kumar  staff      96 Nov 30 01:45 packet_fuzzer.dSYM
+-rwxr-xr-x@  1 abhishek.kumar  staff   35000 Nov 30 01:45 vuln
+-rwxr-xr-x@  1 abhishek.kumar  staff  397032 Nov 30 01:45 vuln_fuzzer
+drwxr-xr-x@  3 abhishek.kumar  staff      96 Nov 30 01:45 vuln_fuzzer.dSYM
+drwxr-xr-x@  3 abhishek.kumar  staff      96 Nov 30 01:45 vuln.dSYM
+-rw-r--r--@  1 abhishek.kumar  staff    6656 Nov 30 01:45 vuln.o
+
+src/vuln.c:146:42: warning: format string is not a string literal (potentially insecure) [-Wformat-security]
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:119:67: note: expanded from macro 'snprintf'
+  119 | #define snprintf(str, len, ...) __snprintf_chk_func (str, len, 0, __VA_ARGS__)
+      |                                                                   ^~~~~~~~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:76:64: note: expanded from macro '__snprintf_chk_func'
+   76 |         __builtin___snprintf_chk (str, len, flag, __darwin_obsz(str), __VA_ARGS__)
+      |                                                                       ^~~~~~~~~~~
+src/vuln.c:146:42: note: treat the string as an argument to avoid this
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^
+      |                                          "%s", 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:119:67: note: expanded from macro 'snprintf'
+  119 | #define snprintf(str, len, ...) __snprintf_chk_func (str, len, 0, __VA_ARGS__)
+      |                                                                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:76:64: note: expanded from macro '__snprintf_chk_func'
+   76 |         __builtin___snprintf_chk (str, len, flag, __darwin_obsz(str), __VA_ARGS__)
+      |                                                                       ^
+1 warning generated.
+src/vuln.c:146:42: warning: format string is not a string literal (potentially insecure) [-Wformat-security]
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:119:67: note: expanded from macro 'snprintf'
+  119 | #define snprintf(str, len, ...) __snprintf_chk_func (str, len, 0, __VA_ARGS__)
+      |                                                                   ^~~~~~~~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:76:64: note: expanded from macro '__snprintf_chk_func'
+   76 |         __builtin___snprintf_chk (str, len, flag, __darwin_obsz(str), __VA_ARGS__)
+      |                                                                       ^~~~~~~~~~~
+src/vuln.c:146:42: note: treat the string as an argument to avoid this
+  146 |         snprintf(output, sizeof(output), msg);  // FORMAT STRING BUG
+      |                                          ^
+      |                                          "%s", 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:119:67: note: expanded from macro 'snprintf'
+  119 | #define snprintf(str, len, ...) __snprintf_chk_func (str, len, 0, __VA_ARGS__)
+      |                                                                   ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:76:64: note: expanded from macro '__snprintf_chk_func'
+   76 |         __builtin___snprintf_chk (str, len, flag, __darwin_obsz(str), __VA_ARGS__)
+      |                                                                       ^
+1 warning generated.

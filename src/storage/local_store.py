@@ -30,12 +30,12 @@ class LocalRunStore:
             artifacts_dir=artifacts,
         )
 
-    def log_event(self, ctx: RunContext, message: str) -> None:
+    def log_event(self, ctx: RunContext, message: str, level: str = "info") -> None:
         log_file = ctx.logs_dir / "run.log"
         with log_file.open("a", encoding="utf-8") as fp:
             fp.write(
                 f"{datetime.now(timezone.utc).isoformat()} "
-                f"[{ctx.project}/{ctx.run_id}] {message}\n"
+                f"[{ctx.project}/{ctx.run_id}] [{level.upper()}] {message}\n"
             )
 
     def log_tool_call(
