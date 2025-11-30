@@ -1,3 +1,0 @@
-2025-11-30T00:10:45.959177+00:00 [example-c/20251130-001045] Starting run for example-c
-2025-11-30T00:10:48.380034+00:00 [example-c/20251130-001045] LLM static analysis completed
-2025-11-30T00:10:50.559864+00:00 [example-c/20251130-001045] Completed static analysis with 3 findings at 2025-11-30T00:10:50.559786+00:00

@@ -1,0 +1,394 @@
+{
+  "project": "example-c",
+  "run_id": "20251130-020417",
+  "harness": "fuzz/vuln_fuzzer.c",
+  "fuzzer_binary": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/build/fuzzer",
+  "duration_seconds": 10.404987291999998,
+  "seeds_initial": 3,
+  "seeds_final": 4,
+  "seeds_found": 1,
+  "crashes_found": 38,
+  "crashes": [
+    {
+      "crash_id": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/b6589fc6ab0dc82c/b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+      "input_size": 1,
+      "dedup_token": "b6589fc6ab0dc82c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.598068+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "ab461f6b8a6842a473257a2561c1fbdf91bdfe77",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/ab461f6b8a6842a4/ab461f6b8a6842a473257a2561c1fbdf91bdfe77",
+      "input_size": 1,
+      "dedup_token": "ab461f6b8a6842a4",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.598396+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "59084f0f2b22b90a71df8fc7d1fc50a131beedca",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/59084f0f2b22b90a/59084f0f2b22b90a71df8fc7d1fc50a131beedca",
+      "input_size": 4,
+      "dedup_token": "59084f0f2b22b90a",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.598714+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "fb8ccf03f28502dd2a9d268af15b565f1c7d4a32",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/fb8ccf03f28502dd/fb8ccf03f28502dd2a9d268af15b565f1c7d4a32",
+      "input_size": 3,
+      "dedup_token": "fb8ccf03f28502dd",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.599019+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "63a655bd6fbf6188a377a368c7e424b8c1113184",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/63a655bd6fbf6188/63a655bd6fbf6188a377a368c7e424b8c1113184",
+      "input_size": 2,
+      "dedup_token": "63a655bd6fbf6188",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.599318+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "1fc1b26f76c1c3ec8839f72070eac56abf566f62",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/1fc1b26f76c1c3ec/1fc1b26f76c1c3ec8839f72070eac56abf566f62",
+      "input_size": 2,
+      "dedup_token": "1fc1b26f76c1c3ec",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.599615+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "ce94dc2783fcd5617e3acfa7988cdd0c5359e6d2",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/ce94dc2783fcd561/ce94dc2783fcd5617e3acfa7988cdd0c5359e6d2",
+      "input_size": 3,
+      "dedup_token": "ce94dc2783fcd561",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.600146+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "1489f923c4dca729178b3e3233458550d8dddf29",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/1489f923c4dca729/1489f923c4dca729178b3e3233458550d8dddf29",
+      "input_size": 2,
+      "dedup_token": "1489f923c4dca729",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.600451+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "573b5954e3de93a3da6c1e51ea99c1456953d3ff",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/573b5954e3de93a3/573b5954e3de93a3da6c1e51ea99c1456953d3ff",
+      "input_size": 2,
+      "dedup_token": "573b5954e3de93a3",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.600756+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "0ab8318acaf6e678dd02e2b5c343ed41111b393d",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/0ab8318acaf6e678/0ab8318acaf6e678dd02e2b5c343ed41111b393d",
+      "input_size": 1,
+      "dedup_token": "0ab8318acaf6e678",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.601044+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "c9dda13561474d819a4b5dadb7d703f9854130d7",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/c9dda13561474d81/c9dda13561474d819a4b5dadb7d703f9854130d7",
+      "input_size": 2,
+      "dedup_token": "c9dda13561474d81",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.601323+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/5ba93c9db0cff93f/5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "input_size": 1,
+      "dedup_token": "5ba93c9db0cff93f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.601638+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "b8f3eec6b5fa270fb05644de403d9077b60ccbcf",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/b8f3eec6b5fa270f/b8f3eec6b5fa270fb05644de403d9077b60ccbcf",
+      "input_size": 1,
+      "dedup_token": "b8f3eec6b5fa270f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.601914+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "7363936e07bce070fe9684928c3963cd04ca6964",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7363936e07bce070/7363936e07bce070fe9684928c3963cd04ca6964",
+      "input_size": 2,
+      "dedup_token": "7363936e07bce070",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.602196+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "ddbc67223ab02e5ba208926a2f1fd63fd5a05829",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/ddbc67223ab02e5b/ddbc67223ab02e5ba208926a2f1fd63fd5a05829",
+      "input_size": 2,
+      "dedup_token": "ddbc67223ab02e5b",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.602573+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "7cf184f4c67ad58283ecb19349720b0cae756829",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7cf184f4c67ad582/7cf184f4c67ad58283ecb19349720b0cae756829",
+      "input_size": 1,
+      "dedup_token": "7cf184f4c67ad582",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.602854+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "42e9742321593a617ce69e70cfd18ff1c95ce26f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/42e9742321593a61/42e9742321593a617ce69e70cfd18ff1c95ce26f",
+      "input_size": 2,
+      "dedup_token": "42e9742321593a61",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.603136+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "9e39568e9d0391f732306f6b5350ff316fb89774",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/9e39568e9d0391f7/9e39568e9d0391f732306f6b5350ff316fb89774",
+      "input_size": 4,
+      "dedup_token": "9e39568e9d0391f7",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.603403+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "2f9596ec7fe173da9e748b2f416389839bd2b165",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/2f9596ec7fe173da/2f9596ec7fe173da9e748b2f416389839bd2b165",
+      "input_size": 2,
+      "dedup_token": "2f9596ec7fe173da",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.603684+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "77745f57939558007148a63a71bd2ef0d08d72fe",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/77745f5793955800/77745f57939558007148a63a71bd2ef0d08d72fe",
+      "input_size": 2,
+      "dedup_token": "77745f5793955800",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.604094+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "29a62bc910e7ead3271c856760535b1f404412d1",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/29a62bc910e7ead3/29a62bc910e7ead3271c856760535b1f404412d1",
+      "input_size": 3,
+      "dedup_token": "29a62bc910e7ead3",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.604372+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "8ff820fadec6823dad38f940b1161ab50875124c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/8ff820fadec6823d/8ff820fadec6823dad38f940b1161ab50875124c",
+      "input_size": 4,
+      "dedup_token": "8ff820fadec6823d",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.604803+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "229db9bc4ef680cb90e1ef2793d6c761a444884f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/229db9bc4ef680cb/229db9bc4ef680cb90e1ef2793d6c761a444884f",
+      "input_size": 2,
+      "dedup_token": "229db9bc4ef680cb",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.605301+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "df58248c414f342c81e056b40bee12d17a08bf61",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/df58248c414f342c/df58248c414f342c81e056b40bee12d17a08bf61",
+      "input_size": 1,
+      "dedup_token": "df58248c414f342c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.605613+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "df2e6fe80be0bae1546ace356b793b2d08d1747c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/df2e6fe80be0bae1/df2e6fe80be0bae1546ace356b793b2d08d1747c",
+      "input_size": 3,
+      "dedup_token": "df2e6fe80be0bae1",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.605908+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "3c89586d99f2567d21410f29b1b2606574892aa7",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/3c89586d99f2567d/3c89586d99f2567d21410f29b1b2606574892aa7",
+      "input_size": 1,
+      "dedup_token": "3c89586d99f2567d",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.606382+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "7484f7eb74e912f0e27018d06dc712fff8f5a65c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7484f7eb74e912f0/7484f7eb74e912f0e27018d06dc712fff8f5a65c",
+      "input_size": 2,
+      "dedup_token": "7484f7eb74e912f0",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.606670+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "6bbcf307ae5719e0c27ed398e7303d5d364bd419",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/6bbcf307ae5719e0/6bbcf307ae5719e0c27ed398e7303d5d364bd419",
+      "input_size": 2,
+      "dedup_token": "6bbcf307ae5719e0",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.607090+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7e15bb5c01e7dd56/7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "input_size": 1,
+      "dedup_token": "7e15bb5c01e7dd56",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.607533+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "2632927c398909d2da0ff6f0f4a80ddcc03d7adf",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/2632927c398909d2/2632927c398909d2da0ff6f0f4a80ddcc03d7adf",
+      "input_size": 3,
+      "dedup_token": "2632927c398909d2",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.607825+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "5c600fdebb58d696e18d911f2593306bb3375c2e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/5c600fdebb58d696/5c600fdebb58d696e18d911f2593306bb3375c2e",
+      "input_size": 2,
+      "dedup_token": "5c600fdebb58d696",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.608112+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "b60d626219d72c028b55b450735b6edc9efb6047",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/b60d626219d72c02/b60d626219d72c028b55b450735b6edc9efb6047",
+      "input_size": 3,
+      "dedup_token": "b60d626219d72c02",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.608510+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "7a81af3e591ac713f81ea1efe93dcf36157d8376",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7a81af3e591ac713/7a81af3e591ac713f81ea1efe93dcf36157d8376",
+      "input_size": 1,
+      "dedup_token": "7a81af3e591ac713",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.609076+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "9842926af7ca0a8cca12604f945414f07b01e13d",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/9842926af7ca0a8c/9842926af7ca0a8cca12604f945414f07b01e13d",
+      "input_size": 1,
+      "dedup_token": "9842926af7ca0a8c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.609445+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "cb031d11de9f114e10b0aa15673c6312a4ea8117",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/cb031d11de9f114e/cb031d11de9f114e10b0aa15673c6312a4ea8117",
+      "input_size": 3,
+      "dedup_token": "cb031d11de9f114e",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.609961+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "c4f87a6290aee1acfc1f26083974ce94621fca64",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/c4f87a6290aee1ac/c4f87a6290aee1acfc1f26083974ce94621fca64",
+      "input_size": 1,
+      "dedup_token": "c4f87a6290aee1ac",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.610518+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "8928997496e5a8422de9afbfc1e9d9ad0e4d9f38",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/8928997496e5a842/8928997496e5a8422de9afbfc1e9d9ad0e4d9f38",
+      "input_size": 4,
+      "dedup_token": "8928997496e5a842",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.610843+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    },
+    {
+      "crash_id": "db7e59879094cc78a8f327aa86e944012372b28f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/db7e59879094cc78/db7e59879094cc78a8f327aa86e944012372b28f",
+      "input_size": 4,
+      "dedup_token": "db7e59879094cc78",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T02:04:33.611363+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480"
+    }
+  ],
+  "summary": "Fuzzing completed in 10.4s. Seeds: 3 initial \u2192 4 final (+1 new). Crashes found: 38."
+}

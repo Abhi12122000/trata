@@ -1,0 +1,35 @@
+#0
+src/vuln.c:22: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 19 is not freed after the last access at line 22, column 5. 
+  20.     }
+  21.     // BUG: ptr might be NULL if trigger==0
+  22.     ptr[0] = 'A';
+          ^
+  23. }
+  24. 
+
+#1
+src/vuln.c:30: error: Use After Free
+  accessing `ptr` that was invalidated by call to `free()` on line 28. 
+  28.     free(ptr);
+  29.     // BUG: freeing already-freed memory
+  30.     free(ptr);
+          ^
+  31. }
+  32. 
+
+#2
+src/vuln.c:40: error: Null Dereference
+  The call to `null_deref_example` may trigger the following issue: `strcmp()` could be null (from the call to `null_deref_example()` on line 40) and is dereferenced in the call to `null_deref_example()`. 
+  38.         use_after_free_example();
+  39.     } else if (argc > 1 && strcmp(argv[1], "null") == 0) {
+  40.         null_deref_example(0);
+              ^
+  41.     } else {
+  42.         double_free_example();
+
+Found 3 issues
+             Issue Type(ISSUED_TYPE_ID): #
+         Use After Free(USE_AFTER_FREE): 1
+  Null Dereference(NULLPTR_DEREFERENCE): 1
+             Memory Leak(MEMORY_LEAK_C): 1

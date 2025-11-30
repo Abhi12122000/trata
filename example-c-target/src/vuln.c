@@ -30,6 +30,9 @@ void double_free_example(void) {
     free(ptr);
 }
 
+/* Only include main() when building standalone binary, not when fuzzing.
+ * LibFuzzer provides its own main() that calls LLVMFuzzerTestOneInput. */
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 int main(int argc, char **argv) {
     if (argc > 1 && strcmp(argv[1], "uaf") == 0) {
         use_after_free_example();
@@ -40,3 +43,4 @@ int main(int argc, char **argv) {
     }
     return 0;
 }
+#endif

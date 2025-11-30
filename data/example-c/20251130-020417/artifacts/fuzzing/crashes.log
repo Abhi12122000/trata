@@ -1,0 +1,382 @@
+# Crashes found at 2025-11-30T02:04:33.611958+00:00
+
+## Crash: b6589fc6ab0dc82cf12099d1c2d40ab994e8410c
+- Dedup token: b6589fc6ab0dc82c
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/b6589fc6ab0dc82c/b6589fc6ab0dc82cf12099d1c2d40ab994e8410c
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: ab461f6b8a6842a473257a2561c1fbdf91bdfe77
+- Dedup token: ab461f6b8a6842a4
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/ab461f6b8a6842a4/ab461f6b8a6842a473257a2561c1fbdf91bdfe77
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 59084f0f2b22b90a71df8fc7d1fc50a131beedca
+- Dedup token: 59084f0f2b22b90a
+- Signal: SIGSEGV
+- Input size: 4 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/59084f0f2b22b90a/59084f0f2b22b90a71df8fc7d1fc50a131beedca
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: fb8ccf03f28502dd2a9d268af15b565f1c7d4a32
+- Dedup token: fb8ccf03f28502dd
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/fb8ccf03f28502dd/fb8ccf03f28502dd2a9d268af15b565f1c7d4a32
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 63a655bd6fbf6188a377a368c7e424b8c1113184
+- Dedup token: 63a655bd6fbf6188
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/63a655bd6fbf6188/63a655bd6fbf6188a377a368c7e424b8c1113184
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 1fc1b26f76c1c3ec8839f72070eac56abf566f62
+- Dedup token: 1fc1b26f76c1c3ec
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/1fc1b26f76c1c3ec/1fc1b26f76c1c3ec8839f72070eac56abf566f62
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: ce94dc2783fcd5617e3acfa7988cdd0c5359e6d2
+- Dedup token: ce94dc2783fcd561
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/ce94dc2783fcd561/ce94dc2783fcd5617e3acfa7988cdd0c5359e6d2
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 1489f923c4dca729178b3e3233458550d8dddf29
+- Dedup token: 1489f923c4dca729
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/1489f923c4dca729/1489f923c4dca729178b3e3233458550d8dddf29
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 573b5954e3de93a3da6c1e51ea99c1456953d3ff
+- Dedup token: 573b5954e3de93a3
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/573b5954e3de93a3/573b5954e3de93a3da6c1e51ea99c1456953d3ff
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 0ab8318acaf6e678dd02e2b5c343ed41111b393d
+- Dedup token: 0ab8318acaf6e678
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/0ab8318acaf6e678/0ab8318acaf6e678dd02e2b5c343ed41111b393d
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: c9dda13561474d819a4b5dadb7d703f9854130d7
+- Dedup token: c9dda13561474d81
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/c9dda13561474d81/c9dda13561474d819a4b5dadb7d703f9854130d7
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 5ba93c9db0cff93f52b521d7420e43f6eda2784f
+- Dedup token: 5ba93c9db0cff93f
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/5ba93c9db0cff93f/5ba93c9db0cff93f52b521d7420e43f6eda2784f
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: b8f3eec6b5fa270fb05644de403d9077b60ccbcf
+- Dedup token: b8f3eec6b5fa270f
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/b8f3eec6b5fa270f/b8f3eec6b5fa270fb05644de403d9077b60ccbcf
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 7363936e07bce070fe9684928c3963cd04ca6964
+- Dedup token: 7363936e07bce070
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7363936e07bce070/7363936e07bce070fe9684928c3963cd04ca6964
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: ddbc67223ab02e5ba208926a2f1fd63fd5a05829
+- Dedup token: ddbc67223ab02e5b
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/ddbc67223ab02e5b/ddbc67223ab02e5ba208926a2f1fd63fd5a05829
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 7cf184f4c67ad58283ecb19349720b0cae756829
+- Dedup token: 7cf184f4c67ad582
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7cf184f4c67ad582/7cf184f4c67ad58283ecb19349720b0cae756829
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 42e9742321593a617ce69e70cfd18ff1c95ce26f
+- Dedup token: 42e9742321593a61
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/42e9742321593a61/42e9742321593a617ce69e70cfd18ff1c95ce26f
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 9e39568e9d0391f732306f6b5350ff316fb89774
+- Dedup token: 9e39568e9d0391f7
+- Signal: SIGSEGV
+- Input size: 4 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/9e39568e9d0391f7/9e39568e9d0391f732306f6b5350ff316fb89774
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 2f9596ec7fe173da9e748b2f416389839bd2b165
+- Dedup token: 2f9596ec7fe173da
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/2f9596ec7fe173da/2f9596ec7fe173da9e748b2f416389839bd2b165
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 77745f57939558007148a63a71bd2ef0d08d72fe
+- Dedup token: 77745f5793955800
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/77745f5793955800/77745f57939558007148a63a71bd2ef0d08d72fe
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 29a62bc910e7ead3271c856760535b1f404412d1
+- Dedup token: 29a62bc910e7ead3
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/29a62bc910e7ead3/29a62bc910e7ead3271c856760535b1f404412d1
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 8ff820fadec6823dad38f940b1161ab50875124c
+- Dedup token: 8ff820fadec6823d
+- Signal: SIGSEGV
+- Input size: 4 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/8ff820fadec6823d/8ff820fadec6823dad38f940b1161ab50875124c
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 229db9bc4ef680cb90e1ef2793d6c761a444884f
+- Dedup token: 229db9bc4ef680cb
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/229db9bc4ef680cb/229db9bc4ef680cb90e1ef2793d6c761a444884f
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: df58248c414f342c81e056b40bee12d17a08bf61
+- Dedup token: df58248c414f342c
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/df58248c414f342c/df58248c414f342c81e056b40bee12d17a08bf61
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: df2e6fe80be0bae1546ace356b793b2d08d1747c
+- Dedup token: df2e6fe80be0bae1
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/df2e6fe80be0bae1/df2e6fe80be0bae1546ace356b793b2d08d1747c
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 3c89586d99f2567d21410f29b1b2606574892aa7
+- Dedup token: 3c89586d99f2567d
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/3c89586d99f2567d/3c89586d99f2567d21410f29b1b2606574892aa7
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 7484f7eb74e912f0e27018d06dc712fff8f5a65c
+- Dedup token: 7484f7eb74e912f0
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7484f7eb74e912f0/7484f7eb74e912f0e27018d06dc712fff8f5a65c
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 6bbcf307ae5719e0c27ed398e7303d5d364bd419
+- Dedup token: 6bbcf307ae5719e0
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/6bbcf307ae5719e0/6bbcf307ae5719e0c27ed398e7303d5d364bd419
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 7e15bb5c01e7dd56499e37c634cf791d3a519aee
+- Dedup token: 7e15bb5c01e7dd56
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7e15bb5c01e7dd56/7e15bb5c01e7dd56499e37c634cf791d3a519aee
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 2632927c398909d2da0ff6f0f4a80ddcc03d7adf
+- Dedup token: 2632927c398909d2
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/2632927c398909d2/2632927c398909d2da0ff6f0f4a80ddcc03d7adf
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 5c600fdebb58d696e18d911f2593306bb3375c2e
+- Dedup token: 5c600fdebb58d696
+- Signal: SIGSEGV
+- Input size: 2 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/5c600fdebb58d696/5c600fdebb58d696e18d911f2593306bb3375c2e
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: b60d626219d72c028b55b450735b6edc9efb6047
+- Dedup token: b60d626219d72c02
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/b60d626219d72c02/b60d626219d72c028b55b450735b6edc9efb6047
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 7a81af3e591ac713f81ea1efe93dcf36157d8376
+- Dedup token: 7a81af3e591ac713
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/7a81af3e591ac713/7a81af3e591ac713f81ea1efe93dcf36157d8376
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 9842926af7ca0a8cca12604f945414f07b01e13d
+- Dedup token: 9842926af7ca0a8c
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/9842926af7ca0a8c/9842926af7ca0a8cca12604f945414f07b01e13d
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: cb031d11de9f114e10b0aa15673c6312a4ea8117
+- Dedup token: cb031d11de9f114e
+- Signal: SIGSEGV
+- Input size: 3 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/cb031d11de9f114e/cb031d11de9f114e10b0aa15673c6312a4ea8117
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: c4f87a6290aee1acfc1f26083974ce94621fca64
+- Dedup token: c4f87a6290aee1ac
+- Signal: SIGSEGV
+- Input size: 1 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/c4f87a6290aee1ac/c4f87a6290aee1acfc1f26083974ce94621fca64
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: 8928997496e5a8422de9afbfc1e9d9ad0e4d9f38
+- Dedup token: 8928997496e5a842
+- Signal: SIGSEGV
+- Input size: 4 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/8928997496e5a842/8928997496e5a8422de9afbfc1e9d9ad0e4d9f38
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+
+## Crash: db7e59879094cc78a8f327aa86e944012372b28f
+- Dedup token: db7e59879094cc78
+- Signal: SIGSEGV
+- Input size: 4 bytes
+- Input path: /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-020417/artifacts/fuzzing/corpus_data/crashes/db7e59879094cc78/db7e59879094cc78a8f327aa86e944012372b28f
+- Stack trace:
+```
+==83575==ERROR: AddressSanitizer: heap-use-after-free on address 0x606000000380 at pc 0x000102cb6a60 bp 0x00016d859cf0 sp 0x00016d859480
+```
+

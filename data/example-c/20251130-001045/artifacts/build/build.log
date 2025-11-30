@@ -1,3 +1,0 @@
-$ bash -c bash build.sh
-[example-c-target] build complete: build/libvuln.a
-

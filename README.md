@@ -1,6 +1,6 @@
 ## Mini CRS (`trata/`)
 
-This package hosts a lightweight but full-loop Cyber Reasoning System modeled after the RoboDuck architecture. It ingests a single OSS-Fuzz project and produces static-analysis findings (LLM + Infer) together with complete reasoning logs.
+This package hosts a lightweight but full-loop Cyber Reasoning System modeled after the RoboDuck architecture. It ingests a single OSS-Fuzz project and produces static-analysis findings (LLM + Infer) plus fuzzing crashes (libFuzzer) together with complete reasoning logs.
 
 ---
 
@@ -12,7 +12,8 @@ This package hosts a lightweight but full-loop Cyber Reasoning System modeled af
 | Workspace manager | Create `trata/data/<project>/<timestamp>` and surface run context to every component. | `src/storage/local_store.py` |
 | Build layer | Clone or reuse sources, execute build recipe, write `build.log`. | `src/tools/project_builder.py` |
 | Static analysis | LLM agent (LangGraph-style) + Facebook Infer, both logged and merged. | `src/agents/static_analysis.py`, `src/tools/llm_client.py`, `src/tools/fbinfer_runner.py` |
-| Persistence | Emit `StaticAnalysisBatch` + JSONL run logs for grading/auditing. | `src/storage/models.py`, `src/storage/local_store.py` |
+| **Fuzzing** | Build fuzzer with sanitizers, run libFuzzer, collect crashes. | `src/pipelines/fuzzing.py`, `src/tools/libfuzzer_runner.py`, `src/tools/corpus_manager.py` |
+| Persistence | Emit `StaticAnalysisBatch`, `FuzzingBatch` + JSONL run logs for grading/auditing. | `src/storage/models.py`, `src/storage/local_store.py` |
 
 ---
 
@@ -23,15 +24,16 @@ trata/
 ├── README.md                 # this document
 ├── main.py                   # CLI entry point
 ├── data/                     # per-run outputs (logs + artifacts)
+├── example-c-target/         # sample vulnerable C project with fuzzer
 ├── example-libpng/           # sample project (sources + harness)
 ├── nginx/                    # sample project (OSS-Fuzz harness only)
 └── src/
     ├── config.py             # Target/Runtime configs
     ├── orchestration/        # MiniCRSOrchestrator
     ├── agents/               # LLM agents
-    ├── pipelines/            # Static-analysis pipeline
+    ├── pipelines/            # Static-analysis + Fuzzing pipelines
     ├── storage/              # LocalRunStore + models
-    ├── tools/                # Builder, Infer runner, LLM client
+    ├── tools/                # Builder, Infer runner, LLM client, LibFuzzer runner
     └── prompts/              # Static-analysis prompt
 ```
 
@@ -82,6 +84,24 @@ Install whatever your target project requires:
 - **Java**: `maven`, `gradle`, JDK
 - Check your target's `build.sh` or `Dockerfile` for specific requirements
 
+### 5. Clang with libFuzzer Support (for Fuzzing)
+
+For fuzzing to work, you need `clang` with `-fsanitize=fuzzer` support:
+
+```bash
+# macOS (via Homebrew)
+brew install llvm
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+
+# Ubuntu/Debian
+sudo apt-get install clang
+
+# Verify fuzzer support
+clang -fsanitize=fuzzer -x c -c /dev/null -o /dev/null && echo "libFuzzer supported!"
+```
+
+If clang doesn't support `-fsanitize=fuzzer`, the CRS will skip fuzzing and only run static analysis.
+
 ---
 
 ## Prerequisites Summary
@@ -90,6 +110,7 @@ Install whatever your target project requires:
 | --- | --- |
 | Python ≥ 3.9 | Use a virtual environment (see Installation above). |
 | Docker Desktop | Required for Infer analysis. The CRS builds the image automatically. |
+| Clang with libFuzzer | Required for fuzzing. See installation above. |
 | Build toolchain | Depends on target project (see target-specific notes below). |
 | OpenAI API key (optional) | Set `OPENAI_API_KEY` env var. Without it, LLM analysis is skipped. |
 
@@ -163,16 +184,23 @@ python -m trata.main \
 ```
 If your harnesses live in a separate folder, copy them into the checkout before running or pass `--local-checkout` to a combined tree.
 
-### example-c smoke test
+### example-c smoke test (with fuzzing)
 ```bash
 python -m trata.main \
   --name example-c \
-  --local-checkout tratta/example-c-target \
+  --local-checkout trata/example-c-target \
   --fuzz-target fuzz/vuln_fuzzer.c \
   --harness-glob "fuzz/*" \
-  --build-script "bash build.sh"
+  --build-script "bash build.sh" \
+  --fuzzing-time 60
 ```
-This intentionally vulnerable C program compiles quickly and is ideal for verifying the Docker-based Infer flow.
+This intentionally vulnerable C program compiles quickly and is ideal for testing both static analysis (Infer) and fuzzing (libFuzzer). The fuzzer should find crashes within seconds due to the deliberate memory bugs.
+
+**Fuzzing-specific flags:**
+- `--no-fuzzing`: skip fuzzing entirely
+- `--fuzzing-time 60`: run fuzzer for 60 seconds total
+- `--fuzzing-timeout 30`: per-execution timeout
+- `--fuzzing-workers 2`: parallel fuzzer jobs
 
 ---
 
@@ -213,25 +241,30 @@ The test suite verifies:
 
 ## Data Flow & Next Steps
 
-### Static Analysis Output
+### Output Files
 
-The static analysis pipeline writes normalized findings to:
+After a run, results are in `trata/data/<project>/<timestamp>/`:
 
 ```
-trata/data/<project>/<timestamp>/artifacts/static_analysis.json
+artifacts/
+├── static_analysis.json      # Combined Infer + LLM findings
+├── infer/
+│   └── report.json           # Raw Infer output
+└── fuzzing/                   # Fuzzing results (if enabled)
+    ├── fuzzing_results.json  # Crashes, seeds, stats
+    ├── crashes/              # Crash inputs by dedup token
+    │   └── <dedup_token>/
+    │       └── <crash_id>    # Raw crash input bytes
+    ├── corpus_data/          # Seed corpus
+    │   ├── seeds/            # All seeds
+    │   └── crashes/          # Copy of crashes
+    └── fuzzer.log            # libFuzzer stdout/stderr
 ```
 
-This JSON file contains **both Infer and LLM findings** merged together. Each finding includes:
-- `tool`: `"infer"` or `"llm"`
-- `check_id`: Bug type (e.g., `"USE_AFTER_FREE"`, `"MEMORY_LEAK_C"`)
-- `file`: Relative path to source file
-- `line`: Line number
-- `severity`: `"low"`, `"medium"`, `"high"`, `"critical"`
-- `title`: Human-readable description
-- `detail`: Bug trace (for Infer) or reasoning (for LLM)
-- `raw_payload`: Complete original report
-
-**Next pipeline steps** (fuzzing, triage, POV generation, patching) should read from this same `static_analysis.json` file. The format is stable and designed to be consumed by downstream agents.
+**Key files:**
+- `static_analysis.json`: All static findings (Infer + LLM)
+- `fuzzing/fuzzing_results.json`: Fuzzing summary with crashes
+- `fuzzing/crashes/<token>/<id>`: Raw crash inputs for reproduction
 
 ### Docker Volume Mounts
 
@@ -253,10 +286,14 @@ All results are automatically saved to the host filesystem—no manual copying n
 
 ## Tests
 
-Run the current static-analysis unit checks with:
+Run all unit tests:
 
 ```bash
-pytest trata/tests/test_llm_client.py
+# Static analysis tests
+pytest trata/tests/test_llm_client.py -v
+
+# Fuzzing tests
+pytest trata/tests/test_fuzzing.py -v
 ```
 
 
