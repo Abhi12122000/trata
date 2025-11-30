@@ -1,0 +1,1 @@
+Static analysis for example-c inspected 1 snippets. Severity breakdown: no issues. Highlights: [offline] static scan executed without LLM credentials.

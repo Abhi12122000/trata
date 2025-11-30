@@ -1,0 +1,35 @@
+#0
+src/main.c:22: error: Null Dereference
+  The call to `null_deref_example` may trigger the following issue: `strcmp()` could be null (from the call to `null_deref_example()` on line 22) and is dereferenced in the call to `null_deref_example()`. 
+  20.         use_after_free_example();
+  21.     } else if (strcmp(argv[1], "null") == 0) {
+  22.         null_deref_example(0);
+              ^
+  23.     } else if (strcmp(argv[1], "double") == 0) {
+  24.         double_free_example();
+
+#1
+src/vuln.c:36: error: Memory Leak
+  Memory dynamically allocated by `malloc` on line 33 is not freed after the last access at line 36, column 5. 
+  34.     }
+  35.     // BUG: ptr might be NULL if trigger==0
+  36.     ptr[0] = 'A';
+          ^
+  37. }
+  38. 
+
+#2
+src/vuln.c:46: error: Use After Free
+  accessing `ptr` that was invalidated by call to `free()` on line 44. 
+  44.     free(ptr);
+  45.     // BUG: freeing already-freed memory
+  46.     free(ptr);
+          ^
+  47. }
+  48. 
+
+Found 3 issues
+             Issue Type(ISSUED_TYPE_ID): #
+         Use After Free(USE_AFTER_FREE): 1
+  Null Dereference(NULLPTR_DEREFERENCE): 1
+             Memory Leak(MEMORY_LEAK_C): 1

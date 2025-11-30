@@ -119,43 +119,85 @@ class MiniCRSOrchestrator:
             # Continue to fuzzing even if static analysis fails
 
         # ====================================================================
-        # Step 3: Fuzzing (if enabled)
+        # Step 3: Fuzzing (if enabled) - runs on ALL harnesses
         # ====================================================================
-        if self.runtime.enable_fuzzing and target.fuzz_target:
-            try:
-                fuzzing_config = FuzzingConfig(
-                    timeout_seconds=self.runtime.fuzzing_timeout,
-                    max_total_time=self.runtime.fuzzing_max_time,
-                    workers=self.runtime.fuzzing_workers,
-                )
-                fuzzing_batch = await self.fuzzing_pipeline.execute(
-                    target=target,
-                    build=build_artifacts,
-                    run_ctx=run_ctx,
-                    config=fuzzing_config,
-                )
-                self._persist_fuzzing_batch(run_ctx, fuzzing_batch)
-                self.store.log_event(
-                    run_ctx,
-                    f"Completed fuzzing: {fuzzing_batch.crashes_found} crashes, "
-                    f"{fuzzing_batch.seeds_found} new seeds",
-                )
-            except Exception as e:
-                self.store.log_event(run_ctx, f"Fuzzing failed: {e}")
+        all_fuzzing_batches: list[FuzzingBatch] = []
+        
+        if self.runtime.enable_fuzzing and target.has_fuzz_targets:
+            # Calculate time per harness (divide total time among harnesses)
+            num_harnesses = len(target.fuzz_targets)
+            time_per_harness = max(30, self.runtime.fuzzing_max_time // num_harnesses)
+            
+            self.store.log_event(
+                run_ctx,
+                f"Starting fuzzing on {num_harnesses} harness(es), "
+                f"{time_per_harness}s per harness",
+            )
+            
+            for harness_path in target.fuzz_targets:
+                harness_name = Path(harness_path).stem
+                self.store.log_event(run_ctx, f"Fuzzing harness: {harness_name}")
+                
+                try:
+                    fuzzing_config = FuzzingConfig(
+                        timeout_seconds=self.runtime.fuzzing_timeout,
+                        max_total_time=time_per_harness,
+                        workers=self.runtime.fuzzing_workers,
+                    )
+                    batch = await self.fuzzing_pipeline.execute(
+                        target=target,
+                        build=build_artifacts,
+                        run_ctx=run_ctx,
+                        config=fuzzing_config,
+                        harness_override=harness_path,  # Override the harness
+                    )
+                    all_fuzzing_batches.append(batch)
+                    self._persist_fuzzing_batch(run_ctx, batch, harness_name)
+                    self.store.log_event(
+                        run_ctx,
+                        f"Completed fuzzing {harness_name}: {batch.crashes_found} crashes, "
+                        f"{batch.seeds_found} new seeds",
+                    )
+                except Exception as e:
+                    self.store.log_event(run_ctx, f"Fuzzing {harness_name} failed: {e}")
+                    batch = FuzzingBatch(
+                        project=target.name,
+                        run_id=run_ctx.run_id,
+                        harness=harness_path,
+                        fuzzer_binary="",
+                        duration_seconds=0,
+                        seeds_initial=0,
+                        seeds_final=0,
+                        seeds_found=0,
+                        crashes_found=0,
+                        crashes=[],
+                        summary=f"Fuzzing failed: {e}",
+                    )
+                    all_fuzzing_batches.append(batch)
+                    self._persist_fuzzing_batch(run_ctx, batch, harness_name)
+            
+            # Aggregate results into a combined fuzzing_batch for summary
+            if all_fuzzing_batches:
+                total_crashes = sum(b.crashes_found for b in all_fuzzing_batches)
+                total_seeds = sum(b.seeds_found for b in all_fuzzing_batches)
+                total_duration = sum(b.duration_seconds for b in all_fuzzing_batches)
+                all_crashes = [c for b in all_fuzzing_batches for c in b.crashes]
+                
                 fuzzing_batch = FuzzingBatch(
                     project=target.name,
                     run_id=run_ctx.run_id,
-                    harness=target.fuzz_target,
-                    fuzzer_binary="",
-                    duration_seconds=0,
-                    seeds_initial=0,
-                    seeds_final=0,
-                    seeds_found=0,
-                    crashes_found=0,
-                    crashes=[],
-                    summary=f"Fuzzing failed: {e}",
+                    harness=", ".join(target.fuzz_targets),
+                    fuzzer_binary="(multiple)",
+                    duration_seconds=total_duration,
+                    seeds_initial=sum(b.seeds_initial for b in all_fuzzing_batches),
+                    seeds_final=sum(b.seeds_final for b in all_fuzzing_batches),
+                    seeds_found=total_seeds,
+                    crashes_found=total_crashes,
+                    crashes=all_crashes,
+                    summary=f"Fuzzing {num_harnesses} harnesses: {total_crashes} crashes, {total_seeds} new seeds",
                 )
-                self._persist_fuzzing_batch(run_ctx, fuzzing_batch)
+                # Persist combined results
+                self._persist_fuzzing_batch(run_ctx, fuzzing_batch, "combined")
 
         # ====================================================================
         # Build final summary
@@ -186,9 +228,11 @@ class MiniCRSOrchestrator:
 
         return result
 
-    def _persist_fuzzing_batch(self, run_ctx, batch: FuzzingBatch) -> None:
+    def _persist_fuzzing_batch(
+        self, run_ctx, batch: FuzzingBatch, harness_name: str = "fuzzing"
+    ) -> None:
         """Persist fuzzing results to JSON."""
-        out_file = run_ctx.artifacts_dir / "fuzzing" / "fuzzing_results.json"
+        out_file = run_ctx.artifacts_dir / "fuzzing" / f"{harness_name}_results.json"
         out_file.parent.mkdir(parents=True, exist_ok=True)
 
         payload = {

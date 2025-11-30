@@ -1,7 +1,12 @@
 [
   {
     "directory": "/src/.",
-    "command": "cc -g -O0 -std=c11 -Wall -Wextra -fno-stack-protector -c src/vuln.c -o build/vuln.o",
-    "file": "src/vuln.c"
+    "command": "cc -g -O0 -std=c11 -Wall -Wextra -fno-stack-protector -I src -c src/vuln.c -o build/vuln.o",
+    "file": "/src/src/vuln.c"
+  },
+  {
+    "directory": "/src/.",
+    "command": "cc -g -O0 -std=c11 -Wall -Wextra -fno-stack-protector -I src -c src/main.c -o build/main.o",
+    "file": "/src/src/main.c"
   }
 ]

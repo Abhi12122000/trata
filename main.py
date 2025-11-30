@@ -14,7 +14,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--name", required=True, help="OSS-Fuzz project name")
     parser.add_argument("--repo", help="Git repository URL (skip if using --local-checkout)")
     parser.add_argument("--local-checkout", type=Path, help="Use an existing local source tree")
-    parser.add_argument("--fuzz-target", required=True, help="Primary fuzz target")
+    parser.add_argument(
+        "--fuzz-target",
+        action="append",
+        dest="fuzz_targets",
+        default=[],
+        help="Fuzz harness source file (can be repeated for multiple harnesses)",
+    )
     parser.add_argument("--build-script", help="Custom build script (optional)")
     parser.add_argument("--commit", help="Specific commit to analyze")
     parser.add_argument(
@@ -65,6 +71,8 @@ def parse_args() -> argparse.Namespace:
     args = parser.parse_args()
     if not args.repo and not args.local_checkout:
         parser.error("Either --repo or --local-checkout must be provided")
+    if not args.fuzz_targets:
+        parser.error("At least one --fuzz-target is required")
     return args
 
 
@@ -85,7 +93,7 @@ async def _async_main(args: argparse.Namespace) -> None:
     target = TargetProjectConfig(
         name=args.name,
         repo_url=args.repo or "",
-        fuzz_target=args.fuzz_target,
+        fuzz_targets=tuple(args.fuzz_targets),
         build_script=args.build_script,
         commit=args.commit,
         harness_globs=tuple(args.harness_glob),

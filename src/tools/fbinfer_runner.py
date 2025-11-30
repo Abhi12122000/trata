@@ -148,10 +148,12 @@ class InferRunner:
         def add_path(path: Path) -> None:
             skips.add(str(path))
 
-        fuzz_rel = Path(target.fuzz_target)
-        fuzz_abs = (source_dir / fuzz_rel).resolve()
-        if fuzz_abs.exists():
-            add_path(fuzz_abs)
+        # Skip all fuzz targets
+        for fuzz_tgt in target.fuzz_targets:
+            fuzz_rel = Path(fuzz_tgt)
+            fuzz_abs = (source_dir / fuzz_rel).resolve()
+            if fuzz_abs.exists():
+                add_path(fuzz_abs)
 
         for pattern in target.harness_globs:
             rel_pattern = PurePosixPath(pattern)

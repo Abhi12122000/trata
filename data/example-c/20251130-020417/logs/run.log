@@ -1,8 +1,0 @@
-2025-11-30T02:04:17.776002+00:00 [example-c/20251130-020417] Starting run for example-c
-2025-11-30T02:04:20.603223+00:00 [example-c/20251130-020417] LLM static analysis completed
-2025-11-30T02:04:22.706698+00:00 [example-c/20251130-020417] Completed static analysis with 3 findings
-2025-11-30T02:04:22.706843+00:00 [example-c/20251130-020417] Starting fuzzing for example-c
-2025-11-30T02:04:23.190544+00:00 [example-c/20251130-020417] Starting fuzzer with 3 initial seeds, max_total_time=10s
-2025-11-30T02:04:33.611798+00:00 [example-c/20251130-020417] Fuzzing completed in 10.4s. Seeds: 3 initial → 4 final (+1 new). Crashes found: 38.
-2025-11-30T02:04:33.612843+00:00 [example-c/20251130-020417] Completed fuzzing: 38 crashes, 1 new seeds
-2025-11-30T02:04:33.612929+00:00 [example-c/20251130-020417] CRS run completed at 2025-11-30T02:04:33.612894+00:00. Static analysis: 3 findings. Fuzzing: 38 crashes, 1 new seeds

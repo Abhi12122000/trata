@@ -11,12 +11,23 @@ class TargetProjectConfig:
 
     name: str
     repo_url: str
-    fuzz_target: str
+    # fuzz_targets: list of harness source files (e.g., ["fuzz/vuln_fuzzer.c", "fuzz/packet_fuzzer.c"])
+    fuzz_targets: Sequence[str] = ()
     build_system: Literal["oss-fuzz", "cmake", "autotools", "custom"] = "oss-fuzz"
     build_script: Optional[str] = None
     local_checkout: Optional[Path] = None
     commit: Optional[str] = None
     harness_globs: Sequence[str] = ()
+
+    @property
+    def fuzz_target(self) -> str:
+        """Primary fuzz target (first in list) for backward compatibility."""
+        return self.fuzz_targets[0] if self.fuzz_targets else ""
+
+    @property
+    def has_fuzz_targets(self) -> bool:
+        """Check if any fuzz targets are configured."""
+        return len(self.fuzz_targets) > 0
 
 
 @dataclass()

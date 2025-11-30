@@ -54,15 +54,28 @@ class LibFuzzerRunner:
         target: TargetProjectConfig,
         build: BuildArtifacts,
         run_ctx: RunContext,
+        harness_override: str | None = None,
     ) -> Path | None:
         """
         Build the fuzzer binary with sanitizers.
 
+        Args:
+            target: Target project configuration
+            build: Build artifacts
+            run_ctx: Run context for logging
+            harness_override: Optional path to a specific harness (for multi-harness)
+
         Returns path to fuzzer binary, or None if build fails.
         """
-        # Check if fuzzer binary already exists
-        if build.fuzzer_binary and build.fuzzer_binary.exists():
-            return build.fuzzer_binary
+        # Determine which harness to use
+        harness_path = harness_override or target.fuzz_target
+        harness_name = Path(harness_path).stem
+        
+        # Check if fuzzer binary already exists for this harness
+        fuzzer_binary = build.build_dir / f"fuzzer_{harness_name}"
+        if fuzzer_binary.exists():
+            self._log(run_ctx, f"Fuzzer binary already exists: {fuzzer_binary}")
+            return fuzzer_binary
 
         # Find clang with libFuzzer support
         # Priority: Homebrew LLVM > System clang
@@ -72,24 +85,28 @@ class LibFuzzerRunner:
 
         # Determine source files
         source_dir = build.source_dir
-        fuzz_target = source_dir / target.fuzz_target
+        fuzz_target = source_dir / harness_path
 
         if not fuzz_target.exists():
             self._log(run_ctx, f"Fuzz target not found: {fuzz_target}")
             return None
 
-        # Find main source file (assume it's in src/ directory)
+        # Find main source files (assume it's in src/ directory)
+        # Exclude main.c and any fuzzer files
         main_sources = list(source_dir.glob("src/*.c"))
         if not main_sources:
             main_sources = list(source_dir.glob("*.c"))
-            main_sources = [s for s in main_sources if "fuzzer" not in s.name.lower()]
+        
+        # Filter out main.c (contains standalone main()) and fuzzer files
+        main_sources = [
+            s for s in main_sources 
+            if s.name.lower() not in ("main.c", "main.cpp") 
+            and "fuzzer" not in s.name.lower()
+        ]
 
         if not main_sources:
             self._log(run_ctx, "No source files found to compile with fuzzer")
             return None
-
-        # Build command
-        fuzzer_binary = build.build_dir / "fuzzer"
         
         # For Homebrew LLVM, we need to link against its libc++ to avoid ABI mismatches
         # with the fuzzer runtime library

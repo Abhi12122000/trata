@@ -49,6 +49,7 @@ class FuzzingPipeline:
         build: BuildArtifacts,
         run_ctx: RunContext,
         config: Optional[FuzzingConfig] = None,
+        harness_override: Optional[str] = None,
     ) -> FuzzingBatch:
         """
         Execute the fuzzing pipeline.
@@ -58,25 +59,30 @@ class FuzzingPipeline:
             build: Build artifacts (source dir, build dir, etc.)
             run_ctx: Run context for logging and artifacts
             config: Optional fuzzing configuration
+            harness_override: Override the harness to fuzz (for multi-harness support)
 
         Returns:
             FuzzingBatch with results
         """
         config = config or FuzzingConfig()
+        
+        # Determine which harness to fuzz
+        harness_path = harness_override or target.fuzz_target
+        harness_name = Path(harness_path).stem
 
         if self.store:
-            self.store.log_event(run_ctx, f"Starting fuzzing for {target.name}")
+            self.store.log_event(run_ctx, f"Starting fuzzing for {target.name} ({harness_name})")
 
-        # Step 1: Build fuzzer binary
-        fuzzer_binary = build.fuzzer_binary
-        if not fuzzer_binary or not fuzzer_binary.exists():
-            fuzzer_binary = await self.runner.build_fuzzer(target, build, run_ctx)
+        # Step 1: Build fuzzer binary for this specific harness
+        fuzzer_binary = await self.runner.build_fuzzer(
+            target, build, run_ctx, harness_override=harness_path
+        )
 
         if not fuzzer_binary or not fuzzer_binary.exists():
             return FuzzingBatch(
                 project=target.name,
                 run_id=run_ctx.run_id,
-                harness=target.fuzz_target,
+                harness=harness_path,
                 fuzzer_binary="",
                 duration_seconds=0,
                 seeds_initial=0,
@@ -84,14 +90,14 @@ class FuzzingPipeline:
                 seeds_found=0,
                 crashes_found=0,
                 crashes=[],
-                summary="Fuzzer build failed - clang with -fsanitize=fuzzer required",
+                summary=f"Fuzzer build failed for {harness_name} - clang with -fsanitize=fuzzer required",
             )
 
-        # Step 2: Initialize corpus manager
-        corpus_dir = run_ctx.artifacts_dir / "fuzzing" / "corpus_data"
+        # Step 2: Initialize corpus manager (separate corpus per harness)
+        corpus_dir = run_ctx.artifacts_dir / "fuzzing" / f"corpus_{harness_name}"
         corpus_manager = CorpusManager(
             corpus_dir=corpus_dir,
-            harness_name=Path(target.fuzz_target).stem,
+            harness_name=harness_name,
             max_crashes_per_bucket=config.max_crashes_per_bucket,
         )
         await corpus_manager.init()
@@ -154,7 +160,7 @@ class FuzzingPipeline:
         return FuzzingBatch(
             project=target.name,
             run_id=run_ctx.run_id,
-            harness=target.fuzz_target,
+            harness=harness_path,
             fuzzer_binary=str(fuzzer_binary),
             duration_seconds=result.duration_seconds,
             seeds_initial=seeds_initial,

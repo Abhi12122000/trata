@@ -79,7 +79,7 @@ class LangGraphClient:
 
             prompt = STATIC_ANALYSIS_PROMPT.format(
                 project=target.name,
-                fuzz_target=target.fuzz_target,
+                fuzz_target=", ".join(target.fuzz_targets) if target.fuzz_targets else "N/A",
                 file_path=str(relative_file),
                 notes="First pass static heuristics",
                 code_snippet=snippet,
@@ -189,9 +189,11 @@ class LangGraphClient:
             if not self._is_c_cpp(path):
                 skipped.append(f"{rel}:non-cpp")
                 return True
-            if rel == target.fuzz_target or rel.startswith(f"{target.fuzz_target}/"):
-                skipped.append(f"{rel}:fuzz_target")
-                return True
+            # Skip all fuzz targets
+            for fuzz_tgt in target.fuzz_targets:
+                if rel == fuzz_tgt or rel.startswith(f"{fuzz_tgt}/"):
+                    skipped.append(f"{rel}:fuzz_target")
+                    return True
             for pattern in harness_patterns:
                 if fnmatch.fnmatch(rel, pattern):
                     skipped.append(f"{rel}:harness")
@@ -335,7 +337,7 @@ class LangGraphClient:
 
     @staticmethod
     def _harness_patterns(target: TargetProjectConfig) -> list[str]:
-        patterns = [str(PurePosixPath(target.fuzz_target))]
+        patterns = [str(PurePosixPath(ft)) for ft in target.fuzz_targets]
         patterns.extend(str(PurePosixPath(p)) for p in target.harness_globs)
         return patterns
 
