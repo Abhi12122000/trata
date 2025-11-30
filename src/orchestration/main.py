@@ -17,6 +17,7 @@ from ..storage.models import (
     FuzzingConfig,
     StaticAnalysisBatch,
 )
+from ..tools.crash_deduplicator import CrashDeduplicator
 from ..tools.project_builder import ProjectBuilder
 
 
@@ -183,6 +184,24 @@ class MiniCRSOrchestrator:
                 total_duration = sum(b.duration_seconds for b in all_fuzzing_batches)
                 all_crashes = [c for b in all_fuzzing_batches for c in b.crashes]
                 
+                # Deduplicate crashes by stack trace
+                self.store.log_event(
+                    run_ctx,
+                    f"Deduplicating {len(all_crashes)} crashes by stack trace...",
+                )
+                dedup = CrashDeduplicator()
+                unique_crashes = dedup.get_unique_crashes(all_crashes)
+                dedup_summary = dedup.get_dedup_summary(all_crashes)
+                
+                self.store.log_event(
+                    run_ctx,
+                    f"Deduplication: {len(all_crashes)} → {len(unique_crashes)} unique "
+                    f"({dedup_summary['reduction_ratio']*100:.1f}% reduction)",
+                )
+                
+                # Persist deduplicated crashes
+                self._persist_deduplicated_crashes(run_ctx, unique_crashes, dedup_summary)
+                
                 fuzzing_batch = FuzzingBatch(
                     project=target.name,
                     run_id=run_ctx.run_id,
@@ -194,7 +213,7 @@ class MiniCRSOrchestrator:
                     seeds_found=total_seeds,
                     crashes_found=total_crashes,
                     crashes=all_crashes,
-                    summary=f"Fuzzing {num_harnesses} harnesses: {total_crashes} crashes, {total_seeds} new seeds",
+                    summary=f"Fuzzing {num_harnesses} harnesses: {total_crashes} crashes ({len(unique_crashes)} unique), {total_seeds} new seeds",
                 )
                 # Persist combined results
                 self._persist_fuzzing_batch(run_ctx, fuzzing_batch, "combined")
@@ -263,6 +282,41 @@ class MiniCRSOrchestrator:
 
         with out_file.open("w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
+
+    def _persist_deduplicated_crashes(
+        self, run_ctx, unique_crashes: list, dedup_summary: dict
+    ) -> None:
+        """Persist deduplicated crashes to JSON for use by patcher agent."""
+        out_file = run_ctx.artifacts_dir / "fuzzing" / "deduplicated_crashes.json"
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+
+        payload = {
+            "total_crashes": dedup_summary["total_crashes"],
+            "unique_signatures": dedup_summary["unique_signatures"],
+            "reduction_ratio": dedup_summary["reduction_ratio"],
+            "unique_crashes": [
+                {
+                    "crash_id": c.crash_id,
+                    "input_path": str(c.input_path),
+                    "input_size": c.input_size,
+                    "dedup_token": c.dedup_token,
+                    "harness": c.harness,
+                    "timestamp": c.timestamp,
+                    "signal": c.signal,
+                    "stack_trace": c.stack_trace,  # Full stack trace for patcher
+                }
+                for c in unique_crashes
+            ],
+            "clusters": dedup_summary["clusters"],
+        }
+
+        with out_file.open("w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+        
+        self.store.log_event(
+            run_ctx,
+            f"Saved {len(unique_crashes)} deduplicated crashes to {out_file.name}",
+        )
 
 
 def workspace_child(root: Path, *parts: str) -> Path:

@@ -1,0 +1,18 @@
+2025-11-30T06:51:30.566957+00:00 [example-c/20251130-065130] Starting run for example-c
+2025-11-30T06:51:37.330993+00:00 [example-c/20251130-065130] LLM static analysis completed
+2025-11-30T06:51:39.710740+00:00 [example-c/20251130-065130] Completed static analysis with 3 findings
+2025-11-30T06:51:39.710879+00:00 [example-c/20251130-065130] Starting fuzzing on 2 harness(es), 30s per harness
+2025-11-30T06:51:39.710959+00:00 [example-c/20251130-065130] Fuzzing harness: vuln_fuzzer
+2025-11-30T06:51:39.711039+00:00 [example-c/20251130-065130] Starting fuzzing for example-c (vuln_fuzzer)
+2025-11-30T06:51:40.194230+00:00 [example-c/20251130-065130] Starting fuzzer with 3 initial seeds, max_total_time=30s
+2025-11-30T06:52:30.293866+00:00 [example-c/20251130-065130] Fuzzing completed in 30.5s. Seeds: 3 initial → 15 final (+12 new). Crashes found: 101.
+2025-11-30T06:52:30.296394+00:00 [example-c/20251130-065130] Completed fuzzing vuln_fuzzer: 101 crashes, 12 new seeds
+2025-11-30T06:52:30.296484+00:00 [example-c/20251130-065130] Fuzzing harness: packet_fuzzer
+2025-11-30T06:52:30.296557+00:00 [example-c/20251130-065130] Starting fuzzing for example-c (packet_fuzzer)
+2025-11-30T06:52:31.041369+00:00 [example-c/20251130-065130] Starting fuzzer with 3 initial seeds, max_total_time=30s
+2025-11-30T06:53:07.137558+00:00 [example-c/20251130-065130] Fuzzing completed in 36.1s. Seeds: 3 initial → 3 final (+0 new). Crashes found: 0.
+2025-11-30T06:53:07.138256+00:00 [example-c/20251130-065130] Completed fuzzing packet_fuzzer: 0 crashes, 0 new seeds
+2025-11-30T06:53:07.138314+00:00 [example-c/20251130-065130] Deduplicating 101 crashes by stack trace...
+2025-11-30T06:53:07.145521+00:00 [example-c/20251130-065130] Deduplication: 101 → 1 unique (99.0% reduction)
+2025-11-30T06:53:07.145773+00:00 [example-c/20251130-065130] Saved 1 deduplicated crashes to deduplicated_crashes.json
+2025-11-30T06:53:07.147011+00:00 [example-c/20251130-065130] CRS run completed at 2025-11-30T06:53:07.146981+00:00. Static analysis: 3 findings. Fuzzing: 101 crashes, 12 new seeds

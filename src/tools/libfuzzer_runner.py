@@ -176,12 +176,13 @@ class LibFuzzerRunner:
         Returns:
             LibFuzzerResult with seeds, crashes, and stats
         """
-        # Create working directories
+        # Create working directories (per-harness to avoid conflicts)
+        harness_name = corpus_manager.harness_name
         work_dir = run_ctx.artifacts_dir / "fuzzing"
         work_dir.mkdir(parents=True, exist_ok=True)
 
-        corpus_work_dir = work_dir / "corpus"
-        crashes_work_dir = work_dir / "crashes"
+        corpus_work_dir = work_dir / f"corpus_{harness_name}"
+        crashes_work_dir = work_dir / f"crashes_{harness_name}"
         corpus_work_dir.mkdir(exist_ok=True)
         crashes_work_dir.mkdir(exist_ok=True)
 
@@ -252,16 +253,19 @@ class LibFuzzerRunner:
         new_seed_ids = corpus_manager.sync_seeds_from(corpus_work_dir)
         self._log(run_ctx, f"Found {len(new_seed_ids)} new seeds")
 
-        # Collect crashes
-        for crash_file in crashes_work_dir.iterdir():
-            if crash_file.is_file() and not crash_file.name.startswith("."):
-                crash = await self._process_crash(
-                    crash_file,
-                    corpus_manager,
-                    stderr,
-                )
-                if crash:
-                    new_crashes.append(crash)
+        # Collect crashes and re-run each to capture stack traces
+        crash_files = [f for f in crashes_work_dir.iterdir() if f.is_file() and not f.name.startswith(".")]
+        self._log(run_ctx, f"Processing {len(crash_files)} crash files...")
+        
+        for crash_file in crash_files:
+            crash = await self._process_crash(
+                crash_file,
+                corpus_manager,
+                stderr,
+                fuzzer_binary=fuzzer_binary,
+            )
+            if crash:
+                new_crashes.append(crash)
 
         self._log(run_ctx, f"Found {len(new_crashes)} crashes")
 
@@ -283,6 +287,7 @@ class LibFuzzerRunner:
         crash_file: Path,
         corpus_manager: CorpusManager,
         stderr: str,
+        fuzzer_binary: Path | None = None,
     ) -> FuzzCrash | None:
         """Process a crash file and add to corpus manager."""
         try:
@@ -294,8 +299,15 @@ class LibFuzzerRunner:
             dedup_token = self._extract_dedup_token(crash_name, stderr)
             signal = self._extract_signal(crash_name)
 
-            # Extract stack trace from stderr if available
-            stack_trace = self._extract_stack_trace(stderr, crash_name)
+            # Try to get stack trace by re-running the crash input
+            # This is more reliable than parsing fork mode logs
+            stack_trace = ""
+            if fuzzer_binary and fuzzer_binary.exists():
+                stack_trace = await self._get_crash_stack_trace(fuzzer_binary, crash_file)
+            
+            # Fallback to parsing stderr if re-run didn't work
+            if not stack_trace:
+                stack_trace = self._extract_stack_trace(stderr, crash_name)
 
             return await corpus_manager.add_crash(
                 data=crash_data,
@@ -337,25 +349,86 @@ class LibFuzzerRunner:
             return "LEAK"
         return ""
 
+    async def _get_crash_stack_trace(
+        self, fuzzer_binary: Path, crash_file: Path, timeout: float = 10.0
+    ) -> str:
+        """
+        Re-run a crash input to capture its stack trace.
+        
+        In fork mode, libFuzzer doesn't output stack traces to stderr.
+        This method re-runs the crash input directly to capture the trace.
+        """
+        if not crash_file.exists():
+            return ""
+            
+        try:
+            process = await asyncio.create_subprocess_exec(
+                str(fuzzer_binary),
+                str(crash_file),
+                "-runs=1",  # Run only once
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env={
+                    **os.environ,
+                    "ASAN_OPTIONS": "symbolize=1:abort_on_error=1:detect_leaks=0",
+                    "UBSAN_OPTIONS": "print_stacktrace=1",
+                },
+            )
+            
+            try:
+                stdout_bytes, stderr_bytes = await asyncio.wait_for(
+                    process.communicate(),
+                    timeout=timeout,
+                )
+                # Combine stdout and stderr since libFuzzer outputs to both
+                combined = stdout_bytes.decode("utf-8", errors="replace") + "\n" + stderr_bytes.decode("utf-8", errors="replace")
+                return self._extract_stack_trace(combined, crash_file.name)
+            except asyncio.TimeoutError:
+                process.kill()
+                await process.wait()
+                return ""
+                
+        except Exception as e:
+            # Log exception for debugging
+            return ""
+
     @staticmethod
-    def _extract_stack_trace(stderr: str, crash_name: str) -> str:
-        """Extract stack trace from stderr related to a crash."""
+    def _extract_stack_trace(output: str, crash_name: str) -> str:
+        """Extract stack trace from output related to a crash."""
         # Look for ASAN/UBSAN stack traces
-        lines = stderr.split("\n")
+        lines = output.split("\n")
         in_trace = False
         trace_lines: list[str] = []
-
+        
         for line in lines:
+            # Start of sanitizer error
             if "ERROR:" in line and "Sanitizer" in line:
                 in_trace = True
                 trace_lines = [line]
             elif in_trace:
-                if line.strip().startswith("#") or line.strip().startswith("=="):
+                stripped = line.strip()
+                # Stack frame lines start with #
+                if stripped.startswith("#"):
                     trace_lines.append(line)
-                elif line.strip() == "" and len(trace_lines) > 5:
+                # ASAN info lines start with ==PID==
+                elif stripped.startswith("==") and "==" in stripped[2:]:
+                    trace_lines.append(line)
+                # "freed by thread" or "previously allocated" sections
+                elif "freed by thread" in line.lower() or "previously allocated" in line.lower():
+                    trace_lines.append(line)
+                # "is located" info
+                elif "is located" in line:
+                    trace_lines.append(line)
+                # End of trace on empty line after enough content
+                elif stripped == "" and len(trace_lines) > 3:
+                    # Keep collecting if we see more ERROR: lines
+                    continue
+                # SUMMARY line marks end
+                elif "SUMMARY:" in line:
+                    trace_lines.append(line)
                     break
 
-        return "\n".join(trace_lines[:50])  # Limit stack trace length
+        return "\n".join(trace_lines[:60])  # Limit stack trace length
 
     def _find_clang_with_fuzzer(self, run_ctx: RunContext) -> str | None:
         """Find a clang binary that supports -fsanitize=fuzzer."""

@@ -1,0 +1,28 @@
+{
+  "total_crashes": 101,
+  "unique_signatures": 1,
+  "reduction_ratio": 0.9900990099009901,
+  "unique_crashes": [
+    {
+      "crash_id": "fb3c6e4de85bd9eae26fdc63e75f10a7f39e850e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-065130/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/fb3c6e4de85bd9ea/fb3c6e4de85bd9eae26fdc63e75f10a7f39e850e",
+      "input_size": 1,
+      "dedup_token": "fb3c6e4de85bd9ea",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-11-30T06:52:11.022200+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==64696==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010304aa60 bp 0x00016d492070 sp 0x00016d491800\n    #0 0x00010304aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010304b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010296cac4 in use_after_free_example vuln.c:24\n    #3 0x00010296d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001029864cc in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) FuzzerLoop.cpp:619\n    #5 0x000102972fec in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) FuzzerDriver.cpp:329\n    #6 0x00010297857c in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) FuzzerDriver.cpp:864\n    #7 0x0001029a2910 in main FuzzerMain.cpp:20\n    #8 0x000194b0eb94 in start+0x17b8 (dyld:arm64+0xfffffffffff3ab94)\n0x6060000002c0 is located 0 bytes inside of 64-byte region [0x6060000002c0,0x606000000300)\nfreed by thread T0 here:\n    #0 0x00010307b564 in free+0x74 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x53564)\n    #1 0x00010296cab4 in use_after_free_example vuln.c:22\n    #2 0x00010296d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #3 0x0001029864cc in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) FuzzerLoop.cpp:619\n    #4 0x000102972fec in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) FuzzerDriver.cpp:329\n    #5 0x00010297857c in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) FuzzerDriver.cpp:864\n    #6 0x0001029a2910 in main FuzzerMain.cpp:20\n    #7 0x000194b0eb94 in start+0x17b8 (dyld:arm64+0xfffffffffff3ab94)\npreviously allocated by thread T0 here:\n    #0 0x00010307b478 in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x53478)\n    #1 0x00010296ca84 in use_after_free_example vuln.c:19\n    #2 0x00010296d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #3 0x0001029864cc in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) FuzzerLoop.cpp:619\n    #4 0x000102972fec in fuzzer::RunOneTest(fuzzer::Fuzzer*, char const*, unsigned long) FuzzerDriver.cpp:329\n    #5 0x00010297857c in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) FuzzerDriver.cpp:864\n    #6 0x0001029a2910 in main FuzzerMain.cpp:20\n    #7 0x000194b0eb94 in start+0x17b8 (dyld:arm64+0xfffffffffff3ab94)\nSUMMARY: AddressSanitizer: heap-use-after-free vuln.c:24 in use_after_free_example"
+    }
+  ],
+  "clusters": [
+    {
+      "signature_hash": "a88cb1d7581550df",
+      "error_type": "heap-use-after-free",
+      "frames": [
+        "use_after_free_example@vuln.c:24"
+      ],
+      "crash_count": 101,
+      "representative_id": "fb3c6e4de85bd9eae26fdc63e75f10a7f39e850e"
+    }
+  ]
+}

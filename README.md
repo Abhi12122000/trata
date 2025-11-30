@@ -1,10 +1,10 @@
-## Mini CRS (`trata/`)
+## Mini CRS (Heavily vibe-coded)
 
 This package hosts a lightweight but full-loop Cyber Reasoning System modeled after the RoboDuck architecture. It ingests a single OSS-Fuzz project and produces static-analysis findings (LLM + Infer) plus fuzzing crashes (libFuzzer) together with complete reasoning logs.
 
 ---
 
-## Architecture at a Glance
+## Architecture
 
 | Stage | Responsibilities | Key Modules |
 | --- | --- | --- |
@@ -118,6 +118,30 @@ If clang doesn't support `-fsanitize=fuzzer`, the CRS will skip fuzzing and only
 
 ## Running the CRS
 
+### Quick Start (Example Target)
+
+Run the complete CRS pipeline (static analysis + fuzzing) on the example target:
+
+```bash
+python -m trata.main \
+  --name example-c \
+  --local-checkout trata/example-c-target \
+  --fuzz-target fuzz/vuln_fuzzer.c \
+  --fuzz-target fuzz/packet_fuzzer.c \
+  --harness-glob "fuzz/*" \
+  --build-script "bash build.sh" \
+  --fuzzing-time 60
+```
+
+This will:
+1. Build the target project
+2. Run static analysis (LLM + Infer)
+3. Build and run fuzzers on all specified harnesses
+4. **Automatically deduplicate crashes by stack trace**
+5. Save results to `trata/data/example-c/<timestamp>/`
+
+### Running on Your Own Project
+
 1. **Prepare the project directory**
    - The directory must contain both the original source code **and** the fuzz harnesses.
    - OSS-Fuzz project folders often contain only harnesses/Dockerfiles (e.g., `oss-fuzz/projects/nginx`). Clone the upstream repo into the same directory or point `--repo` to it so Infer and the LLM can inspect real code.
@@ -150,9 +174,15 @@ If clang doesn't support `-fsanitize=fuzzer`, the CRS will skip fuzzing and only
    └── artifacts/
        ├── build/                  # build.log, temp outputs
        ├── infer/                  # Infer report.json, etc.
-       └── static_analysis.json    # normalized findings for downstream agents
+       ├── static_analysis.json    # normalized findings for downstream agents
+       └── fuzzing/                # Fuzzing results (if enabled)
+           ├── {harness}_results.json # Per-harness results
+           ├── combined_results.json  # Combined results
+           └── deduplicated_crashes.json # ⭐ Unique crashes (for patcher)
    ```
    The orchestrator now writes `static_analysis.json` even if the build or analysis fails (summary indicates the failure reason).
+   
+   **Note:** Crash deduplication runs automatically after fuzzing completes. See [FUZZING_IMPLEMENTATION.md](FUZZING_IMPLEMENTATION.md) for details.
 
 ---
 
@@ -185,6 +215,8 @@ python -m trata.main \
 If your harnesses live in a separate folder, copy them into the checkout before running or pass `--local-checkout` to a combined tree.
 
 ### example-c smoke test (with fuzzing)
+
+**Single harness:**
 ```bash
 python -m trata.main \
   --name example-c \
@@ -194,11 +226,38 @@ python -m trata.main \
   --build-script "bash build.sh" \
   --fuzzing-time 60
 ```
+
+**Multiple harnesses (recommended):**
+```bash
+python -m trata.main \
+  --name example-c \
+  --local-checkout trata/example-c-target \
+  --fuzz-target fuzz/vuln_fuzzer.c \
+  --fuzz-target fuzz/packet_fuzzer.c \
+  --harness-glob "fuzz/*" \
+  --build-script "bash build.sh" \
+  --fuzzing-time 60
+```
+
 This intentionally vulnerable C program compiles quickly and is ideal for testing both static analysis (Infer) and fuzzing (libFuzzer). The fuzzer should find crashes within seconds due to the deliberate memory bugs.
 
+**Target project structure:**
+```
+example-c-target/
+├── src/
+│   ├── vuln.c         # Vulnerable library code (6 bugs)
+│   ├── vuln.h         # Header file
+│   └── main.c         # Standalone test binary (not used in fuzzing)
+├── fuzz/
+│   ├── vuln_fuzzer.c  # Main fuzzer (tests all bugs)
+│   └── packet_fuzzer.c # Focused fuzzer (tests process_packet)
+└── build.sh           # Build script
+```
+
 **Fuzzing-specific flags:**
+- `--fuzz-target`: Can be repeated for multiple harnesses
 - `--no-fuzzing`: skip fuzzing entirely
-- `--fuzzing-time 60`: run fuzzer for 60 seconds total
+- `--fuzzing-time 60`: total fuzzing time (divided among harnesses)
 - `--fuzzing-timeout 30`: per-execution timeout
 - `--fuzzing-workers 2`: parallel fuzzer jobs
 
@@ -251,20 +310,23 @@ artifacts/
 ├── infer/
 │   └── report.json           # Raw Infer output
 └── fuzzing/                   # Fuzzing results (if enabled)
-    ├── fuzzing_results.json  # Crashes, seeds, stats
-    ├── crashes/              # Crash inputs by dedup token
-    │   └── <dedup_token>/
-    │       └── <crash_id>    # Raw crash input bytes
-    ├── corpus_data/          # Seed corpus
-    │   ├── seeds/            # All seeds
-    │   └── crashes/          # Copy of crashes
-    └── fuzzer.log            # libFuzzer stdout/stderr
+    ├── {harness}_results.json # Per-harness results (all crashes)
+    ├── combined_results.json  # Combined results from all harnesses
+    ├── deduplicated_crashes.json # ⭐ Unique crashes (one per bug) - for patcher
+    ├── corpus_{harness}/       # Per-harness corpus
+    │   ├── seeds/             # Seed inputs
+    │   └── crashes/           # Crash inputs by dedup token
+    │       └── <dedup_token>/
+    │           └── <crash_id> # Raw crash input bytes
+    └── fuzzer.log             # libFuzzer stdout/stderr
 ```
 
 **Key files:**
 - `static_analysis.json`: All static findings (Infer + LLM)
-- `fuzzing/fuzzing_results.json`: Fuzzing summary with crashes
-- `fuzzing/crashes/<token>/<id>`: Raw crash inputs for reproduction
+- `fuzzing/{harness}_results.json`: Per-harness fuzzing summary with all crashes
+- `fuzzing/combined_results.json`: Aggregated results from all harnesses
+- `fuzzing/deduplicated_crashes.json`: **Unique crashes only** (one per bug signature) - **use this for patcher agent**
+- `fuzzing/corpus_{harness}/crashes/<token>/<id>`: Raw crash inputs for reproduction
 
 ### Docker Volume Mounts
 
@@ -294,6 +356,13 @@ pytest trata/tests/test_llm_client.py -v
 
 # Fuzzing tests
 pytest trata/tests/test_fuzzing.py -v
+
+# Crash deduplication tests
+pytest trata/tests/test_crash_deduplicator.py -v
 ```
+
+## Documentation
+
+- **[FUZZING_IMPLEMENTATION.md](FUZZING_IMPLEMENTATION.md)**: Complete documentation of the fuzzing system, including architecture, components, crash deduplication, and integration with the patcher agent.
 
 

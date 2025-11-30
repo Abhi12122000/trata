@@ -1,0 +1,21 @@
+=== STDOUT ===
+
+
+=== STDERR ===
+/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-065130/artifacts/build/fuzzer_packet_fuzzer /Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-065130/artifacts/fuzzing/corpus_packet_fuzzer -max_total_time=30 -timeout=60 -artifact_prefix=/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251130-065130/artifacts/fuzzing/crashes_packet_fuzzer/ -fork=1 -ignore_crashes=1 -detect_leaks=0 -print_final_stats=1 >fuzz-0.log 2>&1
+================== Job 0 exited with exit code 0 ============
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1317144329
+INFO: Loaded 1 modules   (18 inline 8-bit counters): 18 [0x104324000, 0x104324012), 
+INFO: Loaded 1 PC tables (18 PCs): 18 [0x104324018,0x104324138), 
+INFO: -fork=1: fuzzing in separate process(s)
+INFO: -fork=1: 1 seed inputs, starting to fuzz in /var/folders/0h/bl8snw6n16z4h_tbnrhl69g40000gp/T//libFuzzerTemp.FuzzWithFork65014.dir
+#1913482: cov: 2 ft: 2 corp: 1 exec/s: 956741 oom/timeout/crash: 0/0/0 time: 2s job: 1 dft_time: 0
+#4902479: cov: 2 ft: 2 corp: 1 exec/s: 996332 oom/timeout/crash: 0/0/0 time: 5s job: 2 dft_time: 0
+#8952966: cov: 2 ft: 2 corp: 1 exec/s: 1012621 oom/timeout/crash: 0/0/0 time: 9s job: 3 dft_time: 0
+#13797593: cov: 2 ft: 2 corp: 1 exec/s: 968925 oom/timeout/crash: 0/0/0 time: 14s job: 4 dft_time: 0
+#19792495: cov: 2 ft: 2 corp: 1 exec/s: 999150 oom/timeout/crash: 0/0/0 time: 20s job: 5 dft_time: 0
+#26631167: cov: 2 ft: 2 corp: 1 exec/s: 976953 oom/timeout/crash: 0/0/0 time: 27s job: 6 dft_time: 0
+#34470609: cov: 2 ft: 2 corp: 1 exec/s: 979930 oom/timeout/crash: 0/0/0 time: 35s job: 7 dft_time: 0
+INFO: fuzzed for 35 seconds, wrapping up soon
+INFO: exiting: 0 time: 35s
