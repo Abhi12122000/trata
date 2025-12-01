@@ -1,0 +1,4 @@
+@@ -42,6 +42,7 @@
+       free(ptr);
+-    free(ptr); // Double free vulnerability
++    // Removed second free to prevent double free

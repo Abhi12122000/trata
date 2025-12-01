@@ -1,0 +1,1094 @@
+{
+  "project": "example-c",
+  "run_id": "20251201-005821",
+  "harness": "fuzz/vuln_fuzzer.c",
+  "fuzzer_binary": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/build/fuzzer_vuln_fuzzer",
+  "duration_seconds": 31.019982,
+  "seeds_initial": 3,
+  "seeds_final": 14,
+  "seeds_found": 11,
+  "crashes_found": 108,
+  "crashes": [
+    {
+      "crash_id": "909f99a779adb66a76fc53ab56c7dd1caf35d0fd",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/909f99a779adb66a/909f99a779adb66a76fc53ab56c7dd1caf35d0fd",
+      "input_size": 1,
+      "dedup_token": "909f99a779adb66a",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:58.561192+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22672==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000101266a60 bp 0x00016f2ca070 sp 0x00016f2c9800\n    #0 0x000101266a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000101267840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100b34ac4 in use_after_free_example vuln.c:24\n    #3 0x000100b35048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100b4e4cc in fuzz"
+    },
+    {
+      "crash_id": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/b6589fc6ab0dc82c/b6589fc6ab0dc82cf12099d1c2d40ab994e8410c",
+      "input_size": 1,
+      "dedup_token": "b6589fc6ab0dc82c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:58.740292+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22674==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001008f2a60 bp 0x00016face070 sp 0x00016facd800\n    #0 0x0001008f2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001008f3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100330ac4 in use_after_free_example vuln.c:24\n    #3 0x000100331048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010034a4cc in fuzz"
+    },
+    {
+      "crash_id": "3a047e6d8cd4d8f48071734b146030add6874726",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/3a047e6d8cd4d8f4/3a047e6d8cd4d8f48071734b146030add6874726",
+      "input_size": 3,
+      "dedup_token": "3a047e6d8cd4d8f4",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:58.931110+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22676==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001016bea60 bp 0x00016ef3e070 sp 0x00016ef3d800\n    #0 0x0001016bea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001016bf840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100ec0ac4 in use_after_free_example vuln.c:24\n    #3 0x000100ec1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100eda4cc in fuzz"
+    },
+    {
+      "crash_id": "5b87c31e132e522d617fd5279324f8e87f2f77a2",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/5b87c31e132e522d/5b87c31e132e522d617fd5279324f8e87f2f77a2",
+      "input_size": 4,
+      "dedup_token": "5b87c31e132e522d",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:59.118573+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22680==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001005baa60 bp 0x00016fda6070 sp 0x00016fda5800\n    #0 0x0001005baa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001005bb840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100058ac4 in use_after_free_example vuln.c:24\n    #3 0x000100059048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001000724cc in fuzz"
+    },
+    {
+      "crash_id": "925c7700aa841d1f6fae9ea75f874921c2b7a70d",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/925c7700aa841d1f/925c7700aa841d1f6fae9ea75f874921c2b7a70d",
+      "input_size": 3,
+      "dedup_token": "925c7700aa841d1f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:59.333861+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22682==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001028a2a60 bp 0x00016dcbe070 sp 0x00016dcbd800\n    #0 0x0001028a2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001028a3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102140ac4 in use_after_free_example vuln.c:24\n    #3 0x000102141048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010215a4cc in fuzz"
+    },
+    {
+      "crash_id": "8123236eac42e3955eff6563e9ada1363f7300f2",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/8123236eac42e395/8123236eac42e3955eff6563e9ada1363f7300f2",
+      "input_size": 2,
+      "dedup_token": "8123236eac42e395",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:59.512604+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22685==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102edea60 bp 0x00016d71a070 sp 0x00016d719800\n    #0 0x000102edea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102edf840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001026e4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001026e5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001026fe4cc in fuzz"
+    },
+    {
+      "crash_id": "14f85eecb9350af03862906c85b9b128772457dc",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/14f85eecb9350af0/14f85eecb9350af03862906c85b9b128772457dc",
+      "input_size": 4,
+      "dedup_token": "14f85eecb9350af0",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:59.703003+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22691==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100b32a60 bp 0x00016fafa070 sp 0x00016faf9800\n    #0 0x000100b32a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100b33840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100304ac4 in use_after_free_example vuln.c:24\n    #3 0x000100305048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010031e4cc in fuzz"
+    },
+    {
+      "crash_id": "9b1cd6ae4f93d2f929ac0b179fd8b05d12109044",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/9b1cd6ae4f93d2f9/9b1cd6ae4f93d2f929ac0b179fd8b05d12109044",
+      "input_size": 4,
+      "dedup_token": "9b1cd6ae4f93d2f9",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:58:59.879740+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22693==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010528ea60 bp 0x00016b0d2070 sp 0x00016b0d1800\n    #0 0x00010528ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010528f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104d2cac4 in use_after_free_example vuln.c:24\n    #3 0x000104d2d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000104d464cc in fuzz"
+    },
+    {
+      "crash_id": "b0df81d7ec844b39d991c1e37631377db5f24ee6",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/b0df81d7ec844b39/b0df81d7ec844b39d991c1e37631377db5f24ee6",
+      "input_size": 3,
+      "dedup_token": "b0df81d7ec844b39",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:00.077213+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22695==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010281aa60 bp 0x00016dda6070 sp 0x00016dda5800\n    #0 0x00010281aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010281b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102058ac4 in use_after_free_example vuln.c:24\n    #3 0x000102059048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001020724cc in fuzz"
+    },
+    {
+      "crash_id": "dc7a32bbf136afa98bb66946ee306fde68df9a3b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/dc7a32bbf136afa9/dc7a32bbf136afa98bb66946ee306fde68df9a3b",
+      "input_size": 2,
+      "dedup_token": "dc7a32bbf136afa9",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:00.293290+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22702==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010278aa60 bp 0x00016ddda070 sp 0x00016ddd9800\n    #0 0x00010278aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010278b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102024ac4 in use_after_free_example vuln.c:24\n    #3 0x000102025048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010203e4cc in fuzz"
+    },
+    {
+      "crash_id": "cfd3d97d73963bc214de365940ada911b17ed2fb",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/cfd3d97d73963bc2/cfd3d97d73963bc214de365940ada911b17ed2fb",
+      "input_size": 2,
+      "dedup_token": "cfd3d97d73963bc2",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:00.495388+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22705==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100736a60 bp 0x00016fc66070 sp 0x00016fc65800\n    #0 0x000100736a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100737840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100198ac4 in use_after_free_example vuln.c:24\n    #3 0x000100199048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001001b24cc in fuzz"
+    },
+    {
+      "crash_id": "f4f0d0ccee2ac542a4e737f90d2f3b93c230e04f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/f4f0d0ccee2ac542/f4f0d0ccee2ac542a4e737f90d2f3b93c230e04f",
+      "input_size": 4,
+      "dedup_token": "f4f0d0ccee2ac542",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:00.663863+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22711==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010071aa60 bp 0x00016fdf2070 sp 0x00016fdf1800\n    #0 0x00010071aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010071b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010000cac4 in use_after_free_example vuln.c:24\n    #3 0x00010000d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001000264cc in fuzz"
+    },
+    {
+      "crash_id": "92c71d338c73378600cc48c52832b60d841d4395",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/92c71d338c733786/92c71d338c73378600cc48c52832b60d841d4395",
+      "input_size": 2,
+      "dedup_token": "92c71d338c733786",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:00.850578+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22713==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001013aea60 bp 0x00016f142070 sp 0x00016f141800\n    #0 0x0001013aea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001013af840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100cbcac4 in use_after_free_example vuln.c:24\n    #3 0x000100cbd048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100cd64cc in fuzz"
+    },
+    {
+      "crash_id": "b82913544ca49d0408d61918c3ffff0eb8cfc321",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/b82913544ca49d04/b82913544ca49d0408d61918c3ffff0eb8cfc321",
+      "input_size": 4,
+      "dedup_token": "b82913544ca49d04",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:01.042577+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22715==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103422a60 bp 0x00016d046070 sp 0x00016d045800\n    #0 0x000103422a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103423840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102db8ac4 in use_after_free_example vuln.c:24\n    #3 0x000102db9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102dd24cc in fuzz"
+    },
+    {
+      "crash_id": "3cdf2936da2fc556bfa533ab1eb59ce710ac80e5",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/3cdf2936da2fc556/3cdf2936da2fc556bfa533ab1eb59ce710ac80e5",
+      "input_size": 1,
+      "dedup_token": "3cdf2936da2fc556",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:01.255008+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22717==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100d62a60 bp 0x00016f6ba070 sp 0x00016f6b9800\n    #0 0x000100d62a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100d63840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100744ac4 in use_after_free_example vuln.c:24\n    #3 0x000100745048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010075e4cc in fuzz"
+    },
+    {
+      "crash_id": "50cc813b90c8b442c1adfd1736e2b3c9d07e9eef",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/50cc813b90c8b442/50cc813b90c8b442c1adfd1736e2b3c9d07e9eef",
+      "input_size": 3,
+      "dedup_token": "50cc813b90c8b442",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:01.449570+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22721==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001006c2a60 bp 0x00016fd82070 sp 0x00016fd81800\n    #0 0x0001006c2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001006c3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010007cac4 in use_after_free_example vuln.c:24\n    #3 0x00010007d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001000964cc in fuzz"
+    },
+    {
+      "crash_id": "76fa5a5caddef926d4554be1c632e6ab8a04f1fa",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/76fa5a5caddef926/76fa5a5caddef926d4554be1c632e6ab8a04f1fa",
+      "input_size": 2,
+      "dedup_token": "76fa5a5caddef926",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:01.642092+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22727==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102aa2a60 bp 0x00016d98e070 sp 0x00016d98d800\n    #0 0x000102aa2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102aa3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102470ac4 in use_after_free_example vuln.c:24\n    #3 0x000102471048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010248a4cc in fuzz"
+    },
+    {
+      "crash_id": "4e3506d8e2ad0dbeb695dffde0a1401f2f53f566",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/4e3506d8e2ad0dbe/4e3506d8e2ad0dbeb695dffde0a1401f2f53f566",
+      "input_size": 3,
+      "dedup_token": "4e3506d8e2ad0dbe",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:01.842578+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22731==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102faea60 bp 0x00016d436070 sp 0x00016d435800\n    #0 0x000102faea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102faf840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001029c8ac4 in use_after_free_example vuln.c:24\n    #3 0x0001029c9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001029e24cc in fuzz"
+    },
+    {
+      "crash_id": "1489f923c4dca729178b3e3233458550d8dddf29",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/1489f923c4dca729/1489f923c4dca729178b3e3233458550d8dddf29",
+      "input_size": 2,
+      "dedup_token": "1489f923c4dca729",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:02.032148+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22734==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104e9aa60 bp 0x00016b6ea070 sp 0x00016b6e9800\n    #0 0x000104e9aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104e9b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104714ac4 in use_after_free_example vuln.c:24\n    #3 0x000104715048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010472e4cc in fuzz"
+    },
+    {
+      "crash_id": "b8a95d9040710d5f4d0c8e36afa4aa43a724cc8e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/b8a95d9040710d5f/b8a95d9040710d5f4d0c8e36afa4aa43a724cc8e",
+      "input_size": 2,
+      "dedup_token": "b8a95d9040710d5f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:02.230585+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22736==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001005f2a60 bp 0x00016fd8a070 sp 0x00016fd89800\n    #0 0x0001005f2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001005f3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100074ac4 in use_after_free_example vuln.c:24\n    #3 0x000100075048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010008e4cc in fuzz"
+    },
+    {
+      "crash_id": "0d5e7d06a39561217b0c2844c6b4b0acf861191b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/0d5e7d06a3956121/0d5e7d06a39561217b0c2844c6b4b0acf861191b",
+      "input_size": 3,
+      "dedup_token": "0d5e7d06a3956121",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:02.414335+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22740==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100ab2a60 bp 0x00016f932070 sp 0x00016f931800\n    #0 0x000100ab2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100ab3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001004ccac4 in use_after_free_example vuln.c:24\n    #3 0x0001004cd048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001004e64cc in fuzz"
+    },
+    {
+      "crash_id": "c1da6957acb896f4ee80463fe9e758c4e74e9f0a",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/c1da6957acb896f4/c1da6957acb896f4ee80463fe9e758c4e74e9f0a",
+      "input_size": 4,
+      "dedup_token": "c1da6957acb896f4",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:02.598795+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22742==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001013eaa60 bp 0x00016f2b2070 sp 0x00016f2b1800\n    #0 0x0001013eaa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001013eb840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100b4cac4 in use_after_free_example vuln.c:24\n    #3 0x000100b4d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100b664cc in fuzz"
+    },
+    {
+      "crash_id": "a76dbcd4057cf594287f4bc0f195a45657063365",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/a76dbcd4057cf594/a76dbcd4057cf594287f4bc0f195a45657063365",
+      "input_size": 3,
+      "dedup_token": "a76dbcd4057cf594",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:02.782800+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22744==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102772a60 bp 0x00016dbfe070 sp 0x00016dbfd800\n    #0 0x000102772a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102773840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102200ac4 in use_after_free_example vuln.c:24\n    #3 0x000102201048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010221a4cc in fuzz"
+    },
+    {
+      "crash_id": "d943de6a6eb9dd723c92c37bf514a2586d33db25",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/d943de6a6eb9dd72/d943de6a6eb9dd723c92c37bf514a2586d33db25",
+      "input_size": 3,
+      "dedup_token": "d943de6a6eb9dd72",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:02.975469+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22746==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010550aa60 bp 0x00016aeaa070 sp 0x00016aea9800\n    #0 0x00010550aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010550b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104f54ac4 in use_after_free_example vuln.c:24\n    #3 0x000104f55048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000104f6e4cc in fuzz"
+    },
+    {
+      "crash_id": "69b53050000cb099fab3a5477a9c8282bc5b8c95",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/69b53050000cb099/69b53050000cb099fab3a5477a9c8282bc5b8c95",
+      "input_size": 4,
+      "dedup_token": "69b53050000cb099",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:03.147795+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22750==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001036eea60 bp 0x00016ce12070 sp 0x00016ce11800\n    #0 0x0001036eea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001036ef840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102fecac4 in use_after_free_example vuln.c:24\n    #3 0x000102fed048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001030064cc in fuzz"
+    },
+    {
+      "crash_id": "723a3f816c8081276d66e6928fec8c50812071ad",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/723a3f816c808127/723a3f816c8081276d66e6928fec8c50812071ad",
+      "input_size": 4,
+      "dedup_token": "723a3f816c808127",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:03.336383+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22760==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100ed6a60 bp 0x00016f646070 sp 0x00016f645800\n    #0 0x000100ed6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100ed7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001007b8ac4 in use_after_free_example vuln.c:24\n    #3 0x0001007b9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001007d24cc in fuzz"
+    },
+    {
+      "crash_id": "f6626c7bbf287ac42ed7915f84d529c64f0e49a1",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/f6626c7bbf287ac4/f6626c7bbf287ac42ed7915f84d529c64f0e49a1",
+      "input_size": 2,
+      "dedup_token": "f6626c7bbf287ac4",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:03.538913+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22765==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104c8aa60 bp 0x00016b8ce070 sp 0x00016b8cd800\n    #0 0x000104c8aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104c8b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104530ac4 in use_after_free_example vuln.c:24\n    #3 0x000104531048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010454a4cc in fuzz"
+    },
+    {
+      "crash_id": "64ea6c19f3ed7dfe6a0cfeb06b7f44ad0443ae84",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/64ea6c19f3ed7dfe/64ea6c19f3ed7dfe6a0cfeb06b7f44ad0443ae84",
+      "input_size": 3,
+      "dedup_token": "64ea6c19f3ed7dfe",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:03.744703+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22771==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103542a60 bp 0x00016d15a070 sp 0x00016d159800\n    #0 0x000103542a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103543840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102ca4ac4 in use_after_free_example vuln.c:24\n    #3 0x000102ca5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102cbe4cc in fuzz"
+    },
+    {
+      "crash_id": "9ac521e32f8e19473bc914e1af8ae423a6d8c122",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/9ac521e32f8e1947/9ac521e32f8e19473bc914e1af8ae423a6d8c122",
+      "input_size": 2,
+      "dedup_token": "9ac521e32f8e1947",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:03.930417+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22773==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010332aa60 bp 0x00016cfee070 sp 0x00016cfed800\n    #0 0x00010332aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010332b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102e10ac4 in use_after_free_example vuln.c:24\n    #3 0x000102e11048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102e2a4cc in fuzz"
+    },
+    {
+      "crash_id": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/5ba93c9db0cff93f/5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "input_size": 1,
+      "dedup_token": "5ba93c9db0cff93f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:04.123312+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22775==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001031f6a60 bp 0x00016d38a070 sp 0x00016d389800\n    #0 0x0001031f6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001031f7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102a74ac4 in use_after_free_example vuln.c:24\n    #3 0x000102a75048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102a8e4cc in fuzz"
+    },
+    {
+      "crash_id": "b8f3eec6b5fa270fb05644de403d9077b60ccbcf",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/b8f3eec6b5fa270f/b8f3eec6b5fa270fb05644de403d9077b60ccbcf",
+      "input_size": 1,
+      "dedup_token": "b8f3eec6b5fa270f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:04.326401+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22777==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103186a60 bp 0x00016d49e070 sp 0x00016d49d800\n    #0 0x000103186a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103187840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102960ac4 in use_after_free_example vuln.c:24\n    #3 0x000102961048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010297a4cc in fuzz"
+    },
+    {
+      "crash_id": "173e1c6c8cf126c5c6d1c92247ba0d0c8d0aff5f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/173e1c6c8cf126c5/173e1c6c8cf126c5c6d1c92247ba0d0c8d0aff5f",
+      "input_size": 4,
+      "dedup_token": "173e1c6c8cf126c5",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:04.524132+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22781==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010092ea60 bp 0x00016fb62070 sp 0x00016fb61800\n    #0 0x00010092ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010092f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010029cac4 in use_after_free_example vuln.c:24\n    #3 0x00010029d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001002b64cc in fuzz"
+    },
+    {
+      "crash_id": "df6d870698372d41c8ed35284bf328b92876ba6a",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/df6d870698372d41/df6d870698372d41c8ed35284bf328b92876ba6a",
+      "input_size": 2,
+      "dedup_token": "df6d870698372d41",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:04.722888+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22784==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001011c2a60 bp 0x00016f11a070 sp 0x00016f119800\n    #0 0x0001011c2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001011c3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100ce4ac4 in use_after_free_example vuln.c:24\n    #3 0x000100ce5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100cfe4cc in fuzz"
+    },
+    {
+      "crash_id": "3b9a70b1d6a213c80a38210452041e4dd8040744",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/3b9a70b1d6a213c8/3b9a70b1d6a213c80a38210452041e4dd8040744",
+      "input_size": 2,
+      "dedup_token": "3b9a70b1d6a213c8",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:04.927271+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22786==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100912a60 bp 0x00016fd46070 sp 0x00016fd45800\n    #0 0x000100912a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100913840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001000b8ac4 in use_after_free_example vuln.c:24\n    #3 0x0001000b9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001000d24cc in fuzz"
+    },
+    {
+      "crash_id": "291ea239159cf1ed2ff8447bfe13e058cbe61535",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/291ea239159cf1ed/291ea239159cf1ed2ff8447bfe13e058cbe61535",
+      "input_size": 3,
+      "dedup_token": "291ea239159cf1ed",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:05.122858+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22788==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100e06a60 bp 0x00016f726070 sp 0x00016f725800\n    #0 0x000100e06a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100e07840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001006d8ac4 in use_after_free_example vuln.c:24\n    #3 0x0001006d9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001006f24cc in fuzz"
+    },
+    {
+      "crash_id": "d0a6b20e14f8a2adadbfc978c5a4f6074922d81f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/d0a6b20e14f8a2ad/d0a6b20e14f8a2adadbfc978c5a4f6074922d81f",
+      "input_size": 4,
+      "dedup_token": "d0a6b20e14f8a2ad",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:05.314046+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22790==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010462ea60 bp 0x00016bdb6070 sp 0x00016bdb5800\n    #0 0x00010462ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010462f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104048ac4 in use_after_free_example vuln.c:24\n    #3 0x000104049048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001040624cc in fuzz"
+    },
+    {
+      "crash_id": "8510e65aa0388b35ba37d0c0a61a87ff9acd27db",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/8510e65aa0388b35/8510e65aa0388b35ba37d0c0a61a87ff9acd27db",
+      "input_size": 4,
+      "dedup_token": "8510e65aa0388b35",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:05.986958+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22792==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001010aea60 bp 0x00016f54a070 sp 0x00016f549800\n    #0 0x0001010aea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001010af840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001008b4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001008b5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001008ce4cc in fuzz"
+    },
+    {
+      "crash_id": "34854ce2ea78256ae9bc8e0dd08ad9cf326bb819",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/34854ce2ea78256a/34854ce2ea78256ae9bc8e0dd08ad9cf326bb819",
+      "input_size": 3,
+      "dedup_token": "34854ce2ea78256a",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:06.214570+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22805==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010473ea60 bp 0x00016bdde070 sp 0x00016bddd800\n    #0 0x00010473ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010473f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104020ac4 in use_after_free_example vuln.c:24\n    #3 0x000104021048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010403a4cc in fuzz"
+    },
+    {
+      "crash_id": "0b9927ebd4eaea8781f7a2224b2465073da86f90",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/0b9927ebd4eaea87/0b9927ebd4eaea8781f7a2224b2465073da86f90",
+      "input_size": 3,
+      "dedup_token": "0b9927ebd4eaea87",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:06.400951+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22807==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010481aa60 bp 0x00016bc86070 sp 0x00016bc85800\n    #0 0x00010481aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010481b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104178ac4 in use_after_free_example vuln.c:24\n    #3 0x000104179048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001041924cc in fuzz"
+    },
+    {
+      "crash_id": "8abbc42f1f44bcedfbde8f4ab79613b7757c447b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/8abbc42f1f44bced/8abbc42f1f44bcedfbde8f4ab79613b7757c447b",
+      "input_size": 3,
+      "dedup_token": "8abbc42f1f44bced",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:06.579031+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22809==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001056dea60 bp 0x00016ae06070 sp 0x00016ae05800\n    #0 0x0001056dea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001056df840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104ff8ac4 in use_after_free_example vuln.c:24\n    #3 0x000104ff9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001050124cc in fuzz"
+    },
+    {
+      "crash_id": "bf65a0d6fd0d4075cff1c58bc7289f2b0b5350ed",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/bf65a0d6fd0d4075/bf65a0d6fd0d4075cff1c58bc7289f2b0b5350ed",
+      "input_size": 3,
+      "dedup_token": "bf65a0d6fd0d4075",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:06.784487+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22811==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001054b2a60 bp 0x00016afae070 sp 0x00016afad800\n    #0 0x0001054b2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001054b3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104e50ac4 in use_after_free_example vuln.c:24\n    #3 0x000104e51048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000104e6a4cc in fuzz"
+    },
+    {
+      "crash_id": "190debf9298478ad269a8d7e02ebbd5dfae8072d",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/190debf9298478ad/190debf9298478ad269a8d7e02ebbd5dfae8072d",
+      "input_size": 3,
+      "dedup_token": "190debf9298478ad",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:06.966916+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22813==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104e42a60 bp 0x00016b52a070 sp 0x00016b529800\n    #0 0x000104e42a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104e43840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001048d4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001048d5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001048ee4cc in fuzz"
+    },
+    {
+      "crash_id": "375baf09a41c69b049388252260c4b161b4b2ab7",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/375baf09a41c69b0/375baf09a41c69b049388252260c4b161b4b2ab7",
+      "input_size": 4,
+      "dedup_token": "375baf09a41c69b0",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:07.152161+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22817==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010148ea60 bp 0x00016f03a070 sp 0x00016f039800\n    #0 0x00010148ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010148f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100dc4ac4 in use_after_free_example vuln.c:24\n    #3 0x000100dc5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100dde4cc in fuzz"
+    },
+    {
+      "crash_id": "de792b5a8262abef349b9ca7d79b5b4854f60747",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/de792b5a8262abef/de792b5a8262abef349b9ca7d79b5b4854f60747",
+      "input_size": 4,
+      "dedup_token": "de792b5a8262abef",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:07.346597+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22819==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001051e6a60 bp 0x00016b27a070 sp 0x00016b279800\n    #0 0x0001051e6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001051e7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104b84ac4 in use_after_free_example vuln.c:24\n    #3 0x000104b85048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000104b9e4cc in fuzz"
+    },
+    {
+      "crash_id": "baca68adc2b5cbeaa389102b5373019c11190f03",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/baca68adc2b5cbea/baca68adc2b5cbeaa389102b5373019c11190f03",
+      "input_size": 4,
+      "dedup_token": "baca68adc2b5cbea",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:07.548318+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22821==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010068ea60 bp 0x00016fd4a070 sp 0x00016fd49800\n    #0 0x00010068ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010068f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001000b4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001000b5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001000ce4cc in fuzz"
+    },
+    {
+      "crash_id": "ff56b9948d201ee37605e101e01f63aab97b5e4a",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/ff56b9948d201ee3/ff56b9948d201ee37605e101e01f63aab97b5e4a",
+      "input_size": 4,
+      "dedup_token": "ff56b9948d201ee3",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:07.740117+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22823==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100a96a60 bp 0x00016f906070 sp 0x00016f905800\n    #0 0x000100a96a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100a97840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001004f8ac4 in use_after_free_example vuln.c:24\n    #3 0x0001004f9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001005124cc in fuzz"
+    },
+    {
+      "crash_id": "3f29546453678b855931c174a97d6c0894b8f546",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/3f29546453678b85/3f29546453678b855931c174a97d6c0894b8f546",
+      "input_size": 2,
+      "dedup_token": "3f29546453678b85",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:07.945679+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22829==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001034faa60 bp 0x00016d132070 sp 0x00016d131800\n    #0 0x0001034faa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001034fb840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102cccac4 in use_after_free_example vuln.c:24\n    #3 0x000102ccd048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102ce64cc in fuzz"
+    },
+    {
+      "crash_id": "9d4b6be6483536da52addd61a3c7b0410ac4b48b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/9d4b6be6483536da/9d4b6be6483536da52addd61a3c7b0410ac4b48b",
+      "input_size": 3,
+      "dedup_token": "9d4b6be6483536da",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:08.144852+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22833==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103352a60 bp 0x00016d1fa070 sp 0x00016d1f9800\n    #0 0x000103352a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103353840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102c04ac4 in use_after_free_example vuln.c:24\n    #3 0x000102c05048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102c1e4cc in fuzz"
+    },
+    {
+      "crash_id": "29fe2215ca108c7cf3fa7ddd62292224ea6bd0a1",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/29fe2215ca108c7c/29fe2215ca108c7cf3fa7ddd62292224ea6bd0a1",
+      "input_size": 3,
+      "dedup_token": "29fe2215ca108c7c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:08.345355+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22835==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010285aa60 bp 0x00016dc76070 sp 0x00016dc75800\n    #0 0x00010285aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010285b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102188ac4 in use_after_free_example vuln.c:24\n    #3 0x000102189048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001021a24cc in fuzz"
+    },
+    {
+      "crash_id": "df92563344fe101168f7217c484d4308ae292d6f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/df92563344fe1011/df92563344fe101168f7217c484d4308ae292d6f",
+      "input_size": 2,
+      "dedup_token": "df92563344fe1011",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:08.527788+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22837==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102bf2a60 bp 0x00016da9e070 sp 0x00016da9d800\n    #0 0x000102bf2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102bf3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102360ac4 in use_after_free_example vuln.c:24\n    #3 0x000102361048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010237a4cc in fuzz"
+    },
+    {
+      "crash_id": "1ef624482d620e43e6d34da1afe46267fc695d9b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/1ef624482d620e43/1ef624482d620e43e6d34da1afe46267fc695d9b",
+      "input_size": 3,
+      "dedup_token": "1ef624482d620e43",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:08.725080+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22839==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102db2a60 bp 0x00016d6b2070 sp 0x00016d6b1800\n    #0 0x000102db2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102db3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010274cac4 in use_after_free_example vuln.c:24\n    #3 0x00010274d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001027664cc in fuzz"
+    },
+    {
+      "crash_id": "df58248c414f342c81e056b40bee12d17a08bf61",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/df58248c414f342c/df58248c414f342c81e056b40bee12d17a08bf61",
+      "input_size": 1,
+      "dedup_token": "df58248c414f342c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:08.925081+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22841==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010284ea60 bp 0x00016dbca070 sp 0x00016dbc9800\n    #0 0x00010284ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010284f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102234ac4 in use_after_free_example vuln.c:24\n    #3 0x000102235048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010224e4cc in fuzz"
+    },
+    {
+      "crash_id": "faf0dbafe8c1a6f12c4d0e897ad3fb124dac4a2b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/faf0dbafe8c1a6f1/faf0dbafe8c1a6f12c4d0e897ad3fb124dac4a2b",
+      "input_size": 3,
+      "dedup_token": "faf0dbafe8c1a6f1",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:09.132221+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22843==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100572a60 bp 0x00016fd82070 sp 0x00016fd81800\n    #0 0x000100572a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100573840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010007cac4 in use_after_free_example vuln.c:24\n    #3 0x00010007d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001000964cc in fuzz"
+    },
+    {
+      "crash_id": "c6b47f1edfe079f678600eb3dac1de70bd420ed6",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/c6b47f1edfe079f6/c6b47f1edfe079f678600eb3dac1de70bd420ed6",
+      "input_size": 4,
+      "dedup_token": "c6b47f1edfe079f6",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:09.332164+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22847==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100a06a60 bp 0x00016fb56070 sp 0x00016fb55800\n    #0 0x000100a06a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100a07840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001002a8ac4 in use_after_free_example vuln.c:24\n    #3 0x0001002a9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001002c24cc in fuzz"
+    },
+    {
+      "crash_id": "3c89586d99f2567d21410f29b1b2606574892aa7",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/3c89586d99f2567d/3c89586d99f2567d21410f29b1b2606574892aa7",
+      "input_size": 1,
+      "dedup_token": "3c89586d99f2567d",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:09.519432+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22849==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102ef6a60 bp 0x00016d43a070 sp 0x00016d439800\n    #0 0x000102ef6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102ef7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001029c4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001029c5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001029de4cc in fuzz"
+    },
+    {
+      "crash_id": "7e1f44f90b2da1de680218790fed72fd9514fc83",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/7e1f44f90b2da1de/7e1f44f90b2da1de680218790fed72fd9514fc83",
+      "input_size": 2,
+      "dedup_token": "7e1f44f90b2da1de",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:09.721752+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22851==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010543ea60 bp 0x00016b0aa070 sp 0x00016b0a9800\n    #0 0x00010543ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010543f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104d54ac4 in use_after_free_example vuln.c:24\n    #3 0x000104d55048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000104d6e4cc in fuzz"
+    },
+    {
+      "crash_id": "454c9467ad8114e6ad8f3e48ac96d43700a2ff24",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/454c9467ad8114e6/454c9467ad8114e6ad8f3e48ac96d43700a2ff24",
+      "input_size": 3,
+      "dedup_token": "454c9467ad8114e6",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:09.913667+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22858==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010309ea60 bp 0x00016d4a2070 sp 0x00016d4a1800\n    #0 0x00010309ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010309f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010295cac4 in use_after_free_example vuln.c:24\n    #3 0x00010295d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001029764cc in fuzz"
+    },
+    {
+      "crash_id": "0a5debb5cbb49be382f9e7bc1626a4ea5f5a181a",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/0a5debb5cbb49be3/0a5debb5cbb49be382f9e7bc1626a4ea5f5a181a",
+      "input_size": 3,
+      "dedup_token": "0a5debb5cbb49be3",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:10.151243+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22860==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100cbea60 bp 0x00016f6d2070 sp 0x00016f6d1800\n    #0 0x000100cbea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100cbf840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010072cac4 in use_after_free_example vuln.c:24\n    #3 0x00010072d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001007464cc in fuzz"
+    },
+    {
+      "crash_id": "37a2f7da72375cda6e61d697ae52fb1800baeb92",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/37a2f7da72375cda/37a2f7da72375cda6e61d697ae52fb1800baeb92",
+      "input_size": 3,
+      "dedup_token": "37a2f7da72375cda",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:10.330360+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22867==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010303ea60 bp 0x00016d60e070 sp 0x00016d60d800\n    #0 0x00010303ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010303f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001027f0ac4 in use_after_free_example vuln.c:24\n    #3 0x0001027f1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010280a4cc in fuzz"
+    },
+    {
+      "crash_id": "71fc574fc73315d0a174d02ca725940447e7d341",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/71fc574fc73315d0/71fc574fc73315d0a174d02ca725940447e7d341",
+      "input_size": 4,
+      "dedup_token": "71fc574fc73315d0",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:10.533727+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22869==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103652a60 bp 0x00016ceee070 sp 0x00016ceed800\n    #0 0x000103652a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103653840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102f10ac4 in use_after_free_example vuln.c:24\n    #3 0x000102f11048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102f2a4cc in fuzz"
+    },
+    {
+      "crash_id": "42a8b441107788f1f5b29aa3216bb3772f5c72cf",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/42a8b441107788f1/42a8b441107788f1f5b29aa3216bb3772f5c72cf",
+      "input_size": 3,
+      "dedup_token": "42a8b441107788f1",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:10.730861+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22872==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001008fea60 bp 0x00016fa3a070 sp 0x00016fa39800\n    #0 0x0001008fea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001008ff840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001003c4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001003c5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001003de4cc in fuzz"
+    },
+    {
+      "crash_id": "e846e1832f369d0071bba04c10a744413dd1e8f1",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/e846e1832f369d00/e846e1832f369d0071bba04c10a744413dd1e8f1",
+      "input_size": 4,
+      "dedup_token": "e846e1832f369d00",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:10.914958+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22874==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104e2ea60 bp 0x00016b7de070 sp 0x00016b7dd800\n    #0 0x000104e2ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104e2f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104620ac4 in use_after_free_example vuln.c:24\n    #3 0x000104621048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010463a4cc in fuzz"
+    },
+    {
+      "crash_id": "ffdcc0c49e226178733fee57fdc5731189c96aa2",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/ffdcc0c49e226178/ffdcc0c49e226178733fee57fdc5731189c96aa2",
+      "input_size": 3,
+      "dedup_token": "ffdcc0c49e226178",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:11.129402+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22876==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000101682a60 bp 0x00016eeca070 sp 0x00016eec9800\n    #0 0x000101682a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000101683840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100f34ac4 in use_after_free_example vuln.c:24\n    #3 0x000100f35048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100f4e4cc in fuzz"
+    },
+    {
+      "crash_id": "dafde64989bbd1b60b25ca09779cffee32505d1e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/dafde64989bbd1b6/dafde64989bbd1b60b25ca09779cffee32505d1e",
+      "input_size": 3,
+      "dedup_token": "dafde64989bbd1b6",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:11.331777+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22882==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103412a60 bp 0x00016cfb2070 sp 0x00016cfb1800\n    #0 0x000103412a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103413840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102e4cac4 in use_after_free_example vuln.c:24\n    #3 0x000102e4d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102e664cc in fuzz"
+    },
+    {
+      "crash_id": "29dfe8cfa48b076001fba931b38c81c946c300a8",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/29dfe8cfa48b0760/29dfe8cfa48b076001fba931b38c81c946c300a8",
+      "input_size": 2,
+      "dedup_token": "29dfe8cfa48b0760",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:11.531878+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22886==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102d8ea60 bp 0x00016d69a070 sp 0x00016d699800\n    #0 0x000102d8ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102d8f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102764ac4 in use_after_free_example vuln.c:24\n    #3 0x000102765048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010277e4cc in fuzz"
+    },
+    {
+      "crash_id": "061fb208431db793bbd3645b7a16058a1e2a2412",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/061fb208431db793/061fb208431db793bbd3645b7a16058a1e2a2412",
+      "input_size": 1,
+      "dedup_token": "061fb208431db793",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:11.729845+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22889==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100af6a60 bp 0x00016f966070 sp 0x00016f965800\n    #0 0x000100af6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100af7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100498ac4 in use_after_free_example vuln.c:24\n    #3 0x000100499048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001004b24cc in fuzz"
+    },
+    {
+      "crash_id": "95dcf759efaf0b5572866748dae64be771028bc6",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/95dcf759efaf0b55/95dcf759efaf0b5572866748dae64be771028bc6",
+      "input_size": 4,
+      "dedup_token": "95dcf759efaf0b55",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:11.931772+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22895==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104eaea60 bp 0x00016b76a070 sp 0x00016b769800\n    #0 0x000104eaea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104eaf840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104694ac4 in use_after_free_example vuln.c:24\n    #3 0x000104695048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001046ae4cc in fuzz"
+    },
+    {
+      "crash_id": "9069ca78e7450a285173431b3e52c5c25299e473",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/9069ca78e7450a28/9069ca78e7450a285173431b3e52c5c25299e473",
+      "input_size": 4,
+      "dedup_token": "9069ca78e7450a28",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:12.144685+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22898==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010289aa60 bp 0x00016dc86070 sp 0x00016dc85800\n    #0 0x00010289aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010289b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102178ac4 in use_after_free_example vuln.c:24\n    #3 0x000102179048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001021924cc in fuzz"
+    },
+    {
+      "crash_id": "3aff115e1c5bd64dd80349978d9d41b34d881c5a",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/3aff115e1c5bd64d/3aff115e1c5bd64dd80349978d9d41b34d881c5a",
+      "input_size": 4,
+      "dedup_token": "3aff115e1c5bd64d",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:12.331328+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22900==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102fdaa60 bp 0x00016d552070 sp 0x00016d551800\n    #0 0x000102fdaa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102fdb840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001028acac4 in use_after_free_example vuln.c:24\n    #3 0x0001028ad048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001028c64cc in fuzz"
+    },
+    {
+      "crash_id": "d2bc74e6a48cd5d75c957e3fb064a77c90686e52",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/d2bc74e6a48cd5d7/d2bc74e6a48cd5d75c957e3fb064a77c90686e52",
+      "input_size": 4,
+      "dedup_token": "d2bc74e6a48cd5d7",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:12.529530+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22904==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001030f2a60 bp 0x00016d28e070 sp 0x00016d28d800\n    #0 0x0001030f2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001030f3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102b70ac4 in use_after_free_example vuln.c:24\n    #3 0x000102b71048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102b8a4cc in fuzz"
+    },
+    {
+      "crash_id": "c4488af0c158e8c2832cb927cfb3ce534104cd1e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/c4488af0c158e8c2/c4488af0c158e8c2832cb927cfb3ce534104cd1e",
+      "input_size": 1,
+      "dedup_token": "c4488af0c158e8c2",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:12.716795+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22906==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001049c6a60 bp 0x00016b9f6070 sp 0x00016b9f5800\n    #0 0x0001049c6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001049c7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104408ac4 in use_after_free_example vuln.c:24\n    #3 0x000104409048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001044224cc in fuzz"
+    },
+    {
+      "crash_id": "897f9399aebb2b6163b8175b8e50c52b54aeda2d",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/897f9399aebb2b61/897f9399aebb2b6163b8175b8e50c52b54aeda2d",
+      "input_size": 1,
+      "dedup_token": "897f9399aebb2b61",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:12.929669+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22908==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000101212a60 bp 0x00016f402070 sp 0x00016f401800\n    #0 0x000101212a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000101213840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001009fcac4 in use_after_free_example vuln.c:24\n    #3 0x0001009fd048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100a164cc in fuzz"
+    },
+    {
+      "crash_id": "cf38f768b4cc0eecfdf572d65b8433b483c2d2a5",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/cf38f768b4cc0eec/cf38f768b4cc0eecfdf572d65b8433b483c2d2a5",
+      "input_size": 2,
+      "dedup_token": "cf38f768b4cc0eec",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:13.151922+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22910==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100ea2a60 bp 0x00016f51e070 sp 0x00016f51d800\n    #0 0x000100ea2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100ea3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001008e0ac4 in use_after_free_example vuln.c:24\n    #3 0x0001008e1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001008fa4cc in fuzz"
+    },
+    {
+      "crash_id": "dbdc41c544668c513e56d7814d46daaee6e6819d",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/dbdc41c544668c51/dbdc41c544668c513e56d7814d46daaee6e6819d",
+      "input_size": 4,
+      "dedup_token": "dbdc41c544668c51",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:13.334152+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22917==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001011daa60 bp 0x00016f16a070 sp 0x00016f169800\n    #0 0x0001011daa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001011db840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100c94ac4 in use_after_free_example vuln.c:24\n    #3 0x000100c95048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100cae4cc in fuzz"
+    },
+    {
+      "crash_id": "603e2a4e4e45b4f3891c24eaea520c461a8db985",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/603e2a4e4e45b4f3/603e2a4e4e45b4f3891c24eaea520c461a8db985",
+      "input_size": 2,
+      "dedup_token": "603e2a4e4e45b4f3",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:13.550269+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22919==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104bd6a60 bp 0x00016b976070 sp 0x00016b975800\n    #0 0x000104bd6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104bd7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104488ac4 in use_after_free_example vuln.c:24\n    #3 0x000104489048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001044a24cc in fuzz"
+    },
+    {
+      "crash_id": "7628ebd56a69c98c11a17ac90307f11d0b241eb9",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/7628ebd56a69c98c/7628ebd56a69c98c11a17ac90307f11d0b241eb9",
+      "input_size": 4,
+      "dedup_token": "7628ebd56a69c98c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:13.745116+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22923==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100c02a60 bp 0x00016f9de070 sp 0x00016f9dd800\n    #0 0x000100c02a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100c03840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100420ac4 in use_after_free_example vuln.c:24\n    #3 0x000100421048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010043a4cc in fuzz"
+    },
+    {
+      "crash_id": "d8fc60ccdd8f555c1858b9f0820f263e3d2b58ec",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/d8fc60ccdd8f555c/d8fc60ccdd8f555c1858b9f0820f263e3d2b58ec",
+      "input_size": 1,
+      "dedup_token": "d8fc60ccdd8f555c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:13.945904+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22929==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103486a60 bp 0x00016d19e070 sp 0x00016d19d800\n    #0 0x000103486a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103487840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102c60ac4 in use_after_free_example vuln.c:24\n    #3 0x000102c61048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102c7a4cc in fuzz"
+    },
+    {
+      "crash_id": "1cbb4e3e740de88f4f3cb5cb4593378374cd417c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/1cbb4e3e740de88f/1cbb4e3e740de88f4f3cb5cb4593378374cd417c",
+      "input_size": 3,
+      "dedup_token": "1cbb4e3e740de88f",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:14.140563+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22931==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100ffaa60 bp 0x00016f486070 sp 0x00016f485800\n    #0 0x000100ffaa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100ffb840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100978ac4 in use_after_free_example vuln.c:24\n    #3 0x000100979048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001009924cc in fuzz"
+    },
+    {
+      "crash_id": "46281ed172390ab7bc6707008bb0604365787e61",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/46281ed172390ab7/46281ed172390ab7bc6707008bb0604365787e61",
+      "input_size": 2,
+      "dedup_token": "46281ed172390ab7",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:14.332196+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22933==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000101506a60 bp 0x00016ee0e070 sp 0x00016ee0d800\n    #0 0x000101506a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000101507840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100ff0ac4 in use_after_free_example vuln.c:24\n    #3 0x000100ff1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010100a4cc in fuzz"
+    },
+    {
+      "crash_id": "2d208aa1948fde83d5efcc8af5a36246604417ec",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/2d208aa1948fde83/2d208aa1948fde83d5efcc8af5a36246604417ec",
+      "input_size": 3,
+      "dedup_token": "2d208aa1948fde83",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:14.536840+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22935==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103182a60 bp 0x00016d4ba070 sp 0x00016d4b9800\n    #0 0x000103182a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103183840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102944ac4 in use_after_free_example vuln.c:24\n    #3 0x000102945048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010295e4cc in fuzz"
+    },
+    {
+      "crash_id": "e7b9dd9697a1f4e1651458c7b686c3a070f07dc4",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/e7b9dd9697a1f4e1/e7b9dd9697a1f4e1651458c7b686c3a070f07dc4",
+      "input_size": 2,
+      "dedup_token": "e7b9dd9697a1f4e1",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:14.741049+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22939==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001036cea60 bp 0x00016cf5e070 sp 0x00016cf5d800\n    #0 0x0001036cea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001036cf840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102ea0ac4 in use_after_free_example vuln.c:24\n    #3 0x000102ea1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102eba4cc in fuzz"
+    },
+    {
+      "crash_id": "77a0666443b7c39dd1ac52f55da143f6fe307f0e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/77a0666443b7c39d/77a0666443b7c39dd1ac52f55da143f6fe307f0e",
+      "input_size": 3,
+      "dedup_token": "77a0666443b7c39d",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:14.926966+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22941==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104926a60 bp 0x00016baaa070 sp 0x00016baa9800\n    #0 0x000104926a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104927840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104354ac4 in use_after_free_example vuln.c:24\n    #3 0x000104355048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010436e4cc in fuzz"
+    },
+    {
+      "crash_id": "7e11563f5e2ce8056220795484a5fd43076653e9",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/7e11563f5e2ce805/7e11563f5e2ce8056220795484a5fd43076653e9",
+      "input_size": 3,
+      "dedup_token": "7e11563f5e2ce805",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:15.114765+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22943==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102b8aa60 bp 0x00016d912070 sp 0x00016d911800\n    #0 0x000102b8aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102b8b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001024ecac4 in use_after_free_example vuln.c:24\n    #3 0x0001024ed048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001025064cc in fuzz"
+    },
+    {
+      "crash_id": "8b3291a6208fb6849c641e97ffe5b54c13ac84cb",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/8b3291a6208fb684/8b3291a6208fb6849c641e97ffe5b54c13ac84cb",
+      "input_size": 1,
+      "dedup_token": "8b3291a6208fb684",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:15.318799+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22945==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001007dea60 bp 0x00016fc4a070 sp 0x00016fc49800\n    #0 0x0001007dea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001007df840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001001b4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001001b5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001001ce4cc in fuzz"
+    },
+    {
+      "crash_id": "7bd986596b6b40064c78899691add55936aa706c",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/7bd986596b6b4006/7bd986596b6b40064c78899691add55936aa706c",
+      "input_size": 4,
+      "dedup_token": "7bd986596b6b4006",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:15.536251+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22947==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001011e6a60 bp 0x00016f3fe070 sp 0x00016f3fd800\n    #0 0x0001011e6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001011e7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100a00ac4 in use_after_free_example vuln.c:24\n    #3 0x000100a01048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100a1a4cc in fuzz"
+    },
+    {
+      "crash_id": "8ea3ffd328fa82c1afaf2614bdccf817c98d76f7",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/8ea3ffd328fa82c1/8ea3ffd328fa82c1afaf2614bdccf817c98d76f7",
+      "input_size": 4,
+      "dedup_token": "8ea3ffd328fa82c1",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:15.732158+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22951==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102d3ea60 bp 0x00016d91e070 sp 0x00016d91d800\n    #0 0x000102d3ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102d3f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001024e0ac4 in use_after_free_example vuln.c:24\n    #3 0x0001024e1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001024fa4cc in fuzz"
+    },
+    {
+      "crash_id": "480ea67256b8afeb45eb87601291ff68fb77b5f4",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/480ea67256b8afeb/480ea67256b8afeb45eb87601291ff68fb77b5f4",
+      "input_size": 2,
+      "dedup_token": "480ea67256b8afeb",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:15.923827+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22954==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104d3ea60 bp 0x00016b68a070 sp 0x00016b689800\n    #0 0x000104d3ea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104d3f840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104774ac4 in use_after_free_example vuln.c:24\n    #3 0x000104775048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010478e4cc in fuzz"
+    },
+    {
+      "crash_id": "c95af96f0859b2f7c17e1e50107f62b905b55c7f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/c95af96f0859b2f7/c95af96f0859b2f7c17e1e50107f62b905b55c7f",
+      "input_size": 3,
+      "dedup_token": "c95af96f0859b2f7",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:16.109836+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22960==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104b82a60 bp 0x00016b83e070 sp 0x00016b83d800\n    #0 0x000104b82a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104b83840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001045c0ac4 in use_after_free_example vuln.c:24\n    #3 0x0001045c1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001045da4cc in fuzz"
+    },
+    {
+      "crash_id": "044b2e01e86d0817af975b54330628b39f6654ff",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/044b2e01e86d0817/044b2e01e86d0817af975b54330628b39f6654ff",
+      "input_size": 3,
+      "dedup_token": "044b2e01e86d0817",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:16.299194+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22966==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100a36a60 bp 0x00016f97e070 sp 0x00016f97d800\n    #0 0x000100a36a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100a37840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100480ac4 in use_after_free_example vuln.c:24\n    #3 0x000100481048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010049a4cc in fuzz"
+    },
+    {
+      "crash_id": "c4595d8f743731cbc1ca0bb34be79a40d771ddf0",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/c4595d8f743731cb/c4595d8f743731cbc1ca0bb34be79a40d771ddf0",
+      "input_size": 1,
+      "dedup_token": "c4595d8f743731cb",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:16.496256+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22968==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010491aa60 bp 0x00016bc6a070 sp 0x00016bc69800\n    #0 0x00010491aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010491b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104194ac4 in use_after_free_example vuln.c:24\n    #3 0x000104195048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001041ae4cc in fuzz"
+    },
+    {
+      "crash_id": "2d0134ed3b9de132c720fe697b532b4c232ff9fe",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/2d0134ed3b9de132/2d0134ed3b9de132c720fe697b532b4c232ff9fe",
+      "input_size": 1,
+      "dedup_token": "2d0134ed3b9de132",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:16.717411+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22970==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000103442a60 bp 0x00016ceb2070 sp 0x00016ceb1800\n    #0 0x000103442a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000103443840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102f4cac4 in use_after_free_example vuln.c:24\n    #3 0x000102f4d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102f664cc in fuzz"
+    },
+    {
+      "crash_id": "05a7629ddf7bc3a08aca287a27e5081c981fcc5b",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/05a7629ddf7bc3a0/05a7629ddf7bc3a08aca287a27e5081c981fcc5b",
+      "input_size": 2,
+      "dedup_token": "05a7629ddf7bc3a0",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:16.908733+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22974==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001033fea60 bp 0x00016d1ca070 sp 0x00016d1c9800\n    #0 0x0001033fea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001033ff840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102c34ac4 in use_after_free_example vuln.c:24\n    #3 0x000102c35048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102c4e4cc in fuzz"
+    },
+    {
+      "crash_id": "298d0eeba7fc85054a6ffbfabb43dac831ecb6ac",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/298d0eeba7fc8505/298d0eeba7fc85054a6ffbfabb43dac831ecb6ac",
+      "input_size": 2,
+      "dedup_token": "298d0eeba7fc8505",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:17.098081+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22976==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000100866a60 bp 0x00016fc5a070 sp 0x00016fc59800\n    #0 0x000100866a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000100867840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001001a4ac4 in use_after_free_example vuln.c:24\n    #3 0x0001001a5048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001001be4cc in fuzz"
+    },
+    {
+      "crash_id": "33fbd678677fdcc9ff26ce50d77282550ed7b152",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/33fbd678677fdcc9/33fbd678677fdcc9ff26ce50d77282550ed7b152",
+      "input_size": 3,
+      "dedup_token": "33fbd678677fdcc9",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:17.319263+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22980==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010362aa60 bp 0x00016cf36070 sp 0x00016cf35800\n    #0 0x00010362aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010362b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102ec8ac4 in use_after_free_example vuln.c:24\n    #3 0x000102ec9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102ee24cc in fuzz"
+    },
+    {
+      "crash_id": "365640eb97449e99e71b55f86962f95d48492b18",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/365640eb97449e99/365640eb97449e99e71b55f86962f95d48492b18",
+      "input_size": 4,
+      "dedup_token": "365640eb97449e99",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:17.522034+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22982==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001013fea60 bp 0x00016f006070 sp 0x00016f005800\n    #0 0x0001013fea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001013ff840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100df8ac4 in use_after_free_example vuln.c:24\n    #3 0x000100df9048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100e124cc in fuzz"
+    },
+    {
+      "crash_id": "a971faf54531f3bbe4c1b235ddb4599e7fd2ef5e",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/a971faf54531f3bb/a971faf54531f3bbe4c1b235ddb4599e7fd2ef5e",
+      "input_size": 2,
+      "dedup_token": "a971faf54531f3bb",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:17.880967+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22984==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102f6aa60 bp 0x00016d3ba070 sp 0x00016d3b9800\n    #0 0x000102f6aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102f6b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102a44ac4 in use_after_free_example vuln.c:24\n    #3 0x000102a45048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102a5e4cc in fuzz"
+    },
+    {
+      "crash_id": "59755a3ddb44a6ca83ec52102db9c6d7d16f9bae",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/59755a3ddb44a6ca/59755a3ddb44a6ca83ec52102db9c6d7d16f9bae",
+      "input_size": 3,
+      "dedup_token": "59755a3ddb44a6ca",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:18.112258+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22992==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102fd6a60 bp 0x00016d402070 sp 0x00016d401800\n    #0 0x000102fd6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102fd7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001029fcac4 in use_after_free_example vuln.c:24\n    #3 0x0001029fd048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000102a164cc in fuzz"
+    },
+    {
+      "crash_id": "c4f87a6290aee1acfc1f26083974ce94621fca64",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/c4f87a6290aee1ac/c4f87a6290aee1acfc1f26083974ce94621fca64",
+      "input_size": 1,
+      "dedup_token": "c4f87a6290aee1ac",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:18.309392+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22997==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104f52a60 bp 0x00016b6de070 sp 0x00016b6dd800\n    #0 0x000104f52a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104f53840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104720ac4 in use_after_free_example vuln.c:24\n    #3 0x000104721048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010473a4cc in fuzz"
+    },
+    {
+      "crash_id": "9922607e52381f3aa12dbf2dffc19a9094fce592",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/9922607e52381f3a/9922607e52381f3aa12dbf2dffc19a9094fce592",
+      "input_size": 2,
+      "dedup_token": "9922607e52381f3a",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:18.513465+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==22999==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001016c6a60 bp 0x00016efb6070 sp 0x00016efb5800\n    #0 0x0001016c6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001016c7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100e48ac4 in use_after_free_example vuln.c:24\n    #3 0x000100e49048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100e624cc in fuzz"
+    },
+    {
+      "crash_id": "063aab58782881806084e1a944fbcee5f5815405",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/063aab5878288180/063aab58782881806084e1a944fbcee5f5815405",
+      "input_size": 4,
+      "dedup_token": "063aab5878288180",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:18.737071+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23001==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102a2aa60 bp 0x00016db4e070 sp 0x00016db4d800\n    #0 0x000102a2aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102a2b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001022b0ac4 in use_after_free_example vuln.c:24\n    #3 0x0001022b1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001022ca4cc in fuzz"
+    },
+    {
+      "crash_id": "195ee66e45cba6d67482596e0bc34af91ae894a4",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/195ee66e45cba6d6/195ee66e45cba6d67482596e0bc34af91ae894a4",
+      "input_size": 2,
+      "dedup_token": "195ee66e45cba6d6",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:18.939278+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23005==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001010baa60 bp 0x00016f4ae070 sp 0x00016f4ad800\n    #0 0x0001010baa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001010bb840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100950ac4 in use_after_free_example vuln.c:24\n    #3 0x000100951048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010096a4cc in fuzz"
+    },
+    {
+      "crash_id": "01f7742b92a7e87332ac9d028c2eb18dbfb9923f",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/01f7742b92a7e873/01f7742b92a7e87332ac9d028c2eb18dbfb9923f",
+      "input_size": 4,
+      "dedup_token": "01f7742b92a7e873",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:19.142137+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23009==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000101352a60 bp 0x00016f09a070 sp 0x00016f099800\n    #0 0x000101352a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000101353840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000100d64ac4 in use_after_free_example vuln.c:24\n    #3 0x000100d65048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000100d7e4cc in fuzz"
+    },
+    {
+      "crash_id": "d45c4c12426555d1c75e37308da5c3efaf20d0c2",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/d45c4c12426555d1/d45c4c12426555d1c75e37308da5c3efaf20d0c2",
+      "input_size": 3,
+      "dedup_token": "d45c4c12426555d1",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:19.348890+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23011==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001027b2a60 bp 0x00016db72070 sp 0x00016db71800\n    #0 0x0001027b2a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001027b3840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x00010228cac4 in use_after_free_example vuln.c:24\n    #3 0x00010228d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001022a64cc in fuzz"
+    },
+    {
+      "crash_id": "238e27ef05be239ed23f64a065fb16c221b4c960",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/238e27ef05be239e/238e27ef05be239ed23f64a065fb16c221b4c960",
+      "input_size": 4,
+      "dedup_token": "238e27ef05be239e",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:19.540102+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23013==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102b96a60 bp 0x00016dade070 sp 0x00016dadd800\n    #0 0x000102b96a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102b97840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000102320ac4 in use_after_free_example vuln.c:24\n    #3 0x000102321048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010233a4cc in fuzz"
+    },
+    {
+      "crash_id": "f0c957104bb1b80c9d125d9c8cbb3f06fbf2ab1a",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/f0c957104bb1b80c/f0c957104bb1b80c9d125d9c8cbb3f06fbf2ab1a",
+      "input_size": 4,
+      "dedup_token": "f0c957104bb1b80c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:19.731267+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23015==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x00010508aa60 bp 0x00016b5ce070 sp 0x00016b5cd800\n    #0 0x00010508aa5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x00010508b840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104830ac4 in use_after_free_example vuln.c:24\n    #3 0x000104831048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010484a4cc in fuzz"
+    },
+    {
+      "crash_id": "37d5683e7aec8c0c68684f347967780a3c55b879",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/37d5683e7aec8c0c/37d5683e7aec8c0c68684f347967780a3c55b879",
+      "input_size": 2,
+      "dedup_token": "37d5683e7aec8c0c",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:19.917817+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23017==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000104dc6a60 bp 0x00016b57e070 sp 0x00016b57d800\n    #0 0x000104dc6a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000104dc7840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104880ac4 in use_after_free_example vuln.c:24\n    #3 0x000104881048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x00010489a4cc in fuzz"
+    },
+    {
+      "crash_id": "7f8ddb35d0e2e84eb1b15a3578a9d8de88962964",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/7f8ddb35d0e2e84e/7f8ddb35d0e2e84eb1b15a3578a9d8de88962964",
+      "input_size": 4,
+      "dedup_token": "7f8ddb35d0e2e84e",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:20.141650+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23025==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x000102a02a60 bp 0x00016dc4e070 sp 0x00016dc4d800\n    #0 0x000102a02a5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x000102a03840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x0001021b0ac4 in use_after_free_example vuln.c:24\n    #3 0x0001021b1048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x0001021ca4cc in fuzz"
+    },
+    {
+      "crash_id": "7e5c0f7aba32cf3e22fd30c4513a21e6d1c3aeff",
+      "input_path": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-005821/artifacts/fuzzing/corpus_vuln_fuzzer/crashes/7e5c0f7aba32cf3e/7e5c0f7aba32cf3e22fd30c4513a21e6d1c3aeff",
+      "input_size": 1,
+      "dedup_token": "7e5c0f7aba32cf3e",
+      "harness": "vuln_fuzzer",
+      "timestamp": "2025-12-01T00:59:20.340873+00:00",
+      "signal": "SIGSEGV",
+      "stack_trace": "==23030==ERROR: AddressSanitizer: heap-use-after-free on address 0x6060000002c0 at pc 0x0001052dea60 bp 0x00016b0c2070 sp 0x00016b0c1800\n    #0 0x0001052dea5c in printf_common(void*, char const*, char*)+0x890 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x22a5c)\n    #1 0x0001052df840 in printf+0x60 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x23840)\n    #2 0x000104d3cac4 in use_after_free_example vuln.c:24\n    #3 0x000104d3d048 in LLVMFuzzerTestOneInput vuln_fuzzer.c:30\n    #4 0x000104d564cc in fuzz"
+    }
+  ],
+  "summary": "Fuzzing completed in 31.0s. Seeds: 3 initial \u2192 14 final (+11 new). Crashes found: 108."
+}

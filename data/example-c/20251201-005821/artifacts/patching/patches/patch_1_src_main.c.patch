@@ -1,0 +1,10 @@
+@@ -21,6 +21,9 @@
+       null_deref_example(0);
+     } else if (strcmp(argv[1], "double") == 0) {
+         double_free_example();
++    } else if (strcmp(argv[1], "null") == 0) {
++        printf("Null dereference test not performed with null argument.\n");
++        return 0;
+     } else if (strcmp(argv[1], "packet") == 0) {
+         // Test packet processing with crafted input
+         uint8_t bad_packet[] = {0x00, 0xFF, 0xDE, 0xAD, 'A', 'B', 'C'};

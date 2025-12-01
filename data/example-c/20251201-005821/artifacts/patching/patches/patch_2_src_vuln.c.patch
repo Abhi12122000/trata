@@ -1,0 +1,6 @@
+@@ -22,6 +22,7 @@
+     free(ptr);
+-    // BUG: accessing freed memory
+-    printf("Value: %s\n", ptr);
++    ptr = NULL; // Prevent use-after-free access
++    // printf("Value: %s\n", ptr); // Commented out access to freed memory
