@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-073751/artifacts/patching/working_copy",
+    "command": "cc -g -O0 -std=c11 -Wall -Wextra -fno-stack-protector -I src -c src/vuln.c -o build/vuln.o",
+    "file": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-073751/artifacts/patching/working_copy/src/vuln.c"
+  },
+  {
+    "directory": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-073751/artifacts/patching/working_copy",
+    "command": "cc -g -O0 -std=c11 -Wall -Wextra -fno-stack-protector -I src -c src/main.c -o build/main.o",
+    "file": "/Users/abhishek.kumar/RubymineProjects/onboarding/aixcc-afc-archive/trata/data/example-c/20251201-073751/artifacts/patching/working_copy/src/main.c"
+  }
+]

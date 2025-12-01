@@ -12,37 +12,25 @@
 
 #include "vuln.h"
 
-/* ========================================================================
- * Bug 1: Use-after-free (detectable by both static analysis and fuzzing)
- * ======================================================================== */
 void use_after_free_example(void) {
     char *ptr = malloc(64);
     if (!ptr) return;
     strcpy(ptr, "hello");
     free(ptr);
-    // BUG: accessing freed memory
     printf("Value: %s\n", ptr);
 }
 
-/* ========================================================================
- * Bug 2: Null dereference (detectable by both)
- * ======================================================================== */
 void null_deref_example(int trigger) {
     char *ptr = NULL;
     if (trigger) {
         ptr = malloc(16);
     }
-    // BUG: ptr might be NULL if trigger==0
     ptr[0] = 'A';
 }
 
-/* ========================================================================
- * Bug 3: Double free (detectable by both)
- * ======================================================================== */
 void double_free_example(void) {
     char *ptr = malloc(32);
     free(ptr);
-    // BUG: freeing already-freed memory
     free(ptr);
 }
 

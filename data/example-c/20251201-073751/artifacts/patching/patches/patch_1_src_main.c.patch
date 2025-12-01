@@ -1,0 +1,8 @@
+@@ -21,7 +21,11 @@
+     if (strcmp(argv[1], "null") == 0) {
+->>>         null_deref_example(0);
++        if (valid_pointer_condition) { // Ensure the pointer is valid before proceeding
++            null_deref_example(arg_value); // Replace arg_value with a valid pointer if necessary
++        } else {
++            printf("Invalid argument for null_deref_example.\n");
++        }

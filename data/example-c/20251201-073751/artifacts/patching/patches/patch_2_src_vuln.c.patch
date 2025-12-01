@@ -1,0 +1,11 @@
+@@ -23,6 +23,10 @@
+      char *ptr = NULL;
+      if (trigger) {
+          ptr = malloc(16);
+      }
++    if (ptr) {
++        free(ptr);
++    }
++    
+      ptr[0] = 'A';
+  }
