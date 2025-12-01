@@ -250,23 +250,31 @@ class PatchingPipeline:
         # Cleanup
         working_copy_mgr.cleanup()
 
-        # Build summary
-        total_fixed = sum(r.crashes_fixed for r in batch.test_results)
-        total_remaining = sum(r.crashes_remaining for r in batch.test_results)
+        # Build summary using FINAL state (last test result shows current crash status)
+        # Note: Each patch is tested against the same crashes. The final test result
+        # shows whether crashes are fixed by the cumulative patches.
+        if batch.test_results:
+            # Use last test result for final crash status
+            last_result = batch.test_results[-1]
+            final_fixed = last_result.crashes_fixed
+            final_remaining = last_result.crashes_remaining
+        else:
+            final_fixed = 0
+            final_remaining = len(crashes)
         
         self._log(run_ctx, "-" * 40)
         self._log(run_ctx, "PATCHING COMPLETE")
         self._log(run_ctx, f"Patches generated: {batch.patches_generated}")
         self._log(run_ctx, f"Patches applied (cumulative): {batch.patches_applied}")
         self._log(run_ctx, f"Patches tested: {batch.patches_tested}")
-        self._log(run_ctx, f"Crashes fixed: {total_fixed}")
-        self._log(run_ctx, f"Crashes remaining: {total_remaining}")
+        self._log(run_ctx, f"Unique crashes fixed (final): {final_fixed}/{len(crashes)}")
+        self._log(run_ctx, f"Unique crashes remaining: {final_remaining}")
         
         batch.summary = (
             f"Patching: {batch.patches_generated} generated, "
             f"{batch.patches_applied} applied (cumulative), "
             f"{batch.patches_tested} tested. "
-            f"Crashes: {total_fixed} fixed, {total_remaining} remaining."
+            f"Crashes: {final_fixed}/{len(crashes)} fixed."
         )
 
         self._log(run_ctx, "=" * 60)
@@ -412,7 +420,16 @@ class PatchingPipeline:
         run_ctx: RunContext,
     ) -> tuple[bool, Optional[str]]:
         """Rebuild the project from the given source directory."""
-        build_script = target.build_script or "make"
+        # Determine build command in order of priority:
+        # 1. Explicitly configured build_script
+        # 2. build.sh if it exists
+        # 3. make as fallback
+        if target.build_script:
+            build_script = target.build_script
+        elif (source_dir / "build.sh").exists():
+            build_script = "./build.sh"
+        else:
+            build_script = "make"
 
         try:
             result = await asyncio.to_thread(

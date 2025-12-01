@@ -112,6 +112,13 @@ class LibFuzzerRunner:
         # with the fuzzer runtime library
         extra_flags = self._get_llvm_lib_flags(clang)
         
+        # Build include paths for header files
+        include_paths = []
+        src_dir = source_dir / "src"
+        if src_dir.exists():
+            include_paths.extend(["-I", str(src_dir)])
+        include_paths.extend(["-I", str(source_dir)])
+        
         cmd = [
             clang,
             "-fsanitize=fuzzer,address",
@@ -121,6 +128,7 @@ class LibFuzzerRunner:
             # Define FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION to exclude standalone main()
             # This is a standard libFuzzer convention
             "-DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION",
+            *include_paths,
             *extra_flags,
             *[str(s) for s in main_sources],
             str(fuzz_target),

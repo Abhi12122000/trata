@@ -12,7 +12,7 @@ The **V1 Patcher Agent** generates security patches using an LLM. Given a static
 | **Prompt Construction** | Zero-shot prompt with finding details + source snippet |
 | **Patch Generation** | LLM outputs YAML with `analysis`, `fix_strategy`, `patch` fields |
 | **YAML Parsing** | Extracts unified diff from LLM response |
-| **Patch Application** | Tries `patch -p1` first, falls back to manual line-by-line |
+| **Patch Application** | Three-tier: `patch -p1` → Smith-Waterman fuzzy matching → manual |
 | **Build Verification** | Runs build script, logs success/failure |
 | **Crash Testing** | Re-runs all fuzz crash inputs against patched binary |
 | **Token Budgeting** | Enforces per-patch (4000) and total (20000) token limits |
@@ -20,9 +20,29 @@ The **V1 Patcher Agent** generates security patches using an LLM. Given a static
 ### What V1 Does NOT Do
 
 - No feedback loop (failed patches are not refined)
-- No sequence alignment (patches must apply cleanly)
 - No conflict resolution between patches
 - No semantic verification of fixes
+
+## Smith-Waterman Fuzzy Patching
+
+LLMs often generate patches with **incorrect line numbers**. The fuzzy patching module (`src/tools/fuzzy_patch.py`) solves this using sequence alignment:
+
+```
+LLM Patch says: "@@ -42,6 +42,7 @@" (line 42)
+Actual location: line 44
+Smith-Waterman: Matches context "free(ptr);" → applies at line 44
+```
+
+**How it works:**
+1. Extract context lines from the patch
+2. Run Smith-Waterman local alignment against the entire source file
+3. Find the location where context lines best match (regardless of line numbers)
+4. Apply edits at the matched location
+
+**Error handling:**
+- If no good match is found (score < 2.0): Returns error "No good matches found"
+- If multiple equally-good matches exist: Uses line number hint to disambiguate
+- If context doesn't exist in source: Falls back to manual application
 
 ## Incremental Patching
 

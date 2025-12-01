@@ -9,6 +9,11 @@ ARCHITECTURE:
 - Patches are applied CUMULATIVELY to the working copy
 - Each patched file version is SAVED to artifacts/patching/patched_files/
 - Build and test use the working copy
+
+PATCH APPLICATION STRATEGY (in order):
+1. System `patch` command with exact line numbers
+2. Smith-Waterman fuzzy matching (ignores line numbers, matches context)
+3. Line-based manual application (last resort)
 """
 
 from __future__ import annotations
@@ -24,6 +29,9 @@ from pathlib import Path
 from typing import Optional, List
 
 import yaml
+
+# Import fuzzy patching for robust patch application
+from .fuzzy_patch import fuzzy_patch, FuzzyPatchResult
 
 
 @dataclass()
@@ -441,8 +449,15 @@ class PatchApplier:
         )
 
         if not result.success:
-            # Try manual application
-            self.logger("Patch command failed, trying manual application...")
+            # Try fuzzy patching (Smith-Waterman alignment)
+            self.logger("Patch command failed, trying fuzzy matching...")
+            result = self._apply_with_fuzzy_matching(
+                target_file, patch_content, file_path, original_content
+            )
+        
+        if not result.success:
+            # Last resort: manual line-based application
+            self.logger("Fuzzy matching failed, trying manual application...")
             result = self._apply_manually(
                 target_file, patch_content, original_content, file_path
             )
@@ -504,7 +519,7 @@ class PatchApplier:
                 file_path=file_path,
                 original_content=original_content,
                 patched_content=original_content,
-                error_message="patch command not found - falling back to manual",
+                error_message="patch command not found - falling back to fuzzy",
             )
         except subprocess.TimeoutExpired:
             return PatchResult(
@@ -521,6 +536,57 @@ class PatchApplier:
                 original_content=original_content,
                 patched_content=original_content,
                 error_message=f"patch command error: {e}",
+            )
+
+    def _apply_with_fuzzy_matching(
+        self,
+        target_file: Path,
+        patch_content: str,
+        file_path: str,
+        original_content: str,
+    ) -> PatchResult:
+        """
+        Apply patch using Smith-Waterman fuzzy matching.
+        
+        This method finds where the patch context lines best match in the source,
+        regardless of exact line numbers. This handles cases where the LLM
+        generates patches with incorrect line numbers.
+        """
+        try:
+            # Apply fuzzy patch
+            result = fuzzy_patch(original_content, patch_content, file_path)
+            
+            if result.success:
+                # Write the patched content
+                target_file.write_text(result.new_content)
+                self.logger("Patch applied successfully via fuzzy matching (Smith-Waterman alignment)")
+                
+                return PatchResult(
+                    success=True,
+                    file_path=file_path,
+                    original_content=original_content,
+                    patched_content=result.new_content,
+                )
+            else:
+                error_msg = result.error.message if result.error else "Unknown fuzzy match error"
+                self.logger(f"Fuzzy matching failed: {error_msg}")
+                
+                return PatchResult(
+                    success=False,
+                    file_path=file_path,
+                    original_content=original_content,
+                    patched_content=original_content,
+                    error_message=f"Fuzzy matching failed: {error_msg}",
+                )
+                
+        except Exception as e:
+            self.logger(f"Fuzzy matching error: {e}")
+            return PatchResult(
+                success=False,
+                file_path=file_path,
+                original_content=original_content,
+                patched_content=original_content,
+                error_message=f"Fuzzy matching exception: {e}",
             )
 
     def _apply_manually(
