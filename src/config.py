@@ -46,10 +46,13 @@ class RuntimeConfig:
     )
     prefer_docker_infer: bool = True
 
-    # LLM settings
+    # LLM Static Analysis settings
     llm_budget_tokens: int = 32_000
     llm_max_files: int | None = None
     enable_static_llm: bool = True  # Enable LLM-based static analysis
+    static_max_findings_per_file: int = 5  # Max findings per file
+    static_max_total_findings: int = 50  # Max total findings from LLM
+    static_max_llm_calls: int = 20  # Max LLM calls for static analysis
 
     # Fuzzing settings
     enable_fuzzing: bool = True

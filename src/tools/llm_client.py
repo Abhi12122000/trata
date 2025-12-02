@@ -38,6 +38,13 @@ class LangGraphClient:
         self._max_retries = 3
         self._retry_count = 0
         
+        # Static analysis limits
+        self._llm_calls_made = 0
+        self._max_llm_calls = runtime_config.static_max_llm_calls
+        self._max_findings_per_file = runtime_config.static_max_findings_per_file
+        self._max_total_findings = runtime_config.static_max_total_findings
+        self._total_findings = 0
+        
         # Try to initialize LLM, fall back to offline mode if no API key
         try:
             self._llm = ChatOpenAI(model=runtime_config.langgraph_model) if ChatOpenAI else None
@@ -52,7 +59,23 @@ class LangGraphClient:
         run_ctx: RunContext,
         store: LocalRunStore | None = None,
     ) -> tuple[str, Sequence[StaticFinding]]:
+        # Log start of static analysis
+        self._log_event(run_ctx, store, "LLM Static Analysis starting")
+        self._log_event(
+            run_ctx, store, 
+            f"LLM limits: max_calls={self._max_llm_calls}, "
+            f"max_findings_per_file={self._max_findings_per_file}, "
+            f"max_total_findings={self._max_total_findings}, "
+            f"token_budget={self._max_tokens}"
+        )
+        
         candidate_files, skipped = self._select_candidate_files(target, build)
+        
+        self._log_event(
+            run_ctx, store,
+            f"File selection: {len(candidate_files)} files to analyze, {len(skipped)} skipped"
+        )
+        
         self._log_tool(
             run_ctx,
             store,
@@ -62,7 +85,7 @@ class LangGraphClient:
                 "files": [str(p) for p in candidate_files],
                 "skipped": skipped,
                 "reason": (
-                    "C/C++ sources prioritized; harness globs excluded; fallback to breadth-first scan"
+                    "C/C++ sources prioritized; fuzz targets and harnesses excluded"
                 ),
             },
         )
@@ -70,7 +93,23 @@ class LangGraphClient:
         summaries: list[str] = []
         findings: list[StaticFinding] = []
 
-        for file_path in candidate_files:
+        for idx, file_path in enumerate(candidate_files):
+            # Check LLM call limit
+            if self._llm_calls_made >= self._max_llm_calls:
+                self._log_event(
+                    run_ctx, store, 
+                    f"LLM call limit reached ({self._max_llm_calls}). Stopping analysis."
+                )
+                break
+            
+            # Check total findings limit
+            if self._total_findings >= self._max_total_findings:
+                self._log_event(
+                    run_ctx, store,
+                    f"Total findings limit reached ({self._max_total_findings}). Stopping analysis."
+                )
+                break
+            
             snippet = self._read_snippet(file_path)
             self._log_tool(run_ctx, store, "source_reader", "snippet_extracted", {
                 "file": str(file_path),
@@ -83,18 +122,27 @@ class LangGraphClient:
             except ValueError:
                 relative_file = file_path
 
+            self._log_event(
+                run_ctx, store,
+                f"Analyzing file {idx + 1}/{len(candidate_files)}: {relative_file}"
+            )
+
             prompt = build_static_analysis_prompt(
                 project=target.name,
                 fuzz_target=", ".join(target.fuzz_targets) if target.fuzz_targets else "N/A",
                 file_path=str(relative_file),
                 code_snippet=snippet,
-                max_findings=3,
+                max_findings=self._max_findings_per_file,
                 max_lines=self.max_lines,
             )
 
             # Check token budget before invoking
             prompt_tokens_est = len(prompt.split()) * 1.3  # rough estimate
             if self._tokens_used + prompt_tokens_est > self._max_tokens:
+                self._log_event(
+                    run_ctx, store,
+                    f"Token budget exhausted ({int(self._tokens_used)}/{self._max_tokens}). Using offline fallback."
+                )
                 self._log_tool(run_ctx, store, "llm_static_analysis", "budget_exceeded", {
                     "file": str(file_path),
                     "tokens_used": int(self._tokens_used),
@@ -110,11 +158,16 @@ class LangGraphClient:
             
             try:
                 response_text = await self._invoke_llm(prompt)
+                self._llm_calls_made += 1
                 self._tokens_used += int(prompt_tokens_est * 2)  # rough: prompt + response
                 self._retry_count = 0  # reset on success
             except Exception as e:
                 self._retry_count += 1
                 if self._retry_count >= self._max_retries:
+                    self._log_event(
+                        run_ctx, store,
+                        f"Max retries exceeded for {relative_file}: {e}"
+                    )
                     self._log_tool(run_ctx, store, "llm_static_analysis", "max_retries_exceeded", {
                         "file": str(file_path),
                         "error": str(e),
@@ -133,6 +186,7 @@ class LangGraphClient:
                 "file": str(file_path),
                 "prompt_tokens_estimate": int(prompt_tokens_est),
                 "tokens_used_total": int(self._tokens_used),
+                "llm_calls_made": self._llm_calls_made,
                 "response": response_text[:8000],  # keep logs bounded
             })
 
@@ -140,9 +194,23 @@ class LangGraphClient:
                 response_text,
                 default_file=str(relative_file),
             )
+            
+            # Track findings and log
+            self._total_findings += len(snippet_findings)
+            self._log_event(
+                run_ctx, store,
+                f"  Found {len(snippet_findings)} findings in {relative_file} "
+                f"(total: {self._total_findings}, LLM calls: {self._llm_calls_made})"
+            )
             summaries.append(summary)
             findings.extend(snippet_findings)
 
+        # Final summary
+        self._log_event(
+            run_ctx, store,
+            f"LLM Static Analysis complete: {len(findings)} findings from {self._llm_calls_made} LLM calls"
+        )
+        
         combined_summary = self._compose_summary(target, summaries, findings)
         (run_ctx.logs_dir / "llm_summary.json").write_text(
             json.dumps(
@@ -348,6 +416,16 @@ class LangGraphClient:
         )
         return combined_summary
 
+    def _log_event(
+        self,
+        run_ctx: RunContext,
+        store: LocalRunStore | None,
+        message: str,
+    ) -> None:
+        """Log an INFO message to the run log."""
+        if store:
+            store.log_event(run_ctx, message)
+    
     def _log_tool(
         self,
         run_ctx: RunContext,

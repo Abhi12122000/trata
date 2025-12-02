@@ -520,6 +520,53 @@ void another_vuln(void *ptr) {
 # ==============================================================================
 
 
+class TestStaticAnalysisLimits:
+    """Tests for static analysis limits."""
+
+    def test_config_has_static_limits(self):
+        """Test that RuntimeConfig has static analysis limits."""
+        from trata.src.config import RuntimeConfig
+
+        config = RuntimeConfig()
+
+        # Check default values
+        assert hasattr(config, "static_max_findings_per_file")
+        assert hasattr(config, "static_max_total_findings")
+        assert hasattr(config, "static_max_llm_calls")
+
+        assert config.static_max_findings_per_file == 5
+        assert config.static_max_total_findings == 50
+        assert config.static_max_llm_calls == 20
+
+    def test_client_tracks_llm_calls(self):
+        """Test that LangGraphClient tracks LLM calls."""
+        from trata.src.config import RuntimeConfig
+        from trata.src.tools.llm_client import LangGraphClient
+
+        config = RuntimeConfig()
+        client = LangGraphClient(config)
+
+        assert client._llm_calls_made == 0
+        assert client._max_llm_calls == 20
+        assert client._total_findings == 0
+
+    def test_client_respects_custom_limits(self):
+        """Test that client uses custom limits from config."""
+        from trata.src.config import RuntimeConfig
+        from trata.src.tools.llm_client import LangGraphClient
+
+        config = RuntimeConfig(
+            static_max_findings_per_file=3,
+            static_max_total_findings=10,
+            static_max_llm_calls=5,
+        )
+        client = LangGraphClient(config)
+
+        assert client._max_findings_per_file == 3
+        assert client._max_total_findings == 10
+        assert client._max_llm_calls == 5
+
+
 class TestStaticAnalysisE2E:
     """End-to-end tests with mocked LLM."""
 

@@ -250,17 +250,19 @@ class PatchingPipeline:
         # Cleanup
         working_copy_mgr.cleanup()
 
-        # Build summary using FINAL state (last test result shows current crash status)
-        # Note: Each patch is tested against the same crashes. The final test result
-        # shows whether crashes are fixed by the cumulative patches.
-        if batch.test_results:
-            # Use last test result for final crash status
-            last_result = batch.test_results[-1]
-            final_fixed = last_result.crashes_fixed
-            final_remaining = last_result.crashes_remaining
-        else:
-            final_fixed = 0
-            final_remaining = len(crashes)
+        # Build summary using FINAL state of the working copy
+        # Since patches are cumulative and failed patches are rolled back,
+        # we need to find the last SUCCESSFUL test result to know the current state.
+        # Failed patches (build_success=False) are rolled back, so they don't change the state.
+        final_fixed = 0
+        final_remaining = len(crashes)
+        
+        # Find the last successful test result - this reflects the actual working copy state
+        for result in reversed(batch.test_results):
+            if result.build_success and result.crash_tests:
+                final_fixed = result.crashes_fixed
+                final_remaining = result.crashes_remaining
+                break
         
         self._log(run_ctx, "-" * 40)
         self._log(run_ctx, "PATCHING COMPLETE")
