@@ -8,7 +8,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Sequence
 
 from ..config import RuntimeConfig, TargetProjectConfig
-from ..prompts import STATIC_ANALYSIS_PROMPT
+from ..prompts.static_analysis import build_static_analysis_prompt
 from ..storage import LocalRunStore
 from ..storage.models import BuildArtifacts, RunContext, StaticFinding
 
@@ -83,11 +83,10 @@ class LangGraphClient:
             except ValueError:
                 relative_file = file_path
 
-            prompt = STATIC_ANALYSIS_PROMPT.format(
+            prompt = build_static_analysis_prompt(
                 project=target.name,
                 fuzz_target=", ".join(target.fuzz_targets) if target.fuzz_targets else "N/A",
                 file_path=str(relative_file),
-                notes="First pass static heuristics",
                 code_snippet=snippet,
                 max_findings=3,
                 max_lines=self.max_lines,
@@ -232,61 +231,103 @@ class LangGraphClient:
         return completion.content if hasattr(completion, "content") else str(completion)
 
     def _offline_response(self, prompt: str) -> str:
-        # Simple heuristic fallback that mimics JSON output.
-        danger_tokens = ["strcpy", "memcpy", "sprintf", "gets", "scanf("]
-        risk = [tok for tok in danger_tokens if tok in prompt]
+        # Simple heuristic fallback that mimics JSON output with proper check_ids
+        danger_patterns = {
+            "strcpy": ("BUFFER_OVERRUN", "high", "Unbounded string copy via strcpy"),
+            "memcpy": ("BUFFER_OVERRUN", "medium", "Potential buffer overflow via memcpy"),
+            "sprintf": ("BUFFER_OVERRUN", "high", "Unbounded sprintf into buffer"),
+            "gets": ("BUFFER_OVERRUN", "critical", "Use of unsafe gets() function"),
+            "scanf(": ("BUFFER_OVERRUN", "medium", "Potential buffer overflow via scanf"),
+            "free(": ("USE_AFTER_FREE", "medium", "Memory deallocation - check for UAF"),
+            "printf(": ("FORMAT_STRING", "medium", "Printf call - check format string safety"),
+            "malloc(": ("NULLPTR_DEREFERENCE", "low", "Malloc call - check NULL return"),
+        }
+        
         findings = []
-        if risk:
-            findings.append(
-                {
-                    "check_id": "heuristic-unsafe-call",
-                    "severity": "medium",
-                    "file": "unknown",
-                    "line": 0,
-                    "title": f"Use of {'/'.join(risk)}",
-                    "detail": "Detected potentially unsafe call in offline mode.",
-                }
-            )
+        for pattern, (check_id, severity, detail) in danger_patterns.items():
+            if pattern in prompt:
+                findings.append(
+                    {
+                        "check_id": check_id,
+                        "severity": severity,
+                        "file": "unknown",
+                        "line": 0,
+                        "function_name": "unknown",
+                        "title": f"Potential {check_id.replace('_', ' ').title()}",
+                        "detail": f"[OFFLINE] {detail}",
+                    }
+                )
+                if len(findings) >= 3:
+                    break
+                    
         return json.dumps(
             {
-                "summary": "[offline] static scan executed without LLM credentials.",
+                "summary": "[offline] Heuristic scan without LLM. Found pattern-based warnings.",
                 "findings": findings,
             }
         )
 
     def _offline_summary(self, file_path: Path, snippet: str, reason: str) -> tuple[str, list[StaticFinding]]:
-        prompt = STATIC_ANALYSIS_PROMPT.format(
-            project="offline",
-            fuzz_target="n/a",
-            file_path=str(file_path),
-            notes=f"[offline fallback] {reason}",
-            code_snippet=snippet,
-            max_findings=1,
-            max_lines=self.max_lines,
-        )
-        response = self._offline_response(prompt)
+        # Build offline response directly from snippet content
+        response = self._offline_response(snippet)
         return self._parse_llm_response(response, default_file=str(file_path))
 
     def _parse_llm_response(
         self, response: str, default_file: str
     ) -> tuple[str, list[StaticFinding]]:
+        import re
+        
+        # Try to extract JSON from various formats
+        json_str = response.strip()
+        
+        # Try to extract JSON from markdown code blocks
+        json_block_match = re.search(r'```(?:json)?\s*\n?([\s\S]*?)\n?```', json_str)
+        if json_block_match:
+            json_str = json_block_match.group(1).strip()
+        
+        # Try to find JSON object directly
+        if not json_str.startswith('{'):
+            json_match = re.search(r'(\{[\s\S]*\})', json_str)
+            if json_match:
+                json_str = json_match.group(1)
+        
         try:
-            payload = json.loads(response)
-        except json.JSONDecodeError:
-            payload = {"summary": response, "findings": []}
+            payload = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            # Log the parse error for debugging
+            return f"JSON parse error: {e}. Raw response: {response[:200]}", []
 
         findings_payload = payload.get("findings", []) or []
         findings: list[StaticFinding] = []
+        
+        # Validate severity values
+        valid_severities = {"info", "low", "medium", "high", "critical"}
+        
         for item in findings_payload:
+            # Skip malformed entries
+            if not isinstance(item, dict):
+                continue
+                
+            severity = item.get("severity", "medium").lower()
+            if severity not in valid_severities:
+                severity = "medium"  # Default to medium if invalid
+            
+            # Extract line number safely
+            try:
+                line = int(item.get("line", 0))
+            except (ValueError, TypeError):
+                line = 0
+            
             findings.append(
                 StaticFinding(
                     tool="langgraph-llm",
-                    check_id=item.get("check_id", "llm-heuristic"),
+                    check_id=item.get("check_id", "LLM_HEURISTIC"),
                     file=item.get("file", default_file),
-                    line=int(item.get("line", 0)),
-                    severity=item.get("severity", "medium"),
+                    line=line,
+                    severity=severity,
                     title=item.get("title", "Potential vulnerability"),
                     detail=item.get("detail", ""),
+                    function_name=item.get("function_name"),
                     raw_payload=item,
                 )
             )
