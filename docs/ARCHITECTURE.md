@@ -13,42 +13,57 @@ A **Cyber Reasoning System (CRS)** is an automated software system designed to d
 ## Mini CRS Pipeline
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Target Intake  │────▶│  Static Analysis │────▶│    Fuzzing      │
-│  (Build Setup)  │     │  (LLM + Infer)   │     │  (libFuzzer)    │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                │                         │
-                                ▼                         ▼
-                        ┌───────────────┐         ┌───────────────┐
-                        │   Findings    │         │   Crashes     │
-                        └───────────────┘         └───────────────┘
-                                │                         │
-                                └──────────┬──────────────┘
-                                           ▼
-                              ┌────────────────────────┐
-                              │   Patching Pipeline    │
-                              │  (LLM Patch Generation │
-                              │   + Crash Testing)     │
-                              └────────────────────────┘
-                                           │
-                                           ▼
-                              ┌────────────────────────┐
-                              │   Patched Source Code  │
-                              └────────────────────────┘
+                         ┌────────────────────────┐
+                         │     Target Project     │
+                         │   (Source + Harnesses) │
+                         └───────────┬────────────┘
+                                     │
+                                     ▼
+                         ┌────────────────────────┐
+                         │        Build           │
+                         │  (compile_commands.json│
+                         │   + fuzzer binaries)   │
+                         └───────────┬────────────┘
+                                     │
+               ┌─────────────────────┴─────────────────────┐
+               │                                           │
+               ▼                                           ▼
+  ┌────────────────────────┐                ┌────────────────────────┐
+  │    Static Analysis     │                │        Fuzzing         │
+  │   (LLM + Infer)        │                │      (libFuzzer)       │
+  │                        │                │                        │
+  │  AST parsing           │                │  Build fuzzer          │
+  │  Per-function LLM      │                │  Run with sanitizers   │
+  │  Merge findings        │                │  Collect crashes       │
+  └───────────┬────────────┘                └───────────┬────────────┘
+              │                                         │
+              ▼                                         ▼
+     ┌────────────────┐                       ┌────────────────┐
+     │   Findings     │                       │    Crashes     │
+     │ (vuln reports) │                       │ (deduplicated) │
+     └────────┬───────┘                       └────────┬───────┘
+              │                                        │
+              └──────────────────┬─────────────────────┘
+                                 │
+                                 ▼
+                   ┌────────────────────────────┐
+                   │     Patching Pipeline      │
+                   │                            │
+                   │  For each finding:         │
+                   │   1. Extract ±50 lines     │
+                   │   2. LLM generates patch   │
+                   │   3. Apply (fuzzy match)   │
+                   │   4. Rebuild project       │
+                   │   5. Test against crashes  │
+                   └─────────────┬──────────────┘
+                                 │
+                                 ▼
+                   ┌────────────────────────────┐
+                   │    Patched source code     │
+                   │ saved in working_copy/ dir │
+                   └────────────────────────────┘
 ```
 
-## Stage Responsibilities
-
-| Stage | What It Does | Key Modules |
-|-------|--------------|-------------|
-| **Target Intake** | Parse CLI config, locate sources, set up workspace | `main.py`, `src/config.py` |
-| **Workspace Manager** | Create `trata/data/<project>/<timestamp>`, provide run context | `src/storage/local_store.py` |
-| **Build Layer** | Execute build recipe, generate `compile_commands.json` | `src/tools/project_builder.py` |
-| **Static Analysis** | LLM-based analysis + Facebook Infer, merge findings | `src/agents/static_analysis.py`, `src/tools/fbinfer_runner.py` |
-| **Fuzzing** | Build fuzzer with sanitizers, run libFuzzer, collect crashes | `src/pipelines/fuzzing.py`, `src/tools/libfuzzer_runner.py` |
-| **Crash Deduplication** | Stack trace-based deduplication | `src/tools/crash_deduplicator.py` |
-| **Patching** | LLM patch generation, application, crash testing | `src/pipelines/patching.py`, `src/agents/patcher.py` |
-| **Persistence** | Emit results + JSONL logs for auditing | `src/storage/models.py` |
 
 ## Repository Layout
 
@@ -77,12 +92,18 @@ trata/
 ## Data Flow
 
 1. **Input**: Target project path + build script
-2. **Build**: Execute build, generate compile database
-3. **Static Analysis**: Run Infer + LLM, produce findings
-4. **Fuzzing**: Build fuzzers, run with sanitizers, collect crashes
-5. **Deduplication**: Group crashes by unique stack signature
-6. **Patching**: Generate patches, apply to working copy, test against crashes
-7. **Output**: Findings, crashes, patches, patched source code
+2. **Build**: Execute build, generate `compile_commands.json`
+3. **Analysis** (parallel):
+   - **Static Analysis**: Run Infer + LLM per-function analysis → Findings
+   - **Fuzzing**: Build fuzzers with sanitizers, run libFuzzer → Crashes
+4. **Deduplication**: Group crashes by unique stack signature (top 3 frames)
+5. **Patching**: For each finding:
+   - Extract source context (±50 lines)
+   - LLM generates unified diff patch
+   - Apply patch (exact → fuzzy → manual fallback)
+   - Rebuild from working copy
+   - Test against deduplicated crashes
+6. **Output**: Findings, crashes, patches, patched source code
 
 ## Key Design Decisions
 
