@@ -7,8 +7,10 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Sequence
 
+from ..analysis import ParsedFile, SourceFunction
+from ..analysis.c_parser import parse_c_file, is_tree_sitter_available
 from ..config import RuntimeConfig, TargetProjectConfig
-from ..prompts.static_analysis import build_static_analysis_prompt
+from ..prompts.static_analysis import build_static_analysis_prompt, build_function_analysis_prompt
 from ..storage import LocalRunStore
 from ..storage.models import BuildArtifacts, RunContext, StaticFinding
 
@@ -69,6 +71,12 @@ class LangGraphClient:
             f"token_budget={self._max_tokens}"
         )
         
+        # Log tree-sitter availability (Phase 1 - informational only)
+        if is_tree_sitter_available():
+            self._log_event(run_ctx, store, "AST parsing enabled (tree-sitter available)")
+        else:
+            self._log_event(run_ctx, store, "AST parsing disabled (tree-sitter not available)")
+        
         candidate_files, skipped = self._select_candidate_files(target, build)
         
         self._log_event(
@@ -90,10 +98,23 @@ class LangGraphClient:
             },
         )
 
+        # Parse files and extract functions
+        parsed_files = self._parse_candidate_files(
+            candidate_files, build.source_dir, run_ctx, store
+        )
+
+        # Build analysis units (individual functions or clubbed groups)
+        analysis_units = self._build_analysis_units(parsed_files, build.source_dir, run_ctx, store)
+        
+        self._log_event(
+            run_ctx, store,
+            f"Function-level analysis: {len(analysis_units)} units to analyze"
+        )
+
         summaries: list[str] = []
         findings: list[StaticFinding] = []
 
-        for idx, file_path in enumerate(candidate_files):
+        for idx, unit in enumerate(analysis_units):
             # Check LLM call limit
             if self._llm_calls_made >= self._max_llm_calls:
                 self._log_event(
@@ -110,30 +131,44 @@ class LangGraphClient:
                 )
                 break
             
-            snippet = self._read_snippet(file_path)
-            self._log_tool(run_ctx, store, "source_reader", "snippet_extracted", {
-                "file": str(file_path),
-                "lines_returned": snippet.count("\n") + 1,
-                "max_lines": self.max_lines,
+            # Extract unit info
+            file_path = unit["file_path"]
+            relative_file = unit["relative_file"]
+            function_names = unit["function_names"]
+            line_range = unit["line_range"]
+            code_snippet = unit["code"]
+            is_clubbed = unit["is_clubbed"]
+            
+            # Log what we're analyzing
+            if is_clubbed:
+                self._log_event(
+                    run_ctx, store,
+                    f"Analyzing unit {idx + 1}/{len(analysis_units)}: "
+                    f"{relative_file} (clubbed: {', '.join(function_names)}, lines {line_range})"
+                )
+            else:
+                self._log_event(
+                    run_ctx, store,
+                    f"Analyzing unit {idx + 1}/{len(analysis_units)}: "
+                    f"{relative_file}:{function_names[0]} (lines {line_range})"
+                )
+            
+            self._log_tool(run_ctx, store, "function_analyzer", "unit_selected", {
+                "file": relative_file,
+                "functions": function_names,
+                "lines": line_range,
+                "is_clubbed": is_clubbed,
+                "code_lines": code_snippet.count("\n") + 1,
             })
 
-            try:
-                relative_file = file_path.relative_to(build.source_dir)
-            except ValueError:
-                relative_file = file_path
-
-            self._log_event(
-                run_ctx, store,
-                f"Analyzing file {idx + 1}/{len(candidate_files)}: {relative_file}"
-            )
-
-            prompt = build_static_analysis_prompt(
+            # Build function-level prompt
+            prompt = build_function_analysis_prompt(
                 project=target.name,
-                fuzz_target=", ".join(target.fuzz_targets) if target.fuzz_targets else "N/A",
-                file_path=str(relative_file),
-                code_snippet=snippet,
+                file_path=relative_file,
+                function_names=function_names,
+                line_range=line_range,
+                code_snippet=code_snippet,
                 max_findings=self._max_findings_per_file,
-                max_lines=self.max_lines,
             )
 
             # Check token budget before invoking
@@ -144,17 +179,18 @@ class LangGraphClient:
                     f"Token budget exhausted ({int(self._tokens_used)}/{self._max_tokens}). Using offline fallback."
                 )
                 self._log_tool(run_ctx, store, "llm_static_analysis", "budget_exceeded", {
-                    "file": str(file_path),
+                    "file": relative_file,
+                    "functions": function_names,
                     "tokens_used": int(self._tokens_used),
                     "budget": self._max_tokens,
                     "skipped": True,
                 })
                 summary, snippet_findings = self._offline_summary(
-                    file_path, snippet, "[budget exhausted]"
+                    Path(file_path), code_snippet, "[budget exhausted]"
                 )
                 summaries.append(summary)
                 findings.extend(snippet_findings)
-                break  # Stop processing more files
+                break  # Stop processing
             
             try:
                 response_text = await self._invoke_llm(prompt)
@@ -166,24 +202,27 @@ class LangGraphClient:
                 if self._retry_count >= self._max_retries:
                     self._log_event(
                         run_ctx, store,
-                        f"Max retries exceeded for {relative_file}: {e}"
+                        f"Max retries exceeded for {relative_file}:{function_names}: {e}"
                     )
                     self._log_tool(run_ctx, store, "llm_static_analysis", "max_retries_exceeded", {
-                        "file": str(file_path),
+                        "file": relative_file,
+                        "functions": function_names,
                         "error": str(e),
                         "retries": self._retry_count,
                     })
                     summary, snippet_findings = self._offline_summary(
-                        file_path, snippet, str(e)
+                        Path(file_path), code_snippet, str(e)
                     )
                     summaries.append(summary)
                     findings.extend(snippet_findings)
                     break
-                # Continue to next file on retry
+                # Continue to next unit on retry
                 continue
             
             self._log_tool(run_ctx, store, "llm_static_analysis", "invoke", {
-                "file": str(file_path),
+                "file": relative_file,
+                "functions": function_names,
+                "lines": line_range,
                 "prompt_tokens_estimate": int(prompt_tokens_est),
                 "tokens_used_total": int(self._tokens_used),
                 "llm_calls_made": self._llm_calls_made,
@@ -192,14 +231,15 @@ class LangGraphClient:
 
             summary, snippet_findings = self._parse_llm_response(
                 response_text,
-                default_file=str(relative_file),
+                default_file=relative_file,
             )
             
             # Track findings and log
             self._total_findings += len(snippet_findings)
+            func_display = ", ".join(function_names) if len(function_names) <= 3 else f"{len(function_names)} functions"
             self._log_event(
                 run_ctx, store,
-                f"  Found {len(snippet_findings)} findings in {relative_file} "
+                f"  Found {len(snippet_findings)} findings in {relative_file}:{func_display} "
                 f"(total: {self._total_findings}, LLM calls: {self._llm_calls_made})"
             )
             summaries.append(summary)
@@ -290,6 +330,259 @@ class LangGraphClient:
             return ""
         snippet = "\n".join(lines[: self.max_lines])
         return snippet
+
+    def _write_functions_log(
+        self,
+        parsed_files: dict[str, ParsedFile],
+        source_dir: Path,
+        run_ctx: RunContext,
+    ) -> None:
+        """
+        Write a human-readable log of all extracted functions.
+        
+        Output file: logs/extracted_functions.txt
+        This is useful for debugging and demoing the AST parsing.
+        """
+        lines = []
+        lines.append("=" * 70)
+        lines.append("EXTRACTED FUNCTIONS (AST Parsing Results)")
+        lines.append("=" * 70)
+        lines.append("")
+        
+        total_funcs = 0
+        for file_path_str, parsed in parsed_files.items():
+            try:
+                rel_path = Path(file_path_str).relative_to(source_dir)
+            except ValueError:
+                rel_path = Path(file_path_str)
+            
+            lines.append(f"FILE: {rel_path}")
+            lines.append("-" * 50)
+            
+            if not parsed.functions:
+                lines.append("  (no functions found - header file or no definitions)")
+            else:
+                for func in parsed.functions:
+                    total_funcs += 1
+                    small_marker = " [SMALL]" if func.is_small else ""
+                    lines.append(f"  [{func.start_line}-{func.end_line}] {func.name}{small_marker}")
+                    lines.append(f"      Signature: {func.signature}")
+                    lines.append(f"      Lines: {func.line_count}")
+                    # Show first few lines of body for debugging
+                    body_preview = func.body.split('\n')[:3]
+                    body_preview_str = '\n'.join(f"        {line}" for line in body_preview)
+                    if len(func.body.split('\n')) > 3:
+                        body_preview_str += "\n        ..."
+                    lines.append(f"      Body preview:")
+                    lines.append(body_preview_str)
+                    lines.append("")
+            
+            lines.append("")
+        
+        lines.append("=" * 70)
+        lines.append(f"TOTAL: {total_funcs} functions in {len(parsed_files)} files")
+        lines.append("=" * 70)
+        
+        # Write to file
+        log_path = run_ctx.logs_dir / "extracted_functions.txt"
+        log_path.write_text("\n".join(lines), encoding="utf-8")
+
+    def _parse_candidate_files(
+        self,
+        candidate_files: list[Path],
+        source_dir: Path,
+        run_ctx: RunContext,
+        store: LocalRunStore | None,
+    ) -> dict[str, ParsedFile]:
+        """
+        Parse candidate files to extract function information.
+        
+        Returns:
+            Dictionary mapping file paths to their parsed representations.
+        """
+        parsed_files: dict[str, ParsedFile] = {}
+        total_functions = 0
+        small_functions = 0
+        
+        if not is_tree_sitter_available():
+            self._log_event(
+                run_ctx, store,
+                "Skipping function extraction (tree-sitter not available)"
+            )
+            return parsed_files
+        
+        for file_path in candidate_files:
+            try:
+                relative_path = file_path.relative_to(source_dir)
+            except ValueError:
+                relative_path = file_path
+            
+            parsed = parse_c_file(file_path)
+            if parsed.parse_errors:
+                self._log_event(
+                    run_ctx, store,
+                    f"Parse warnings for {relative_path}: {parsed.parse_errors[:2]}"
+                )
+            
+            parsed_files[str(file_path)] = parsed
+            total_functions += parsed.function_count
+            small_functions += parsed.small_function_count
+        
+        # Log AST parsing summary (one line, comprehensive)
+        self._log_event(
+            run_ctx, store,
+            f"AST parsing complete: {total_functions} functions extracted from {len(parsed_files)} files "
+            f"({small_functions} small [<{10} lines, clubbable], "
+            f"{total_functions - small_functions} large)"
+        )
+        
+        # Write detailed function extraction log for debugging/demoing
+        self._write_functions_log(parsed_files, source_dir, run_ctx)
+        
+        # Log function details to tool_calls for debugging
+        self._log_tool(
+            run_ctx, store,
+            "ast_parser",
+            "functions_extracted",
+            {
+                "total_files": len(parsed_files),
+                "total_functions": total_functions,
+                "small_functions": small_functions,
+                "functions_by_file": {
+                    str(Path(path).name): [
+                        {
+                            "name": f.name,
+                            "lines": f"{f.start_line}-{f.end_line}",
+                            "line_count": f.line_count,
+                            "is_small": f.is_small,
+                        }
+                        for f in parsed.functions
+                    ]
+                    for path, parsed in parsed_files.items()
+                },
+            },
+        )
+        
+        return parsed_files
+    
+    def _build_analysis_units(
+        self,
+        parsed_files: dict[str, ParsedFile],
+        source_dir: Path,
+        run_ctx: RunContext,
+        store: LocalRunStore | None,
+    ) -> list[dict[str, Any]]:
+        """
+        Build analysis units from parsed files.
+        
+        Each unit is either:
+        - A single function (for large functions)
+        - A group of clubbed small adjacent functions
+        - The whole file (if no functions were found)
+        
+        Returns:
+            List of analysis unit dictionaries with:
+            - file_path: Absolute path
+            - relative_file: Relative path string
+            - function_names: List of function names
+            - line_range: Line range string
+            - code: Code snippet to analyze
+            - is_clubbed: Whether this unit is a clubbed group
+        """
+        units: list[dict[str, Any]] = []
+        clubbed_count = 0
+        
+        for file_path_str, parsed in parsed_files.items():
+            file_path = Path(file_path_str)
+            try:
+                relative_file = str(file_path.relative_to(source_dir))
+            except ValueError:
+                relative_file = str(file_path)
+            
+            # If no functions found, fall back to file-level analysis
+            if not parsed.functions:
+                # Read first N lines as fallback
+                snippet = self._read_snippet(file_path)
+                if snippet.strip():
+                    units.append({
+                        "file_path": file_path_str,
+                        "relative_file": relative_file,
+                        "function_names": ["<file-level>"],
+                        "line_range": f"1-{snippet.count(chr(10)) + 1}",
+                        "code": snippet,
+                        "is_clubbed": False,
+                    })
+                continue
+            
+            # Get clubbable groups of small functions
+            clubbable_groups = parsed.get_clubbable_groups(max_combined_lines=50)
+            clubbed_funcs: set[str] = set()
+            
+            # Add clubbed groups
+            for group in clubbable_groups:
+                group_names = [f.name for f in group]
+                clubbed_funcs.update(group_names)
+                
+                # Build combined code snippet
+                # Sort by start line to maintain order
+                sorted_group = sorted(group, key=lambda f: f.start_line)
+                combined_code = "\n\n".join(f.body for f in sorted_group)
+                
+                # Build line range string
+                line_ranges = [f"{f.start_line}-{f.end_line}" for f in sorted_group]
+                line_range_str = ", ".join(line_ranges)
+                
+                units.append({
+                    "file_path": file_path_str,
+                    "relative_file": relative_file,
+                    "function_names": group_names,
+                    "line_range": line_range_str,
+                    "code": combined_code,
+                    "is_clubbed": True,
+                })
+                clubbed_count += 1
+            
+            # Add individual large functions (not clubbed)
+            for func in parsed.functions:
+                if func.name in clubbed_funcs:
+                    continue  # Already handled in a clubbed group
+                
+                units.append({
+                    "file_path": file_path_str,
+                    "relative_file": relative_file,
+                    "function_names": [func.name],
+                    "line_range": f"{func.start_line}-{func.end_line}",
+                    "code": func.body,
+                    "is_clubbed": False,
+                })
+        
+        # Log clubbing summary
+        if clubbed_count > 0:
+            self._log_event(
+                run_ctx, store,
+                f"Function clubbing: {clubbed_count} groups of small functions combined"
+            )
+        
+        self._log_tool(
+            run_ctx, store,
+            "function_analyzer",
+            "units_prepared",
+            {
+                "total_units": len(units),
+                "clubbed_groups": clubbed_count,
+                "units": [
+                    {
+                        "file": u["relative_file"],
+                        "functions": u["function_names"],
+                        "lines": u["line_range"],
+                        "clubbed": u["is_clubbed"],
+                    }
+                    for u in units
+                ],
+            },
+        )
+        
+        return units
 
     async def _invoke_llm(self, prompt: str) -> str:
         if not self._llm:

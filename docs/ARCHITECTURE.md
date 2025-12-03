@@ -92,3 +92,6 @@ trata/
 4. **JSONL Logging**: Every LLM call and tool action is logged for auditability
 5. **Token Budgeting**: Prevents runaway LLM costs
 
+
+
+

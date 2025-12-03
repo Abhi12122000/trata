@@ -49,7 +49,9 @@ def test_llm_client_offline_fallback(tmp_path: Path) -> None:
 
     assert len(findings) >= 0
     tool_calls = (run_ctx.logs_dir / "tool_calls.jsonl").read_text(encoding="utf-8")
-    assert "source_reader" in tool_calls
+    # Phase 2: Now uses function_analyzer instead of source_reader
+    assert "function_analyzer" in tool_calls
+    assert "unit_selected" in tool_calls
     summary_payload = (run_ctx.logs_dir / "llm_summary.json").read_text(encoding="utf-8")
     assert "files" in summary_payload
 

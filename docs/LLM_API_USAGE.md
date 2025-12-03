@@ -200,3 +200,6 @@ The code automatically falls back to offline mode for:
 | Static analysis LLM toggle | `trata/src/pipelines/static_analysis.py` | 44-49 |
 | CLI flag | `trata/main.py` | 71-74 |
 
+
+
+

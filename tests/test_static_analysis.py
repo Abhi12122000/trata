@@ -650,3 +650,362 @@ void vulnerable(const char *input) {
             # Verify logs were created
             assert (logs_dir / "llm_summary.json").exists()
 
+
+# ==============================================================================
+# Phase 2: Function-Level Analysis Tests
+# ==============================================================================
+
+
+class TestFunctionLevelPrompt:
+    """Tests for the function-level analysis prompt."""
+    
+    def test_build_function_prompt_includes_function_context(self):
+        """Verify function prompt includes function-specific context."""
+        from trata.src.prompts.static_analysis import build_function_analysis_prompt
+        
+        prompt = build_function_analysis_prompt(
+            project="test-project",
+            file_path="src/vuln.c",
+            function_names=["process_packet"],
+            line_range="55-82",
+            code_snippet="void process_packet(const uint8_t *data, size_t size) { }",
+            max_findings=3,
+        )
+        
+        debug_print(f"Function prompt length: {len(prompt)}")
+        
+        # Check function-specific context
+        assert "process_packet" in prompt
+        assert "55-82" in prompt
+        assert "src/vuln.c" in prompt
+        assert "test-project" in prompt
+        
+        # Check JSON format spec
+        assert '"check_id"' in prompt
+        assert '"severity"' in prompt
+        assert '"line"' in prompt
+    
+    def test_build_function_prompt_handles_multiple_functions(self):
+        """Verify prompt handles clubbed functions."""
+        from trata.src.prompts.static_analysis import build_function_analysis_prompt
+        
+        prompt = build_function_analysis_prompt(
+            project="test-project",
+            file_path="src/vuln.c",
+            function_names=["func1", "func2", "func3"],
+            line_range="10-20, 25-30, 35-40",
+            code_snippet="void func1() {}\nvoid func2() {}\nvoid func3() {}",
+            max_findings=5,
+        )
+        
+        # All function names should be mentioned
+        assert "func1" in prompt
+        assert "func2" in prompt
+        assert "func3" in prompt
+        assert "10-20, 25-30, 35-40" in prompt
+
+
+class TestFunctionClubbing:
+    """Tests for function clubbing logic."""
+    
+    @pytest.fixture
+    def multi_function_source(self, tmp_path):
+        """Create a source file with multiple functions of varying sizes."""
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        
+        # Create file with mix of small and large functions
+        code = """
+// Small function 1 (5 lines)
+void small1(void) {
+    int x = 1;
+    x++;
+}
+
+// Small function 2 (4 lines)
+void small2(void) {
+    return;
+}
+
+// Large function (20 lines)
+void large_func(int x) {
+    int a = 1;
+    int b = 2;
+    int c = 3;
+    if (x > 0) {
+        a = x;
+        b = x * 2;
+        c = x * 3;
+    } else {
+        a = -x;
+        b = -x * 2;
+        c = -x * 3;
+    }
+    printf("%d %d %d", a, b, c);
+    for (int i = 0; i < x; i++) {
+        printf("%d", i);
+    }
+}
+
+// Small function 3 (3 lines)
+void small3(void) {
+    return;
+}
+"""
+        (src_dir / "mixed.c").write_text(code)
+        return src_dir
+    
+    def test_clubbing_groups_small_adjacent_functions(self, multi_function_source, tmp_path):
+        """Verify small adjacent functions are clubbed together."""
+        from trata.src.analysis.c_parser import parse_c_file
+        
+        parsed = parse_c_file(multi_function_source / "mixed.c")
+        
+        debug_print(f"Parsed {parsed.function_count} functions:")
+        for f in parsed.functions:
+            debug_print(f"  - {f.name}: lines {f.start_line}-{f.end_line}, small={f.is_small}")
+        
+        groups = parsed.get_clubbable_groups()
+        
+        debug_print(f"Clubbable groups: {[[f.name for f in g] for g in groups]}")
+        
+        # small1 and small2 should be clubbed (adjacent)
+        # large_func breaks the chain
+        # small3 is alone after large_func
+        assert len(groups) >= 1
+        
+        # First group should contain small1 and small2
+        first_group_names = [f.name for f in groups[0]]
+        assert "small1" in first_group_names
+        assert "small2" in first_group_names
+        assert "large_func" not in first_group_names
+    
+    def test_build_analysis_units_creates_correct_structure(self, multi_function_source, tmp_path):
+        """Verify _build_analysis_units creates correct unit structure."""
+        import asyncio
+        from trata.src.config import RuntimeConfig, TargetProjectConfig
+        from trata.src.storage.models import BuildArtifacts, RunContext
+        from trata.src.tools.llm_client import LangGraphClient
+        
+        logs_dir = tmp_path / "logs"
+        logs_dir.mkdir()
+        artifacts_dir = tmp_path / "artifacts"
+        artifacts_dir.mkdir()
+        
+        config = RuntimeConfig()
+        client = LangGraphClient(config)
+        
+        # Parse files
+        parsed_files = client._parse_candidate_files(
+            [multi_function_source / "mixed.c"],
+            multi_function_source,
+            RunContext(
+                project="test",
+                run_id="test",
+                root=tmp_path,
+                logs_dir=logs_dir,
+                artifacts_dir=artifacts_dir,
+            ),
+            None,
+        )
+        
+        # Build analysis units
+        units = client._build_analysis_units(
+            parsed_files,
+            multi_function_source,
+            RunContext(
+                project="test",
+                run_id="test",
+                root=tmp_path,
+                logs_dir=logs_dir,
+                artifacts_dir=artifacts_dir,
+            ),
+            None,
+        )
+        
+        debug_print(f"Analysis units: {len(units)}")
+        for u in units:
+            debug_print(f"  - {u['relative_file']}: {u['function_names']} (clubbed={u['is_clubbed']})")
+        
+        # Verify structure
+        assert len(units) > 0
+        
+        for unit in units:
+            assert "file_path" in unit
+            assert "relative_file" in unit
+            assert "function_names" in unit
+            assert "line_range" in unit
+            assert "code" in unit
+            assert "is_clubbed" in unit
+            
+            # Code should not be empty
+            assert len(unit["code"]) > 0
+            
+            # Function names should match what's in code
+            for func_name in unit["function_names"]:
+                if func_name != "<file-level>":
+                    assert func_name in unit["code"]
+
+
+class TestFunctionLevelE2E:
+    """End-to-end tests for function-level static analysis."""
+    
+    @pytest.mark.asyncio
+    async def test_function_level_analysis_calls_llm_per_function(self, tmp_path):
+        """Verify LLM is called per function (or clubbed group)."""
+        from unittest.mock import AsyncMock, patch
+        from trata.src.config import RuntimeConfig, TargetProjectConfig
+        from trata.src.storage.models import BuildArtifacts, RunContext
+        from trata.src.tools.llm_client import LangGraphClient
+        
+        # Create source with 2 large functions
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        (src_dir / "test.c").write_text("""
+void large_func1(int x) {
+    int a = 1;
+    int b = 2;
+    int c = 3;
+    if (x > 0) {
+        a = x;
+        b = x * 2;
+        c = x * 3;
+        printf("%d", a);
+        printf("%d", b);
+        printf("%d", c);
+    }
+}
+
+void large_func2(int y) {
+    int d = 1;
+    int e = 2;
+    int f = 3;
+    if (y > 0) {
+        d = y;
+        e = y * 2;
+        f = y * 3;
+        printf("%d", d);
+        printf("%d", e);
+        printf("%d", f);
+    }
+}
+""")
+        
+        logs_dir = tmp_path / "logs"
+        logs_dir.mkdir()
+        artifacts_dir = tmp_path / "artifacts"
+        artifacts_dir.mkdir()
+        
+        config = RuntimeConfig()
+        target = TargetProjectConfig(
+            name="test",
+            repo_url="file://" + str(src_dir),
+            local_checkout=src_dir,
+        )
+        build = BuildArtifacts(source_dir=src_dir, build_dir=tmp_path / "build")
+        run_ctx = RunContext(
+            project="test",
+            run_id="test",
+            root=tmp_path,
+            logs_dir=logs_dir,
+            artifacts_dir=artifacts_dir,
+        )
+        
+        client = LangGraphClient(config)
+        
+        call_count = 0
+        analyzed_functions = []
+        
+        async def mock_invoke(prompt):
+            nonlocal call_count
+            call_count += 1
+            
+            # Track which functions were analyzed
+            if "large_func1" in prompt:
+                analyzed_functions.append("large_func1")
+            if "large_func2" in prompt:
+                analyzed_functions.append("large_func2")
+            
+            return '{"summary": "No vulnerabilities found", "findings": []}'
+        
+        with patch.object(client, "_invoke_llm", side_effect=mock_invoke):
+            summary, findings = await client.run_static_review(target, build, run_ctx)
+        
+        debug_print(f"LLM call count: {call_count}")
+        debug_print(f"Analyzed functions: {analyzed_functions}")
+        
+        # Each large function should be analyzed separately
+        assert call_count == 2, f"Expected 2 LLM calls (one per function), got {call_count}"
+        assert "large_func1" in analyzed_functions
+        assert "large_func2" in analyzed_functions
+    
+    @pytest.mark.asyncio
+    async def test_clubbed_functions_analyzed_together(self, tmp_path):
+        """Verify small adjacent functions are analyzed in one LLM call."""
+        from unittest.mock import AsyncMock, patch
+        from trata.src.config import RuntimeConfig, TargetProjectConfig
+        from trata.src.storage.models import BuildArtifacts, RunContext
+        from trata.src.tools.llm_client import LangGraphClient
+        
+        # Create source with 3 small adjacent functions
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        (src_dir / "small.c").write_text("""
+void tiny1(void) {
+    return;
+}
+
+void tiny2(void) {
+    return;
+}
+
+void tiny3(void) {
+    return;
+}
+""")
+        
+        logs_dir = tmp_path / "logs"
+        logs_dir.mkdir()
+        artifacts_dir = tmp_path / "artifacts"
+        artifacts_dir.mkdir()
+        
+        config = RuntimeConfig()
+        target = TargetProjectConfig(
+            name="test",
+            repo_url="file://" + str(src_dir),
+            local_checkout=src_dir,
+        )
+        build = BuildArtifacts(source_dir=src_dir, build_dir=tmp_path / "build")
+        run_ctx = RunContext(
+            project="test",
+            run_id="test",
+            root=tmp_path,
+            logs_dir=logs_dir,
+            artifacts_dir=artifacts_dir,
+        )
+        
+        client = LangGraphClient(config)
+        
+        call_count = 0
+        prompts_received = []
+        
+        async def mock_invoke(prompt):
+            nonlocal call_count
+            call_count += 1
+            prompts_received.append(prompt)
+            return '{"summary": "No vulnerabilities found", "findings": []}'
+        
+        with patch.object(client, "_invoke_llm", side_effect=mock_invoke):
+            summary, findings = await client.run_static_review(target, build, run_ctx)
+        
+        debug_print(f"LLM call count: {call_count}")
+        
+        # All 3 small functions should be clubbed into 1 call
+        assert call_count == 1, f"Expected 1 LLM call (clubbed), got {call_count}"
+        
+        # The single prompt should contain all 3 functions
+        prompt = prompts_received[0]
+        assert "tiny1" in prompt
+        assert "tiny2" in prompt
+        assert "tiny3" in prompt
+

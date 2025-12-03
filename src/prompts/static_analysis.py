@@ -269,6 +269,98 @@ def build_static_analysis_prompt(
     )
 
 
+# =============================================================================
+# Function-Level Prompt (Phase 2)
+# =============================================================================
+
+FUNCTION_ANALYSIS_PROMPT = """You are RoboTrata, a security engineer specializing in C/C++ vulnerability analysis.
+Analyze the provided function(s) for memory-safety and security vulnerabilities.
+
+{vulnerability_categories}
+
+## Output Format
+
+You MUST respond with valid JSON matching this exact structure:
+
+```json
+{{
+  "summary": "<One sentence overview of findings or 'No vulnerabilities found'>",
+  "findings": [
+    {{
+      "check_id": "<category from table above>",
+      "severity": "<critical|high|medium|low|info>",
+      "file": "<relative file path>",
+      "line": <line number as integer>,
+      "function_name": "<name of function containing the vulnerability>",
+      "title": "<Short title, max 60 chars>",
+      "detail": "<Detailed explanation: what's wrong, why it's exploitable, how to trigger>"
+    }}
+  ]
+}}
+```
+
+## Critical Rules
+
+1. **Valid JSON Only**: Your response must be parseable JSON. No markdown, no explanation outside JSON.
+2. **Accurate Line Numbers**: Use the actual line numbers shown in the code (they are from the original file).
+3. **Specific Details**: The 'detail' field must explain HOW the vulnerability can be exploited.
+4. **Use Standard check_ids**: Only use check_id values from the categories table above.
+5. **Severity Guidelines**:
+   - `critical`: RCE, arbitrary memory write, stack overflow with control
+   - `high`: Memory corruption, UAF, reliable crash
+   - `medium`: Null deref, bounded overflow, info leak
+   - `low`: Resource leak, minor issues
+   - `info`: Code smell, potential issue needing more context
+6. **Max Findings**: Report at most {max_findings} most severe vulnerabilities.
+7. **Empty Findings**: If no vulnerabilities, return `{{"summary": "No vulnerabilities found", "findings": []}}`
+
+## Code to Analyze
+
+**Project:** {project}
+**File:** {file_path}
+**Function(s):** {function_names}
+**Lines:** {line_range}
+
+```c
+{code_snippet}
+```
+
+Analyze the function(s) above and respond with JSON only:"""
+
+
+def build_function_analysis_prompt(
+    project: str,
+    file_path: str,
+    function_names: list[str],
+    line_range: str,
+    code_snippet: str,
+    max_findings: int = 3,
+) -> str:
+    """
+    Build a prompt for per-function static analysis.
+    
+    Args:
+        project: Project name
+        file_path: Relative file path
+        function_names: List of function names being analyzed
+        line_range: Line range string (e.g., "18-47" or "18-25, 30-37, 42-47")
+        code_snippet: The function body/bodies to analyze
+        max_findings: Maximum findings to report
+    
+    Returns:
+        Complete prompt string
+    """
+    return FUNCTION_ANALYSIS_PROMPT.format(
+        vulnerability_categories=VULNERABILITY_CATEGORIES,
+        project=project,
+        file_path=file_path,
+        function_names=", ".join(function_names),
+        line_range=line_range,
+        code_snippet=code_snippet,
+        max_findings=max_findings,
+    )
+
+
 # Legacy format for backwards compatibility
 STATIC_ANALYSIS_PROMPT_LEGACY = """You are RoboTrata, a security engineer helping an automated CRS.
 You receive slices of a fuzz target's source code together with limited build context.
