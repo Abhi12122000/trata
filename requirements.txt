@@ -6,6 +6,9 @@ langchain-openai>=0.2.0
 openai>=1.0.0
 tiktoken>=0.5.0  # Token counting for budgeting
 
+# Environment variable management
+python-dotenv>=1.0.0
+
 # JSON handling (faster than stdlib)
 orjson>=3.10.0
 

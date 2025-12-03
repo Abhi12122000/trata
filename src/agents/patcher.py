@@ -32,9 +32,9 @@ class PatcherConfig:
     context_lines: int = 50  # Lines before/after vulnerability to show
     max_retries: int = 2  # Max LLM call retries per patch
     model: str = "gpt-4o"
-    max_tokens_per_patch: int = 4000  # Max tokens per patch generation call
-    max_total_tokens: int = 20000  # Total budget for all patches in a run
-    max_patches_per_run: int = 10  # Hard limit on patches per CRS run (safety guard)
+    max_tokens_per_patch: int = 10000  # Max tokens per patch generation call
+    max_total_tokens: int = 100000  # Total budget for all patches in a run
+    max_patches_per_run: int = 25  # Hard limit on patches per CRS run (safety guard)
     max_llm_calls_per_patch: int = 5  # Max LLM interactions per single patch (like Theori's max_iters)
     llm_timeout_seconds: int = 60  # Timeout for each LLM call
 

@@ -4,7 +4,15 @@ import argparse
 import asyncio
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from .src import MiniCRSOrchestrator, RuntimeConfig, TargetProjectConfig
+
+# Load environment variables from .env file
+# Look for .env in the trata package directory (where main.py is located)
+# This happens before any other imports that might use OPENAI_API_KEY
+_env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=_env_path)
 
 
 def parse_args() -> argparse.Namespace:
