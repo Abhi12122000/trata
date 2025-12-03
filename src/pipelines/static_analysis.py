@@ -58,7 +58,7 @@ class StaticAnalysisPipeline:
 
         findings = llm_findings + list(infer_result.findings)
         
-        llm_status = f"{len(llm_findings)} from LangGraph agents" if self.runtime.enable_static_llm else "LLM disabled"
+        llm_status = f"{len(llm_findings)} from LangChain LLM" if self.runtime.enable_static_llm else "LLM disabled"
         summary = (
             f"{len(findings)} total findings: "
             f"{llm_status}, "

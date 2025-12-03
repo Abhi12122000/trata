@@ -124,12 +124,12 @@ class TestLLMResponseParsing:
 
     @pytest.fixture
     def mock_client(self):
-        """Create a mock LangGraphClient for testing parsing."""
+        """Create a mock LangChainClient for testing parsing."""
         from trata.src.config import RuntimeConfig
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         config = RuntimeConfig()
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
         return client
 
     def test_parse_valid_json_response(self, mock_client):
@@ -327,12 +327,12 @@ class TestOfflineFallback:
 
     @pytest.fixture
     def mock_client(self):
-        """Create a mock LangGraphClient in offline mode."""
+        """Create a mock LangChainClient in offline mode."""
         from trata.src.config import RuntimeConfig
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         config = RuntimeConfig()
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
         client._llm = None  # Force offline mode
         return client
 
@@ -397,7 +397,7 @@ class TestStaticFindingModel:
     def test_finding_id_generation(self):
         """Test that finding_id is generated correctly."""
         finding = StaticFinding(
-            tool="langgraph-llm",
+            tool="langchain-llm",
             check_id="BUFFER_OVERRUN",
             file="src/vuln.c",
             line=42,
@@ -406,12 +406,12 @@ class TestStaticFindingModel:
             detail="Test detail",
         )
 
-        assert finding.finding_id == "langgraph-llm:BUFFER_OVERRUN:src/vuln.c:42"
+        assert finding.finding_id == "langchain-llm:BUFFER_OVERRUN:src/vuln.c:42"
 
     def test_finding_aliases(self):
         """Test property aliases for patcher compatibility."""
         finding = StaticFinding(
-            tool="langgraph-llm",
+            tool="langchain-llm",
             check_id="USE_AFTER_FREE",
             file="src/mem.c",
             line=100,
@@ -463,7 +463,7 @@ void another_vuln(void *ptr) {
         """Test that fuzz targets are excluded from analysis."""
         from trata.src.config import RuntimeConfig, TargetProjectConfig
         from trata.src.storage.models import BuildArtifacts
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         # Create fuzz target directory
         fuzz_dir = temp_project / "fuzz"
@@ -482,7 +482,7 @@ void another_vuln(void *ptr) {
             build_dir=temp_project / "build",
         )
 
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
         selected, skipped = client._select_candidate_files(target, build)
 
         debug_print(f"Selected files: {selected}")
@@ -498,14 +498,14 @@ void another_vuln(void *ptr) {
     def test_snippet_reading_respects_max_lines(self, temp_project):
         """Test that snippet reading respects max_lines limit."""
         from trata.src.config import RuntimeConfig
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         # Create a long file
         long_file = temp_project / "long.c"
         long_file.write_text("\n".join([f"// Line {i}" for i in range(500)]))
 
         config = RuntimeConfig()
-        client = LangGraphClient(config, max_lines=50)
+        client = LangChainClient(config, max_lines=50)
 
         snippet = client._read_snippet(long_file)
         line_count = snippet.count("\n") + 1
@@ -539,12 +539,12 @@ class TestStaticAnalysisLimits:
         assert config.static_max_llm_calls == 20
 
     def test_client_tracks_llm_calls(self):
-        """Test that LangGraphClient tracks LLM calls."""
+        """Test that LangChainClient tracks LLM calls."""
         from trata.src.config import RuntimeConfig
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         config = RuntimeConfig()
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
 
         assert client._llm_calls_made == 0
         assert client._max_llm_calls == 20
@@ -553,14 +553,14 @@ class TestStaticAnalysisLimits:
     def test_client_respects_custom_limits(self):
         """Test that client uses custom limits from config."""
         from trata.src.config import RuntimeConfig
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         config = RuntimeConfig(
             static_max_findings_per_file=3,
             static_max_total_findings=10,
             static_max_llm_calls=5,
         )
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
 
         assert client._max_findings_per_file == 3
         assert client._max_total_findings == 10
@@ -593,7 +593,7 @@ class TestStaticAnalysisE2E:
         """Test the complete static review flow."""
         from trata.src.config import RuntimeConfig, TargetProjectConfig
         from trata.src.storage.models import BuildArtifacts, RunContext
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
 
         # Setup project
         src_dir = tmp_path / "src"
@@ -629,7 +629,7 @@ void vulnerable(const char *input) {
         )
 
         # Create client with mocked LLM
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
 
         with patch.object(client, "_invoke_llm", new_callable=AsyncMock) as mock_invoke:
             mock_invoke.return_value = mock_llm_response
@@ -785,7 +785,7 @@ void small3(void) {
         import asyncio
         from trata.src.config import RuntimeConfig, TargetProjectConfig
         from trata.src.storage.models import BuildArtifacts, RunContext
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
         
         logs_dir = tmp_path / "logs"
         logs_dir.mkdir()
@@ -793,7 +793,7 @@ void small3(void) {
         artifacts_dir.mkdir()
         
         config = RuntimeConfig()
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
         
         # Parse files
         parsed_files = client._parse_candidate_files(
@@ -856,7 +856,7 @@ class TestFunctionLevelE2E:
         from unittest.mock import AsyncMock, patch
         from trata.src.config import RuntimeConfig, TargetProjectConfig
         from trata.src.storage.models import BuildArtifacts, RunContext
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
         
         # Create source with 2 large functions
         src_dir = tmp_path / "src"
@@ -911,7 +911,7 @@ void large_func2(int y) {
             artifacts_dir=artifacts_dir,
         )
         
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
         
         call_count = 0
         analyzed_functions = []
@@ -945,7 +945,7 @@ void large_func2(int y) {
         from unittest.mock import AsyncMock, patch
         from trata.src.config import RuntimeConfig, TargetProjectConfig
         from trata.src.storage.models import BuildArtifacts, RunContext
-        from trata.src.tools.llm_client import LangGraphClient
+        from trata.src.tools.llm_client import LangChainClient
         
         # Create source with 3 small adjacent functions
         src_dir = tmp_path / "src"
@@ -984,7 +984,7 @@ void tiny3(void) {
             artifacts_dir=artifacts_dir,
         )
         
-        client = LangGraphClient(config)
+        client = LangChainClient(config)
         
         call_count = 0
         prompts_received = []

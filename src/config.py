@@ -35,7 +35,7 @@ class RuntimeConfig:
     """Global runtime knobs for the mini CRS."""
 
     workspace_root: Path = Path(__file__).resolve().parents[1] / "data"
-    langgraph_model: str = "gpt-4o-mini"
+    langchain_model: str = "gpt-4o-mini"
     max_parallel_jobs: int = 2
     dry_run: bool = False
 

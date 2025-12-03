@@ -37,7 +37,7 @@ from ..storage.models import (
     StaticAnalysisBatch,
     StaticFinding,
 )
-from ..tools.llm_client import LangGraphClient
+from ..tools.llm_client import LangChainClient
 from ..tools.patch_applier import PatchApplier, PatchResult, ParsedPatch, WorkingCopyManager
 
 
@@ -103,11 +103,11 @@ class PatchingPipeline:
         self,
         runtime_config: RuntimeConfig,
         store: Optional[LocalRunStore] = None,
-        llm_client: Optional[LangGraphClient] = None,
+        llm_client: Optional[LangChainClient] = None,
     ):
         self.runtime = runtime_config
         self.store = store
-        self.llm = llm_client or LangGraphClient(runtime_config=runtime_config)
+        self.llm = llm_client or LangChainClient(runtime_config=runtime_config)
 
     async def execute(
         self,

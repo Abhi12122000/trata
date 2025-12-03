@@ -5,7 +5,7 @@ from pathlib import Path
 from ..config import RuntimeConfig
 from ..storage import LocalRunStore
 from ..storage.models import StaticFinding
-from ..tools.llm_client import LangGraphClient
+from ..tools.llm_client import LangChainClient
 from .base import AgentContext, BaseAgent
 
 
@@ -14,7 +14,7 @@ class StaticAnalysisAgent(BaseAgent):
 
     def __init__(self, runtime_config: RuntimeConfig, store: LocalRunStore | None = None):
         self.runtime = runtime_config
-        self._client = LangGraphClient(runtime_config, max_files=runtime_config.llm_max_files)
+        self._client = LangChainClient(runtime_config, max_files=runtime_config.llm_max_files)
         self.store = store
 
     async def run(self, ctx: AgentContext) -> list[StaticFinding]:

@@ -33,7 +33,7 @@ class BuildArtifacts:
 class StaticFinding:
     """Normalized representation of a static-analysis result."""
 
-    tool: Literal["langgraph-llm", "infer"]
+    tool: Literal["langchain-llm", "infer"]
     check_id: str
     file: str
     line: int

@@ -20,13 +20,14 @@ except ImportError:  # pragma: no cover - optional dependency
     ChatOpenAI = None  # type: ignore
 
 
-class LangGraphClient:
+class LangChainClient:
     """
-    Encapsulates the LangGraph-inspired workflow used for static analysis.
+    Encapsulates the LangChain-based workflow used for static analysis.
 
     The implementation keeps an explicit record of every pseudo-tool call:
     - `source_locator` chooses which files to inspect.
-    - `source_reader` streams code snippets to the agent.
+    - `ast_parser` extracts functions from source files.
+    - `function_analyzer` builds analysis units (individual or clubbed functions).
     - `llm_static_analysis` sends structured prompts to the LLM.
     The resulting JSONL log lets us replay the entire reasoning process.
     """
@@ -49,7 +50,7 @@ class LangGraphClient:
         
         # Try to initialize LLM, fall back to offline mode if no API key
         try:
-            self._llm = ChatOpenAI(model=runtime_config.langgraph_model) if ChatOpenAI else None
+            self._llm = ChatOpenAI(model=runtime_config.langchain_model) if ChatOpenAI else None
         except Exception:
             # No API key or invalid config - run in offline mode
             self._llm = None
@@ -681,7 +682,7 @@ class LangGraphClient:
             
             findings.append(
                 StaticFinding(
-                    tool="langgraph-llm",
+                    tool="langchain-llm",
                     check_id=item.get("check_id", "LLM_HEURISTIC"),
                     file=item.get("file", default_file),
                     line=line,

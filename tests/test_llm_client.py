@@ -8,7 +8,7 @@ if str(ROOT) not in sys.path:
 
 from trata.src.config import RuntimeConfig, TargetProjectConfig
 from trata.src.storage.models import BuildArtifacts, RunContext
-from trata.src.tools.llm_client import LangGraphClient
+from trata.src.tools.llm_client import LangChainClient
 
 
 def test_llm_client_offline_fallback(tmp_path: Path) -> None:
@@ -35,7 +35,7 @@ def test_llm_client_offline_fallback(tmp_path: Path) -> None:
     run_ctx.artifacts_dir.mkdir()
 
     runtime = RuntimeConfig(workspace_root=tmp_path / "workspace", llm_max_files=1)
-    client = LangGraphClient(
+    client = LangChainClient(
         runtime_config=runtime, max_files=runtime.llm_max_files, max_lines=50
     )
 
@@ -79,7 +79,7 @@ def test_llm_client_skips_build_artifacts(tmp_path: Path) -> None:
     run_ctx.artifacts_dir.mkdir()
 
     runtime = RuntimeConfig(workspace_root=tmp_path / "workspace2", llm_max_files=None)
-    client = LangGraphClient(runtime_config=runtime, max_files=1, max_lines=20)
+    client = LangChainClient(runtime_config=runtime, max_files=1, max_lines=20)
     target = TargetProjectConfig(
         name="test",
         repo_url="https://example.com/repo.git",

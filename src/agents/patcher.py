@@ -21,7 +21,7 @@ from ..prompts.patcher import (
     PATCHER_USER_PROMPT_WITH_FUZZ_CRASH,
 )
 from ..storage.models import RunContext, StaticFinding, FuzzCrash
-from ..tools.llm_client import LangGraphClient
+from ..tools.llm_client import LangChainClient
 from ..tools.patch_applier import ParsedPatch, PatchParser
 
 
@@ -80,7 +80,7 @@ class PatcherAgent:
     def __init__(
         self,
         config: PatcherConfig,
-        llm_client: LangGraphClient,
+        llm_client: LangChainClient,
         store: Optional["LocalRunStore"] = None,
     ):
         self.config = config
@@ -433,7 +433,7 @@ async def generate_patches_for_findings(
     source_root: Path,
     run_ctx: RunContext,
     config: Optional[PatcherConfig] = None,
-    llm_client: Optional[LangGraphClient] = None,
+    llm_client: Optional[LangChainClient] = None,
     store: Optional["LocalRunStore"] = None,
     crashes: Optional[Sequence[FuzzCrash]] = None,
 ) -> list[PatcherResult]:
@@ -453,7 +453,7 @@ async def generate_patches_for_findings(
         List of PatcherResults
     """
     config = config or PatcherConfig()
-    llm_client = llm_client or LangGraphClient()
+    llm_client = llm_client or LangChainClient()
     agent = PatcherAgent(config, llm_client, store)
 
     results = []
